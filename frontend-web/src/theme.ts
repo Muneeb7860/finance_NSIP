@@ -65,7 +65,7 @@ const theme = createTheme({
     },
     MuiButton: {
       styleOverrides: {
-        root: {
+        root: ({ ownerState }: { ownerState: any }) => ({
           borderRadius: 12,
           padding: '10px 24px',
           transition: 'all 0.2s ease-in-out',
@@ -73,10 +73,11 @@ const theme = createTheme({
             transform: 'translateY(-2px)',
             boxShadow: '0 10px 20px -10px rgba(139, 92, 246, 0.5)',
           },
-        },
-        containedPrimary: {
-          background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-        },
+          ...(ownerState.variant === 'contained' && ownerState.color === 'primary' && {
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+            color: '#fff',
+          }),
+        }),
       },
     },
     MuiCard: {
