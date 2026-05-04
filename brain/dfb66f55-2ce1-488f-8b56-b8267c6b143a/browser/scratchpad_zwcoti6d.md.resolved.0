@@ -1,0 +1,12 @@
+# Task: Navigate to portal and verify Admin dashboard
+
+## Plan
+1. [x] Navigate to http://localhost:3000/
+2. [ ] Take screenshot of "Select your portal access level" page
+3. [ ] Click "🛡️ Back Office Admin" card
+4. [ ] Wait for Admin Portal dashboard to load
+5. [ ] Take screenshot of Admin Portal dashboard
+6. [ ] Return success
+
+## Findings
+- 

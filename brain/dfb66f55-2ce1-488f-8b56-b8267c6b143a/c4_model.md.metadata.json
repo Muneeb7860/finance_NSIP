@@ -1,0 +1,6 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Updated C4 Model Architecture to include the new Financial Learning, Events, and Rewards microservices.",
+  "updatedAt":  "2026-05-01T11:14:49.489244Z",
+  "version":  "2"
+}

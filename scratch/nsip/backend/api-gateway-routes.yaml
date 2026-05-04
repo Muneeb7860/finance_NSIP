@@ -1,0 +1,73 @@
+# API Gateway Route Configuration
+# ================================
+# Apigee proxy policies would mirror these routes in production.
+# For development, this YAML can be loaded by Spring Cloud Gateway or
+# converted to Apigee API proxy bundles for deployment.
+#
+# Rate Limiting: Applied per-client using the X-API-Key header.
+# Authentication: JWT validation delegated to auth-service.
+
+routes:
+  # Public endpoints (no auth required)
+  - path: /api/v1/auth/**
+    target: auth-service:8081
+    rateLimit: 100/min
+    auth: none
+
+  # Customer endpoints (JWT required, CUSTOMER role)
+  - path: /api/v1/claims/**
+    target: claim-service:8082
+    rateLimit: 30/min
+    auth: jwt
+    roles: [CUSTOMER, ADMIN]
+
+  - path: /api/v1/contributions/**
+    target: contribution-service:8083
+    rateLimit: 30/min
+    auth: jwt
+    roles: [CUSTOMER, EMPLOYER]
+
+  - path: /api/v1/learning/**
+    target: education-service:8084
+    rateLimit: 60/min
+    auth: jwt
+    roles: [CUSTOMER]
+
+  - path: /api/v1/events/**
+    target: event-service:8085
+    rateLimit: 60/min
+    auth: jwt
+    roles: [CUSTOMER]
+
+  - path: /api/v1/rewards/**
+    target: rewards-service:8086
+    rateLimit: 30/min
+    auth: jwt
+    roles: [CUSTOMER]
+
+  - path: /api/v1/payments/**
+    target: payment-service:8088
+    rateLimit: 10/min
+    auth: jwt
+    roles: [CUSTOMER, EMPLOYER]
+
+  - path: /api/v1/reviews/**
+    target: review-service:8089
+    rateLimit: 20/min
+    auth: jwt
+    roles: [CUSTOMER]
+
+  # Internal endpoints (service-to-service only)
+  - path: /internal/**
+    target: saga-orchestrator:8087
+    rateLimit: none
+    auth: service-token
+    visibility: internal
+
+# CORS Policy
+cors:
+  allowedOrigins:
+    - https://nsip.gov.sa
+    - http://localhost:5173
+  allowedMethods: [GET, POST, PATCH, DELETE]
+  allowedHeaders: [Authorization, Content-Type, X-API-Key]

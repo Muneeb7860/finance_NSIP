@@ -1,0 +1,8 @@
+# Task: Verify Omnichannel Settings
+
+## Plan
+- [ ] Navigate to http://localhost:3000/
+- [ ] Click on "⚙️ Omnichannel Settings" tab in the left sidebar
+- [ ] Wait for toggle switches (WhatsApp, Email, X, Instagram) to load
+- [ ] Take a screenshot
+- [ ] Return success

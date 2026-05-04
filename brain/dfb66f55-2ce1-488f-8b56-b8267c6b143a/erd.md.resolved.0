@@ -1,0 +1,68 @@
+# Entity Relationship Diagram (ERD)
+
+This diagram outlines the foundational relational database schema (PostgreSQL) for the National Social Insurance Platform.
+
+```mermaid
+erDiagram
+    USERS {
+        uuid id PK
+        string national_id UK "National ID or Iqama"
+        string full_name
+        string email
+        string phone_number
+        string role "Beneficiary, Employer, Admin"
+        datetime created_at
+    }
+
+    EMPLOYERS {
+        uuid id PK
+        string company_registration_number UK
+        string company_name
+        uuid admin_user_id FK "References USERS"
+        datetime created_at
+    }
+
+    EMPLOYMENTS {
+        uuid id PK
+        uuid user_id FK "References USERS"
+        uuid employer_id FK "References EMPLOYERS"
+        decimal current_salary
+        date start_date
+        date end_date "nullable"
+        string status "Active, Terminated"
+    }
+
+    CONTRIBUTIONS {
+        uuid id PK
+        uuid employment_id FK "References EMPLOYMENTS"
+        date contribution_month
+        decimal amount "Calculated based on salary percentage"
+        string status "Pending, Paid, Overdue"
+        datetime paid_at "nullable"
+    }
+
+    CLAIMS {
+        uuid id PK
+        uuid user_id FK "References USERS"
+        string claim_type "Retirement, JobLoss, Accident, EndOfLife"
+        string status "Submitted, UnderReview, Approved, Rejected"
+        text description
+        datetime submitted_at
+        uuid reviewed_by FK "References USERS (Admin)"
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK "References USERS"
+        string message
+        string status "Sent, Failed"
+        datetime created_at
+    }
+
+    USERS ||--o{ EMPLOYMENTS : "has"
+    EMPLOYERS ||--o{ EMPLOYMENTS : "provides"
+    EMPLOYMENTS ||--o{ CONTRIBUTIONS : "generates"
+    USERS ||--o{ CLAIMS : "submits"
+    USERS ||--o{ EMPLOYERS : "manages"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+```

@@ -1,0 +1,40 @@
+# Financial Learning & Gamification Expansion Plan
+
+## Goal Description
+Expand the National Social Insurance Platform to include a comprehensive **Financial Education & Rewards Module**. This module will incentivize beneficiaries to improve their financial literacy by rewarding them with points for taking courses and attending events. Points can be redeemed for 1-on-1 sessions with professional financial advisors.
+
+## Proposed Architecture Changes
+
+### 1. New Microservices (Backend)
+To keep our system decoupled, we will introduce three new microservice domains:
+*   **Education Service:** Manages video courses (saving, investing, multiplying), tracks user progress, and generates completion certificates.
+*   **Event Service:** Manages creation, RSVP, and attendance tracking for both physical and digital events.
+*   **Rewards & Scheduling Service:** Manages the points ledger (earning/burning points), tracks financial advisor availability, and handles session bookings (schedule, cancel, reschedule).
+
+### 2. Database Schema Additions (PostgreSQL)
+We will need to expand our ERD with the following entities:
+*   `COURSES`, `VIDEOS`, `USER_COURSE_PROGRESS`, `CERTIFICATES`
+*   `EVENTS`, `EVENT_ATTENDEES`
+*   `POINTS_LEDGER` (Audit trail of points earned and spent)
+*   `ADVISOR_SESSIONS` (Status: Scheduled, Canceled, Rescheduled, Completed)
+
+### 3. Event-Driven Workflow (Kafka)
+1. **Learn & Earn:** User completes a video tutorial. The Education Service publishes a `CourseCompletedEvent`.
+2. **Attend & Earn:** User checks in to an event. The Event Service publishes an `EventAttendedEvent`.
+3. **Point Ledger:** The Rewards Service consumes these events and credits points to the user's account.
+4. **Redeem:** Once points >= 1000, the user books an `AdvisorSession`. Points are deducted.
+5. **Notifications:** Kafka triggers the Notification Service to send reminders, cancellation alerts, and reschedule links.
+
+---
+
+> [!IMPORTANT]
+> ## User Review Required
+> This is a major architectural addition that introduces new domains (Learning Management, Event Ticketing, Gamification, and Booking). 
+> 
+> Please review this proposed workflow. **If approved, I will first update our existing C4 Architecture Diagram (`c4_model.md`) and Database Schema (`erd.md`) to include these new systems before writing the code.**
+
+> [!NOTE]
+> ## Open Questions
+> 1. **Video Hosting:** For the video tutorials, should we build the system assuming we host the video files ourselves (requires Cloud Storage/CDN), or will we simply embed YouTube/Vimeo links?
+> 2. **Physical Event Attendance:** How should we verify attendance for physical events to award points reliably? (e.g., users scan a dynamic QR code at the venue using the Flutter Mobile App?)
+> 3. **"Reshare":** By "reshare sessions and events", do you mean allowing users to share an event link on social media (WhatsApp/Twitter) to invite friends/colleagues?

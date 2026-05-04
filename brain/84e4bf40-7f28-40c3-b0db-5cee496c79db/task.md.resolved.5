@@ -1,0 +1,14 @@
+# NSIP Local Build & Test Execution Tasks
+
+- `[x]` Infrastructure Preparation
+  - `[x]` Create missing `./monitoring/prometheus.yml`
+  - `[x]` Verify/Create `./docker/init-databases.sh` for all microservices
+- `[x]` Build & Run Stack
+  - `[x]` Run `./run-locally.sh` script
+- `[x]` Verification
+  - `[x]` Check container statuses
+  - `[x]` Verify UI is running locally
+- `[ ]` API Gateway Implementation
+  - `[x]` Scaffold Spring Cloud Gateway microservice
+  - `[x]` Configure routes for all 9 backend microservices
+  - `[x]` Add api-gateway to docker-compose.yml and k8s manifests

@@ -1,0 +1,15 @@
+# NSIP Local Build & Test Execution Tasks
+
+- `[x]` Infrastructure Preparation
+  - `[x]` Create missing `./monitoring/prometheus.yml`
+  - `[x]` Verify/Create `./docker/init-databases.sh` for all microservices
+- `[x]` Build & Run Stack
+  - `[x]` Run `./run-locally.sh` script
+- `[x]` Verification
+  - `[x]` Check container statuses
+  - `[x]` Verify UI is running locally
+- `[ ]` API Gateway Implementation
+  - `[-]` Skipped API Gateway scaffolding per user request (postponed for later phase)
+  - `[x]` Swagger UI Setup
+    - `[x]` Configured `springdoc-openapi-starter-webmvc-ui` in parent POM
+    - `[x]` Expose Swagger UI per microservice

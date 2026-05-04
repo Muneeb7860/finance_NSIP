@@ -1,0 +1,75 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nsip-ingress
+  namespace: nsip
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.nsip.gov
+      secretName: nsip-tls-secret
+  rules:
+    - host: api.nsip.gov
+      http:
+        paths:
+          - path: /api/v1/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 8080
+          - path: /api/v1/claims
+            pathType: Prefix
+            backend:
+              service:
+                name: claim-service
+                port:
+                  number: 8080
+          - path: /api/v1/contributions
+            pathType: Prefix
+            backend:
+              service:
+                name: contribution-service
+                port:
+                  number: 8080
+          - path: /api/v1/learning
+            pathType: Prefix
+            backend:
+              service:
+                name: education-service
+                port:
+                  number: 8080
+          - path: /api/v1/events
+            pathType: Prefix
+            backend:
+              service:
+                name: event-service
+                port:
+                  number: 8080
+          - path: /api/v1/rewards
+            pathType: Prefix
+            backend:
+              service:
+                name: rewards-service
+                port:
+                  number: 8080
+          - path: /api/v1/payments
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service
+                port:
+                  number: 8080
+          - path: /api/v1/reviews
+            pathType: Prefix
+            backend:
+              service:
+                name: review-service
+                port:
+                  number: 8080

@@ -1,0 +1,40 @@
+# Service Discovery Configuration
+# ================================
+# In Kubernetes, service discovery is handled natively by ClusterIP Services.
+# Each service is reachable at: http://<service-name>.<namespace>.svc.cluster.local:<port>
+#
+# For local Docker Compose development, services reach each other via container names.
+#
+# This file maps service names to their internal URLs for reference.
+
+service-registry:
+  auth-service:
+    k8s: http://auth-service.nsip.svc.cluster.local:8081
+    docker: http://auth-service:8081
+  claim-service:
+    k8s: http://claim-service.nsip.svc.cluster.local:8082
+    docker: http://claim-service:8082
+  contribution-service:
+    k8s: http://contribution-service.nsip.svc.cluster.local:8083
+    docker: http://contribution-service:8083
+  education-service:
+    k8s: http://education-service.nsip.svc.cluster.local:8084
+    docker: http://education-service:8084
+  event-service:
+    k8s: http://event-service.nsip.svc.cluster.local:8085
+    docker: http://event-service:8085
+  rewards-service:
+    k8s: http://rewards-service.nsip.svc.cluster.local:8086
+    docker: http://rewards-service:8086
+  saga-orchestrator:
+    k8s: http://saga-orchestrator.nsip.svc.cluster.local:8087
+    docker: http://saga-orchestrator:8087
+  payment-service:
+    k8s: http://payment-service.nsip.svc.cluster.local:8088
+    docker: http://payment-service:8088
+  review-service:
+    k8s: http://review-service.nsip.svc.cluster.local:8089
+    docker: http://review-service:8089
+  notification-engine:
+    k8s: http://notification-engine.nsip.svc.cluster.local:8090
+    docker: http://notification-engine:8090

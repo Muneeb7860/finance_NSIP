@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nsip-config
+  namespace: nsip
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/nsip_db"
+  SPRING_DATASOURCE_USERNAME: "nsip_user"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-service:29092"
+  SPRING_REDIS_HOST: "redis-service"
+---
+# ============================================================
+# IMPORTANT: This file is a TEMPLATE only.
+# DO NOT commit real secrets to version control.
+#
+# To create the actual secret in your cluster, run:
+#
+#   kubectl create secret generic nsip-secrets \
+#     --namespace=nsip \
+#     --from-literal=SPRING_DATASOURCE_PASSWORD='<your-db-password>' \
+#     --from-literal=SMTP_USER='<your-smtp-email>' \
+#     --from-literal=SMTP_PASS='<your-smtp-app-password>' \
+#     --from-literal=STRIPE_SECRET_KEY='<your-stripe-key>' \
+#     --from-literal=JWT_SECRET='<your-256-bit-jwt-secret>'
+#
+# Or integrate with a secrets manager:
+#   - AWS Secrets Manager + External Secrets Operator
+#   - HashiCorp Vault + Vault Agent Injector
+#   - Azure Key Vault + CSI Driver
+# ============================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nsip-secrets
+  namespace: nsip
+type: Opaque
+stringData:
+  # PLACEHOLDER VALUES — replace before deployment or use kubectl create secret
+  SPRING_DATASOURCE_PASSWORD: "CHANGE_ME_IN_PRODUCTION"
+  SMTP_USER: "CHANGE_ME_IN_PRODUCTION"
+  SMTP_PASS: "CHANGE_ME_IN_PRODUCTION"
+  STRIPE_SECRET_KEY: "CHANGE_ME_IN_PRODUCTION"
+  JWT_SECRET: "CHANGE_ME_IN_PRODUCTION"

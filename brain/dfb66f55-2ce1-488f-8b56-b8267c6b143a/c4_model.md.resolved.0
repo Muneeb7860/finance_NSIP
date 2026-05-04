@@ -1,0 +1,79 @@
+# Architecture High-Level Design (C4 Model)
+
+This document contains the System Context (Level 1) and Container (Level 2) diagrams for the National Social Insurance Platform, modeled using Mermaid.js.
+
+## Level 1: System Context Diagram
+Shows the platform and how it interacts with users and external government/banking systems.
+
+```mermaid
+C4Context
+title System Context diagram for National Social Insurance Platform
+
+Person(beneficiary, "Beneficiary", "Citizen or Resident using the platform")
+Person(employer, "Employer", "Company representative managing payroll")
+Person(admin, "Gov Admin", "Processes claims and monitors the system")
+
+System(nsip, "National Social Insurance Platform", "Allows users to view benefits, employers to pay contributions, and admins to process claims.")
+
+System_Ext(bank, "National Payment Gateway", "Processes contribution payments")
+System_Ext(identity, "National Identity Service", "SSO Authentication (e.g., Absher)")
+System_Ext(labor, "Ministry of Labor", "Validates employment status & contracts")
+
+Rel(beneficiary, nsip, "Views benefits, files claims")
+Rel(employer, nsip, "Uploads payroll, pays contributions")
+Rel(admin, nsip, "Approves claims, views reports")
+
+Rel(nsip, bank, "Initiates payments")
+Rel(nsip, identity, "Authenticates users")
+Rel(nsip, labor, "Verifies employment data")
+```
+
+## Level 2: Container Diagram
+Shows the high-level microservices architecture, databases, and message brokers within the platform.
+
+```mermaid
+C4Container
+title Container diagram for NSIP
+
+Person(beneficiary, "Beneficiary")
+Person(employer, "Employer")
+Person(admin, "Admin")
+
+System_Boundary(c1, "National Social Insurance Platform") {
+    Container(mobile_app, "Mobile App", "Flutter", "Provides core functionality to beneficiaries.")
+    Container(web_app, "Web App", "React", "Provides full functionality to employers, admins, and beneficiaries.")
+    
+    Container(api_gateway, "API Gateway", "Spring Cloud Gateway", "Routes requests to appropriate microservices and handles rate limiting.")
+    
+    Container(auth_service, "Auth Service", "Spring Boot", "Handles SSO, JWT generation.")
+    Container(claim_service, "Claim Service", "Spring Boot", "Manages lifecycle of all insurance claims.")
+    Container(contribution_service, "Contribution Service", "Spring Boot", "Manages employer payrolls and payments.")
+    Container(notification_service, "Notification Service", "Spring Boot", "Sends SMS/Email/Push notifications.")
+    
+    ContainerDb(db_postgres, "Primary Database", "PostgreSQL", "Stores user data, claims, contributions.")
+    ContainerDb(cache_redis, "Distributed Cache", "Redis", "Caches frequent reads (e.g. user profiles, reference data).")
+    ContainerQueue(kafka, "Message Broker", "Apache Kafka", "Handles async events like 'ClaimSubmitted', 'PaymentReceived'.")
+}
+
+Rel(beneficiary, mobile_app, "Uses")
+Rel(employer, web_app, "Uses")
+Rel(admin, web_app, "Uses")
+
+Rel(mobile_app, api_gateway, "Makes API calls to", "JSON/HTTPS")
+Rel(web_app, api_gateway, "Makes API calls to", "JSON/HTTPS")
+
+Rel(api_gateway, auth_service, "Routes to")
+Rel(api_gateway, claim_service, "Routes to")
+Rel(api_gateway, contribution_service, "Routes to")
+
+Rel(auth_service, db_postgres, "Reads/Writes")
+Rel(claim_service, db_postgres, "Reads/Writes")
+Rel(contribution_service, db_postgres, "Reads/Writes")
+
+Rel(claim_service, cache_redis, "Reads/Writes")
+Rel(contribution_service, cache_redis, "Reads/Writes")
+
+Rel(claim_service, kafka, "Publishes events to")
+Rel(contribution_service, kafka, "Publishes events to")
+Rel(kafka, notification_service, "Consumes events from")
+```

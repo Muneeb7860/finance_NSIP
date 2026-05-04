@@ -1,0 +1,36 @@
+# Financial Tools & Early Withdrawal Expansion Plan
+
+## Goal Description
+Expand the platform to provide users with deep visibility into their contribution history and introduce interactive financial calculators. Additionally, introduce a new **Early Access / Credit Withdrawal** mechanism allowing users to tap into their accumulated contributions for personal or emergency use.
+
+## Proposed Architecture Changes
+
+### 1. Contribution Service Expansion (Backend)
+*   **Credit Partitioning Logic:** Implement business rules to partition accumulated contributions into "Available Credit". Based on your requirements, the available credit will be partitioned into **30% for Personal Use** and **70% for Emergency Funds**.
+*   **Historical Aggregation API:** Create a new composite endpoint to aggregate: Active Pay, Last N months contributions, Previous Employer contributions, and Next Auto-Debit Date.
+
+### 2. Claim Service Expansion (Backend)
+*   **Credit Withdrawal Processing:** Implement a new Claim Type (`EARLY_WITHDRAWAL`) to process requests against the Personal/Emergency credit limits securely.
+
+### 3. Learning Service Expansion (Backend/Frontend)
+*   **Financial Calculators:** Implement logic and Frontend UI for:
+    *   **Emergency Fund Calculator:** Helps users determine how much they need saved based on monthly expenses.
+    *   **Expense Calculator:** Calculates monthly outflow vs inflow.
+
+## User Flow
+1. **My Contributions Dashboard:** User navigates to a new "My Contributions" tab in the React UI. They see a consolidated view of their active pay, historical contributions across multiple employers, earned reward points, and their projected pension.
+2. **Early Access:** User views their "Available Credit". The system dynamically calculates the 30/70 split. They can initiate an early withdrawal claim directly from this UI.
+3. **Calculators:** User navigates to the Learning Center and uses the new Expense & Emergency Fund calculators to plan their finances.
+
+---
+
+> [!IMPORTANT]
+> ## User Review Required
+> This plan introduces the concept of **Early Access / Withdrawals** against social insurance contributions, which is a major business policy feature. 
+> 
+> Please review this workflow. If approved, I will immediately begin implementing the consolidated "My Contributions" React UI, the calculators, and the backend Credit Partitioning logic.
+
+> [!NOTE]
+> ## Open Questions
+> 1. **Credit Replenishment:** If a user withdraws from their Personal/Emergency fund, do they have to pay it back (like a loan with installments), or is it a permanent deduction that simply lowers their final retirement pension?
+> 2. **Calculator Data:** Should the Expense/Emergency calculators simply be interactive tools on the frontend (data disappears when they close the page), or should the backend save their budget data so they can track it month-over-month?

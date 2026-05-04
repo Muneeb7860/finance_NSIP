@@ -1,0 +1,6 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_TASK",
+  "summary":  "Task list for launching NSIP platform locally.\n- Backend Build (In Progress)\n- Infrastructure Reset\n- Microservices Launch\n- Frontend Launch\n- Verification",
+  "updatedAt":  "2026-05-02T13:16:52.832699Z",
+  "version":  "11"
+}

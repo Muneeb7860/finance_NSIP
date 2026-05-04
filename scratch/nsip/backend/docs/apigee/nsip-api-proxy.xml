@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="1" name="nsip-api-v1">
+    <Basepaths>/v1/nsip</Basepaths>
+    <ConfigurationVersion>SHA-512</ConfigurationVersion>
+    <Description>National Social Insurance Platform - Main Gateway</Description>
+    <DisplayName>NSIP API Gateway</DisplayName>
+    
+    <Policies>
+        <Policy>OAuthV2-VerifyAccessToken</Policy>
+        <Policy>SpikeArrest-ProtectBackend</Policy>
+        <Policy>JSONtoXML-Optional</Policy>
+        <Policy>ExtractVariables-CorrelationID</Policy>
+        <Policy>AssignMessage-AddTraceHeaders</Policy>
+    </Policies>
+    
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    
+    <TargetEndpoints>
+        <TargetEndpoint name="auth-service">
+            <URL>http://auth-service:8080</URL>
+        </TargetEndpoint>
+        <TargetEndpoint name="education-service">
+            <URL>http://education-service:8080</URL>
+        </TargetEndpoint>
+        <TargetEndpoint name="claim-service">
+            <URL>http://claim-service:8080</URL>
+        </TargetEndpoint>
+    </TargetEndpoints>
+</APIProxy>

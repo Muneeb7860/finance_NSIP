@@ -1,0 +1,48 @@
+# NSIP Evaluation & Local Build Plan
+
+## Goal Description
+Evaluate the National Social Insurance Platform (NSIP) against the established artifacts (BRD, HLD/C4 Model, LLD, and UI/Figma definitions). After the evaluation and addressing any critical gaps, we will build the entire microservices stack and frontend applications and test them locally.
+
+## 1. Evaluation (Gap Analysis)
+
+### 📊 Business Requirements (BRD)
+- **Implemented:** Role-Based Access Control (RBAC), Employer payroll upload handling, 4% contribution calculations, gamification logic, and early withdrawal/loan 30/70 partitioning rules.
+- **Gap Found:** BRD mandates an OTP (2FA) for login and integrations with the Ministry of Labor for Job Loss verification. These are currently absent or mocked.
+
+### 🏗️ High-Level Design (HLD / C4 Model)
+- **Implemented:** 9 distinct microservices covering Auth, Claims, Contributions, Education, Events, Rewards, Payments, Reviews, and Notifications. Kafka is correctly configured as the event backbone.
+- **Gap Found:** The C4 model specifies **Apigee** as the API Gateway. Currently, the `docker-compose.yml` does not spin up a gateway (like an Apigee emulator or Spring Cloud Gateway), meaning frontend apps would have to talk to microservices directly, which breaks the architecture. Also, the `prometheus.yml` monitoring file referenced in `docker-compose.yml` does not exist.
+
+### ⚙️ Low-Level Design (LLD)
+- **Implemented:** REST endpoints correspond to the swagger definitions (e.g., `/api/v1/auth/login`, `/api/v1/claims`). The Saga Orchestrator manages distributed transactions via Kafka.
+- **Gap Found:** No centralized Swagger UI aggregator is currently running to view all microservice documentation in one place.
+
+### 🎨 Figma (UI / UX)
+- **Implemented:** The React application is built using the required "Neo-Bank Dark Mode" aesthetic. The multi-role gateway (Customer, Employer, Admin) is functional. The Flutter Mobile app matches this same UI language.
+
+## 2. Open Questions
+
+> [!WARNING]
+> Before we build the containers and run the tests, there are a few architectural questions:
+> 1. **API Gateway:** Since we can't easily run Google Cloud Apigee locally via Docker, should I scaffold a standard `Spring Cloud Gateway` microservice just for the local testing environment to route our frontend requests?
+> 2. **Mocking External Services:** Should we leave the Ministry of Labor and National Bank gateway integrations as mock responses in the backend, or would you prefer I build lightweight mock servers for them?
+
+## 3. Proposed Changes
+
+### Docker Compose & Infrastructure Fixes
+- Create the missing `./monitoring/prometheus.yml` configuration so the monitoring stack doesn't crash during `docker-compose up`.
+- Ensure the `docker/init-databases.sh` is correctly initializing databases for all 9 microservices.
+
+### Local Testing Fixes
+- Update the frontend web app (`npm run dev`) and `run-locally.sh` script so they map to the correct ports.
+
+## 4. Verification Plan
+
+### Automated Build & Test
+- Run `./run-locally.sh` to trigger the Maven builds, Docker compose, and Vite React server.
+- Verify all 13 containers (9 services, Postgres, Redis, Kafka, Zookeeper, Prometheus, Grafana) transition to a `Healthy` state.
+
+### Manual Verification
+- Access the Contributor Portal at `http://localhost:5173`.
+- Verify the multi-role gateway works.
+- Check the backend health endpoints (`/actuator/health`).

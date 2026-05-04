@@ -1,0 +1,20 @@
+# Phase 6: Distributed Architecture & Neo-Bank UI
+
+- `[/]` Scaffold New Microservices
+  - `[ ]` Scaffold `payment-service`
+  - `[ ]` Scaffold `review-service`
+  - `[ ]` Scaffold `saga-orchestrator`
+- `[/]` Implement Saga Pattern
+  - `[x]` Define distributed transaction workflow for loans
+  - `[x]` Setup Kafka compensating transactions
+- `[/]` Frontend UI Redesign (Neo-Bank Aesthetic & Multi-Role)
+  - `[x]` Refactor Dashboard using IND Money / Revolut design principles
+  - `[x]` Add Payment Gateway Integration
+  - `[x]` Add Smartsheet-style Financial Planning UI
+  - `[x]` Rename Omnichannel to Help Centre
+  - `[x]` Implement Multi-Role Navigation (Customer, Employer, Admin)
+  - `[x]` Build Employer (Business Owner) Web Portal
+  - `[x]` Build Back Office (Admin) Web Portal
+- `[/]` Notification & Review Integration
+  - `[x]` Omnichannel dispatch logic
+  - `[x]` 5-Star Review Prompt System

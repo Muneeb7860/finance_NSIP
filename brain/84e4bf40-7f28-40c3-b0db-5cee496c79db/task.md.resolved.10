@@ -1,0 +1,15 @@
+# Enterprise Architecture Hardening Tasks
+
+- `[x]` **Distributed Tracing (Observability)**
+  - `[x]` Add `micrometer-tracing-bridge-brave` to parent `pom.xml`
+  - `[x]` Ensure logs include Trace IDs
+- `[x]` **JWT Refresh Tokens (Security)**
+  - `[x]` Add refresh token generation to `AuthService.java`
+  - `[x]` Add `/refresh` endpoint to `AuthController.java`
+- `[x]` **Transactional Outbox Pattern (Saga Orchestrator)**
+  - `[x]` Create `OutboxEvent` entity and repository
+  - `[x]` Refactor `LoanSagaManager.java` to save events to the DB instead of sending directly to Kafka
+  - `[x]` Implement `OutboxRelay` scheduler to publish events safely
+- `[x]` **Resilience & Circuit Breakers (Reliability)**
+  - `[x]` Add `resilience4j-spring-boot3` dependency
+  - `[x]` Configure basic CircuitBreaker properties in core services

@@ -1,0 +1,44 @@
+# Full-Stack Application SDLC Plan
+
+We are building a **National Social Insurance Platform**, a comprehensive system adhering to the specific Software Development Life Cycle (SDLC) and technology stack you requested. 
+
+## Technology Stack Overview
+*   **Mobile App (FE):** Flutter
+*   **Web App (FE):** React
+*   **Backend API:** Java with Spring Boot (REST for sync APIs)
+*   **Messaging & Caching:** Kafka (Async events), Redis (Caching)
+*   **Database:** PostgreSQL
+*   **Deployment:** Git CI/CD Pipelines, Docker, Kubernetes, AWS/Azure VMs
+
+## SDLC Progress
+
+### Phase 1: Requirements & Analysis (✅ COMPLETED)
+1.  **Product Owner (PO):** Define the **Business Requirement** and create the **Product Requirements Document (PRD)**. ✅
+2.  **Business Analyst (BA/BO):** Develop the **Business Requirements Document (BRD)** based on the PRD. ✅
+
+### Phase 2: Architecture & Design (✅ COMPLETED)
+1.  **Architect:** Design the High-Level Design (HLD) using the **C4 Model** (Context, Container). ✅ *(See `c4_model.md`)*
+2.  **Tech Lead:** Design the Low-Level Design (LLD) for API specifications. ✅ *(See `lld_apis.md`)*
+3.  **Data Engineer:** Design the Database Schema and **Entity Relationship Diagram (ERD)**. ✅ *(See `erd.md`)*
+4.  **UI/UX Designer:** Conceptualize the frontend screens (We will implement the design directly in Phase 3). ✅
+
+### Phase 3: Development (⏳ PENDING)
+1.  **Backend Dev:** Set up Spring Boot, PostgreSQL, Redis, Kafka, and implement REST APIs.
+2.  **Frontend Dev (Web):** Set up the React application and integrate with APIs.
+3.  **Frontend Dev (Mobile):** Set up the Flutter application and integrate with APIs.
+4.  **Testing:** Write comprehensive Unit Tests for all components.
+
+### Phase 4: Testing & Deployment (⏳ PENDING)
+1.  **QA Tester:** Perform End-to-End (E2E) testing.
+2.  **UAT:** Business approval testing.
+3.  **DevOps:** Set up Dockerfiles, Kubernetes manifests, and Git CI/CD pipelines for automated deployment to cloud VMs.
+
+---
+
+> [!IMPORTANT]
+> ## User Review Required
+> We have completed **Phase 2 (Architecture & Design)**. 
+> I have created the `c4_model.md`, `erd.md`, and `lld_apis.md` artifacts. Please review the database schema and microservices architecture.
+> 
+> **Are you ready to move into Phase 3 (Development)?** 
+> *If yes, I will start initializing the project scaffolding (React web app, Flutter mobile app, and Spring Boot backend) inside your scratch directory.*

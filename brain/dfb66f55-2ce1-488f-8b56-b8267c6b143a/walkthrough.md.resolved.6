@@ -1,0 +1,98 @@
+# Phase 7 Walkthrough: Docker, Kubernetes & CI/CD
+
+This phase completes the full DevOps infrastructure for the NSIP platform — from containerization to production-grade deployment.
+
+## 🐳 1. Docker Containerization
+
+### docker-compose.yml (Development)
+The [docker-compose.yml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/docker-compose.yml) now orchestrates **13 containers** on a shared `nsip-network`:
+
+| Container | Port | Purpose |
+|---|---|---|
+| `nsip-postgres` | 5432 | Primary database |
+| `nsip-redis` | 6379 | Distributed cache |
+| `nsip-kafka` | 9092 | Message broker |
+| `nsip-zookeeper` | 2181 | Kafka coordination |
+| `nsip-auth` | 8081 | Authentication & JWT |
+| `nsip-claim` | 8082 | Claims lifecycle |
+| `nsip-contribution` | 8083 | Salary deductions |
+| `nsip-education` | 8084 | LMS & gamification |
+| `nsip-event` | 8085 | Event ticketing |
+| `nsip-rewards` | 8086 | Points ledger |
+| `nsip-saga` | 8087 | Saga orchestrator |
+| `nsip-payment` | 8088 | Payment gateway |
+| `nsip-review` | 8089 | User reviews |
+| `nsip-notification` | 8090 | Omnichannel emails |
+
+Each microservice has a multi-stage [Dockerfile](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/auth-service/Dockerfile) that builds with JDK 17 and runs on a minimal JRE Alpine image.
+
+---
+
+## ☸️ 2. Kubernetes Manifests
+
+All manifests live in [`k8s/`](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s):
+
+| File | Contents |
+|---|---|
+| [namespace.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s/namespace.yaml) | `nsip` namespace |
+| [config.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s/config.yaml) | Shared ConfigMap + Secrets (DB, Kafka, SMTP, Stripe) |
+| [infra.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s/infra.yaml) | PostgreSQL StatefulSet (10Gi PVC) + Redis Deployment |
+| [services.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s/services.yaml) | All 9 microservice Deployments with health probes & resource limits |
+| [ingress.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s/ingress.yaml) | Nginx Ingress with TLS + path-based routing |
+
+Key production features:
+- **Health Probes**: Every service has `readinessProbe` and `livenessProbe` hitting `/actuator/health`
+- **Resource Limits**: CPU/Memory requests and limits to prevent noisy-neighbor issues
+- **Replicas**: Critical services (auth, payment, saga) run 2 replicas; review runs 1
+- **TLS**: Ingress configured with cert-manager for automatic Let's Encrypt certificates
+
+---
+
+## 🔄 3. CI/CD Pipeline (GitHub Actions)
+
+The [ci-cd.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/.github/workflows/ci-cd.yaml) implements a 5-stage pipeline:
+
+```mermaid
+graph LR
+    A["Stage 1: Build & Test<br/>Java (Matrix: 9 services)"] --> D
+    B["Stage 2: Build & Test<br/>React Web App"] --> D
+    C["Stage 3: Build & Test<br/>Flutter Mobile App"] --> E["Stage 5: Deploy to K8s"]
+    D["Stage 4: Docker Build<br/>& Push to GHCR"] --> E
+```
+
+| Stage | Trigger | What it does |
+|---|---|---|
+| **Build Backend** | Every push/PR | Runs `mvnw clean verify` on all 9 services in parallel (matrix strategy) |
+| **Build Web** | Every push/PR | Runs `npm ci && npm run build` on the React app |
+| **Build Mobile** | Every push/PR | Runs `flutter analyze && flutter test` |
+| **Docker Publish** | Merge to `main` only | Builds Docker images, pushes to GitHub Container Registry |
+| **Deploy K8s** | After Docker push | Applies all K8s manifests + rolling restart of deployments |
+
+---
+
+## Project Structure Summary
+
+```
+nsip/
+├── .github/workflows/ci-cd.yaml    # CI/CD Pipeline
+├── backend/
+│   ├── docker-compose.yml           # Local dev environment
+│   ├── auth-service/                # + Dockerfile
+│   ├── claim-service/               # + Dockerfile
+│   ├── contribution-service/        # + Dockerfile
+│   ├── education-service/           # + Dockerfile
+│   ├── event-service/               # + Dockerfile
+│   ├── rewards-service/             # + Dockerfile
+│   ├── saga-orchestrator/           # + Dockerfile
+│   ├── payment-service/             # + Dockerfile
+│   ├── review-service/              # + Dockerfile
+│   └── notification-engine/         # + Dockerfile
+├── frontend-web/                    # React + Vite
+├── frontend-mobile/                 # Flutter
+└── k8s/
+    ├── namespace.yaml
+    ├── config.yaml
+    ├── infra.yaml
+    ├── services.yaml
+    └── ingress.yaml
+```

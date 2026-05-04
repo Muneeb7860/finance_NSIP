@@ -1,0 +1,6 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary":  "NSIP Stabilization Breakthrough.\n- Root Cause Found: Host-based PostgreSQL conflict on port 5432.\n- Solution: Migrated Docker to port 5433 and updated all microservices.\n- Fixed 3 application-level bugs (Payment ambiguity, Education path collision, Contribution HQL error).\n- All 10 microservices and Frontend are now functional.",
+  "updatedAt":  "2026-05-02T13:26:59.952617Z",
+  "version":  "5"
+}

@@ -1,0 +1,27 @@
+<current_dom_explanation>
+This is a temporary snapshot of the current page's DOM structure. The DOM will change if you navigate to or interact with another page. Use a tool like browser_get_dom to capture and preserve the DOM in your trajectory if needed for later reference.
+</current_dom_explanation>
+<current_dom>
+[0] (500,500)<div  />
+	NSIP
+	Back Office
+	[1] (108,131)<div >🛡️ Claim Approvals />
+	[2] (108,943)<button class='neo-btn outline'>Log Out />
+	Pending Claims Queue
+	Beneficiary ID
+	Claim Type
+	Amount
+	Vesting Status
+	Action
+	USR-1029
+	Personal Loan
+	SAR 15,000
+	Passed (5 Yrs)
+	[3] (899,258)<button class='neo-btn'>Approve />
+	USR-4421
+	Emergency Relief
+	SAR 100,000
+	Pending Docs
+	[4] (899,339)<button class='neo-btn outline'>Review />
+
+</current_dom>

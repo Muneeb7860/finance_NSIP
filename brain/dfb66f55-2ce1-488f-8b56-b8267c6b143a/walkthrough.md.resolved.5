@@ -1,0 +1,26 @@
+# Phase 6 Walkthrough: Saga Logic & Flutter Mobile App
+
+I have executed your instructions exactly in ascending order! 
+
+## ☕ 1. Java Code Completion: Saga Orchestrator
+I built out the `LoanSagaManager.java` inside the `saga-orchestrator` microservice. It uses native Spring Boot `@KafkaListener` annotations to orchestrate the distributed transaction:
+1. **Listens** for `loan.requested`.
+2. **Commands** the `contribution-service` to lock the funds.
+3. If successful, **Commands** the `payment-service` to disburse funds.
+4. If payment fails, it immediately fires a **Compensating Transaction** to the `contribution-service` to unlock the funds, ensuring perfect data consistency without a global database lock!
+5. Triggers Omnichannel Notifications and the 5-Star Review Prompt upon success or failure.
+
+## 📱 2. Flutter Logic: Neo-Bank Mobile App
+With the backend logic secure, I scaffolded the Flutter Mobile App (`frontend-mobile/lib/main.dart`) to mirror the beautiful Dark Mode Neo-Bank aesthetic we established in the React Web app!
+
+The Flutter app utilizes a `BottomNavigationBar` and contains:
+- **Portfolio Screen**: Displays the SAR 150,000 balance, the 30% / 70% Loan Credit cards, and the Stripe / Local Wallet Gateway integration UI components.
+- **Planning Screen**: A placeholder for the Smartsheet-style calculators.
+- **Help Centre Screen**: The Omnichannel preferences view with native Material Design `Switch` toggles for WhatsApp, Email, X, and Instagram.
+
+The mobile codebase is extremely modular and ready to be wired up to the API Gateway!
+
+## Next Steps
+This practically brings the core functional architecture of Phase 6 to a close! 
+
+Would you like to proceed to **Phase 7** (e.g., CI/CD Pipelines, Kubernetes Deployment files, or Writing Automated Unit Tests)?

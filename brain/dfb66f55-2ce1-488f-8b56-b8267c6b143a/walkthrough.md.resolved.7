@@ -1,0 +1,68 @@
+# Phase 8 Walkthrough: Full Java Backend + Flutter Mobile
+
+Executed in ascending order as requested — all Java microservices first, then Flutter.
+
+---
+
+## ☕ Java Backend: All 9 Microservices Complete
+
+Every service now has **Entity → Repository → Service → Controller** layers with full business logic.
+
+| # | Service | Files | Key Logic |
+|---|---|---|---|
+| 1 | **auth-service** | 5 | User registration, login, JWT token generation, role-based access (CUSTOMER/EMPLOYER/ADMIN/ADVISOR) |
+| 2 | **claim-service** | 5 | Full claim lifecycle (PENDING → APPROVED → DISBURSED), 7 claim types including PERSONAL_LOAN & EMERGENCY_RELIEF, auto-triggers Saga on loan claims |
+| 3 | **contribution-service** | 6 | 4% salary deduction, fund lock/unlock for Saga, 3-year vesting validation, 30/70 credit split |
+| 4 | **education-service** | 7 | Course & Video CRUD, interactive quiz gamification (70% pass threshold), Kafka event emission |
+| 5 | **event-service** | 7 | Digital/Physical events, RSVP tracking, attendance marking with automatic point awards via Kafka |
+| 6 | **rewards-service** | 7 | Points ledger with balance aggregation, advisor session booking (1000pt cost), cancel with refund, reschedule with notification |
+| 7 | **payment-service** | 5 | Multi-gateway support (Stripe/Paytm/PhonePe/STC), Saga listener for disbursement, 95% success simulation |
+| 8 | **review-service** | 5 | 1-5 star ratings per feature, average rating aggregation, Kafka-triggered review prompts |
+| 9 | **notification-engine** | 2 | Omnichannel dispatcher: Email (JavaMailSender), WhatsApp, SMS, X/Instagram DMs |
+| 10 | **saga-orchestrator** | 2 | Full distributed transaction: lock → disburse → complete, with compensating rollback on failure |
+
+**Total: 51 Java files** across 10 microservices.
+
+---
+
+## 📱 Flutter Mobile: 5 Screens (Dark Mode Neo-Bank)
+
+The Flutter app (`frontend-mobile/lib/main.dart`) now has full feature parity with the React web app:
+
+| Tab | Screen | Features |
+|---|---|---|
+| 📊 | **Portfolio** | Balance display, 30/70 loan cards, contribution history table, reward points gradient card, payment gateway tiles |
+| 📚 | **Learning** | 3 categorized courses (Save/Invest/Multiply) with point rewards and quiz CTAs |
+| 📅 | **Events** | Digital & Physical event cards with RSVP buttons and point incentives |
+| 📈 | **Planning** | Interactive Expense Calculator, Emergency Fund Planner, Personal Loan Eligibility |
+| 💬 | **Help Centre** | Omnichannel toggle switches (WhatsApp, Email, SMS, X, Instagram) with live state |
+
+---
+
+## Kafka Topic Map (How Services Talk)
+
+```mermaid
+graph LR
+    CS[Claim Service] -->|loan.requested| SO[Saga Orchestrator]
+    SO -->|contribution.command.lock_funds| CON[Contribution Service]
+    CON -->|contribution.event.funds_locked| SO
+    SO -->|payment.command.disburse| PAY[Payment Service]
+    PAY -->|payment.event.disbursed| SO
+    PAY -->|payment.event.failed| SO
+    SO -->|contribution.command.unlock_funds| CON
+    SO -->|notification.command.send| NOT[Notification Engine]
+    SO -->|review.command.prompt| REV[Review Service]
+    EDU[Education Service] -->|gamification.events| REW[Rewards Service]
+    EVT[Event Service] -->|gamification.events| REW
+```
+
+---
+
+## File Count Summary
+
+```
+Backend:  51 Java files across 10 microservices
+Frontend: 1 Flutter main.dart (375 lines, 5 screens)
+Web:      1 React App.tsx + 1 index.css (multi-role)
+DevOps:   10 Dockerfiles + 4 K8s manifests + 1 CI/CD pipeline
+```

@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'nsip-services'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets:
+        - 'auth-service:8080'
+        - 'claim-service:8080'
+        - 'contribution-service:8080'
+        - 'education-service:8080'
+        - 'event-service:8080'
+        - 'rewards-service:8080'
+        - 'saga-orchestrator:8080'
+        - 'payment-service:8080'
+        - 'review-service:8080'
+        - 'notification-engine:8080'

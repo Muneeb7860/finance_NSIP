@@ -1,0 +1,15 @@
+[0] (500,500)<div  />
+	NSIP Platform
+	Select your portal access level:
+	[1] (265,590)<button class='neo-card' />
+		[2] (265,542)<div >👤 />
+		[3] (265,609)<h3 >Customer / Contributor />
+		[4] (265,658)<p >Manage personal portfolio, loans, and planning. />
+	[5] (500,590)<button class='neo-card' />
+		[6] (500,542)<div >🏢 />
+		[7] (500,609)<h3 >Business Owner />
+		[8] (500,658)<p >Manage payroll and employee contributions. />
+	[9] (735,590)<button class='neo-card' />
+		[10] (735,542)<div >🛡️ />
+		[11] (735,609)<h3 >Back Office Admin />
+		[12] (735,658)<p >Manage platform approvals and saga metrics. />

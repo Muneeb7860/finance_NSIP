@@ -1,0 +1,24 @@
+# Phase 6 Walkthrough: Multi-Role System & Help Centre
+
+I have successfully updated the React architecture to support distinct user personas and rebranded the settings page!
+
+## 🔐 1. Multi-Role Navigation System
+The web application now features a **Role Selector** gateway upon loading. This ensures that different types of users are routed directly to the tools they need.
+
+The system natively supports:
+- **Customer / Contributor (Beneficiary)**: Routes to the Wealth Dashboard, Financial Planning, and Help Centre.
+- **Business Owner (Employer)**: Routes to a dedicated portal for uploading Employee Payroll CSVs and paying the monthly 4% contribution auto-debits.
+- **Back Office Admin**: Routes to the internal system for Gov Employees to monitor distributed transactions, approve manual claims, and view error metrics.
+
+### Live Preview: The Role Gateway & Admin Portal
+Here is a recording showing the initial multi-role gateway and transitioning into the new **Admin Portal** to view the pending Saga Orchestrator claims queue:
+
+![Multi-Role Access & Admin Portal](file:///Users/muneeb/.gemini/antigravity/brain/dfb66f55-2ce1-488f-8b56-b8267c6b143a/react_multirole_preview_fixed_1777637582592.webp)
+
+## 💬 2. Renamed to "Help Centre"
+As requested, the complex "Omnichannel Settings" terminology has been simplified in the UI for end-users. It is now called the **Help Centre**, where customers can intuitively toggle their preferred support channels (WhatsApp, X, Email, etc.) without needing to understand the underlying infrastructure.
+
+## Next Steps
+Now that the frontend multi-role scaffolding and design are looking beautiful, our next steps could be:
+1. Write the Java Kafka logic for the **Saga Orchestrator** to actually process those loans.
+2. Build the **Flutter Mobile App** screens matching this new dark-mode aesthetic for mobile Contributors.

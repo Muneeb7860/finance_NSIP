@@ -1,0 +1,33 @@
+# Compiled Java/Maven artifacts
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+**/*.zip
+**/*.tar.gz
+**/*.log
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+
+# Antigravity assistant data
+brain/
+conversations/
+knowledge/
+browser_recordings/
+html_artifacts/
+installation_id
+mcp_config.json
+implicit/
+
+# Frontend dependencies
+**/node_modules/
+**/dist/
+**/build/
+.env.local
+.env.*.local

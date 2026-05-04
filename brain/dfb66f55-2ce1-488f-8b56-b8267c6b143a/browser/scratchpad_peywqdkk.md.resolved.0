@@ -1,0 +1,7 @@
+# Task: Navigate to Learning Center and Verify Content
+
+## Plan
+- [ ] Open http://localhost:3000/
+- [ ] Click on "Learning Center" tab
+- [ ] Wait for YouTube video and Gamification Quiz to load
+- [ ] Capture screenshot for verification

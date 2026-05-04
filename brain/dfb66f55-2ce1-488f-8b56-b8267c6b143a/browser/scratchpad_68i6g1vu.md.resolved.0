@@ -1,0 +1,8 @@
+# Task: Navigate to My Contributions and Verify Content
+
+## Plan
+1. [ ] Navigate to http://localhost:3000/
+2. [ ] Click on the "💰 My Contributions" tab in the left sidebar.
+3. [ ] Verify 'Total Lifetime Savings' is visible.
+4. [ ] Verify 'Available Loan Credit' is visible.
+5. [ ] Verify the history table is visible.

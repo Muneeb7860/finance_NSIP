@@ -1,0 +1,11 @@
+[0] (500,500)<div  />
+	NSIP
+	Wealth
+	[1] (108,131)<div >📊 Portfolio & Loans />
+	[2] (108,200)<div >📈 Financial Planning />
+	[3] (108,281)<div >⚙️ Omnichannel Settings />
+	[4] (108,361)<div >⭐ Review NSIP />
+	Total Portfolio Balance
+	SAR 150,000
+	.00
+	Vested (+3 Years)

@@ -1,0 +1,19 @@
+# Phase 4: Financial Learning & Gamification Implementation
+
+- `[/]` Scaffold New Microservices
+  - `[ ]` Scaffold `education-service` (LMS)
+  - `[ ]` Scaffold `event-service`
+  - `[ ]` Scaffold `rewards-service` (Gamification & Points)
+  - `[ ]` Scaffold `notification-engine` (Spring Boot Mail)
+- `[ ]` Implement LMS Core Logic
+  - `[ ]` Video Entity & Course Progress Tracking
+  - `[ ]` Interactive gamification score on videos
+  - `[ ]` Emit `CourseCompletedEvent` to Kafka
+- `[ ]` Implement Gamification & Rewards
+  - `[ ]` Points Ledger Logic (Award points for courses/events)
+  - `[ ]` Advisor Session Booking (Deduct 1000 points)
+  - `[ ]` Reschedule and Cancel logic
+- `[ ]` Frontend Integration
+  - `[ ]` Add "Learning Center" tab in React UI
+  - `[ ]` Display YouTube/Vimeo embeds
+  - `[ ]` Points balance UI element

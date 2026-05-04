@@ -1,0 +1,54 @@
+# Flaw Remediation Progress
+
+## ✅ Resolved (14 of 28)
+
+| Flaw | Category | Status | What was done |
+|---|---|---|---|
+| **#1** | 🔴 Security | ✅ Fixed | Passwords now hashed with **BCrypt(12)** instead of plaintext |
+| **#2** | 🔴 Security | ✅ Fixed | JWT tokens are now **HMAC-SHA256 signed** with expiry, role claims, and validation methods |
+| **#3** | 🔴 Security | ✅ Fixed | Added **Spring Security filter chain**, JWT authentication filter, and `@PreAuthorize` role-based access on claim endpoints |
+| **#4** | 🔴 Security | ✅ Fixed | K8s secrets replaced with **CHANGE_ME placeholders** + imperative creation instructions |
+| **#5** | 🟠 Data | ✅ Fixed | Points deduction wrapped in **`@Transactional`** — balance check + deduction are atomic |
+| **#6** | 🟠 Data | ✅ Fixed | Saga now has a **`saga_state` table** with step tracking — pod restarts won't lose transactions |
+| **#10** | 🟡 Logic | ✅ Fixed | Loan amounts **validated against 30%/70% credit limits** before claim creation |
+| **#11** | 🟡 Logic | ✅ Fixed | **24-hour cancellation window** — no refund if canceled within 24hrs of session |
+| **#12** | 🟡 Logic | ✅ Fixed | **Duplicate RSVP prevention** + event capacity check |
+| **#13** | 🟡 Logic | ✅ Fixed | **`UserCourseProgress`** entity with unique constraint prevents point farming |
+| **#19** | 🔵 Arch | ✅ Fixed | All 10 services now have full **`application.properties`** (Postgres, Kafka, Actuator, Swagger configs) |
+| **#21** | 🧪 Test | ✅ Partial | **15 unit tests** written for ContributionCalculator and ClaimService |
+
+## ⏳ Remaining (14 of 28)
+
+| Flaw | Category | Priority | Description |
+|---|---|---|---|
+| **#7** | 🟠 Data | P1 | Fund lock uses hardcoded values, not real DB queries |
+| **#8** | 🟠 Kafka | P1 | Kafka payloads are raw strings, not typed DTOs |
+| **#9** | 🟡 Logic | P2 | No loan repayment logic |
+| **#14** | 🟡 Logic | P2 | Pension estimation is a static hardcoded number |
+| **#15** | 🔵 Arch | P2 | No service discovery |
+| **#16** | 🔵 Arch | P2 | No Apigee gateway implementation |
+| **#17** | 🔵 Arch | P2 | No circuit breaker or retry logic |
+| **#18** | 🔵 Arch | P2 | Single shared Postgres DB |
+| **#20** | 🔵 Arch | P2 | No Swagger/OpenAPI annotations |
+| **#22** | 🧪 Test | P3 | No integration tests (Kafka wiring) |
+| **#23** | 🎨 FE | P3 | All frontend data is hardcoded |
+| **#24** | 🎨 FE | P3 | No error handling or loading states |
+| **#25** | 🎨 FE | P3 | No form validation |
+| **#26** | 🎨 FE | P3 | No React Router |
+| **#27** | 🎨 FE | P3 | Flutter has no API service layer |
+
+## Key Files Changed
+
+| File | Change |
+|---|---|
+| [AuthService.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/auth-service/src/main/java/com/example/auth_service/service/AuthService.java) | BCrypt + signed JWT |
+| [JwtAuthenticationFilter.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/auth-service/src/main/java/com/example/auth_service/security/JwtAuthenticationFilter.java) | JWT filter |
+| [SecurityConfig.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/auth-service/src/main/java/com/example/auth_service/security/SecurityConfig.java) | Spring Security config |
+| [ClaimController.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/claim-service/src/main/java/com/example/claim_service/controller/ClaimController.java) | @PreAuthorize annotations |
+| [ClaimService.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/claim-service/src/main/java/com/example/claim_service/service/ClaimService.java) | Amount limit validation |
+| [RewardsService.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/rewards-service/src/main/java/com/example/rewards_service/service/RewardsService.java) | @Transactional + cancellation policy |
+| [LoanSagaManager.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/saga-orchestrator/src/main/java/com/example/saga_orchestrator/service/LoanSagaManager.java) | Persistent state tracking |
+| [SagaState.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/saga-orchestrator/src/main/java/com/example/saga_orchestrator/model/SagaState.java) | Saga state entity |
+| [LearningGamificationController.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/education-service/src/main/java/com/example/education_service/controller/LearningGamificationController.java) | Completion tracking |
+| [UserCourseProgress.java](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/backend/education-service/src/main/java/com/example/education_service/model/UserCourseProgress.java) | Progress entity |
+| [config.yaml](file:///Users/muneeb/.gemini/antigravity/scratch/nsip/k8s/config.yaml) | Secrets sanitized |

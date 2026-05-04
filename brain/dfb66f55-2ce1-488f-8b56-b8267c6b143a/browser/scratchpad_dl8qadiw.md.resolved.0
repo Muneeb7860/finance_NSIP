@@ -1,0 +1,12 @@
+# Task: Verify Portal Access and Admin Dashboard
+
+## Progress Checklist
+- [ ] Navigate to http://localhost:3000/ and verify the portal selection page
+- [ ] Take a screenshot of the selection page
+- [ ] Click on "🛡️ Back Office Admin" card
+- [ ] Verify the Admin Portal dashboard and "Pending Claims Queue" table
+- [ ] Take a screenshot of the Admin Portal
+- [ ] Finalize task
+
+## Findings
+- (Empty)

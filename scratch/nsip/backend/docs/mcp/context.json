@@ -1,0 +1,37 @@
+{
+  "mcpVersion": "1.0",
+  "name": "NSIP Platform Context",
+  "description": "National Social Insurance Platform Microservices Architecture",
+  "services": [
+    {
+      "id": "auth-service",
+      "port": 8081,
+      "responsibilities": ["Identity Management", "JWT Issuance", "RBAC"]
+    },
+    {
+      "id": "education-service",
+      "port": 8085,
+      "responsibilities": ["LMS", "Gamification", "Streak Engine", "Advisor Booking"]
+    },
+    {
+      "id": "claim-service",
+      "port": 8083,
+      "responsibilities": ["Insurance Claims", "Vesting Validation", "Loan Management"]
+    }
+  ],
+  "observability": {
+    "splunk": {
+      "logFormat": "JSON",
+      "correlationIdHeader": "X-Correlation-ID"
+    },
+    "dynatrace": {
+      "tracing": "OpenTelemetry",
+      "metricExportInterval": "60s"
+    }
+  },
+  "businessRules": {
+    "contributionRate": 0.04,
+    "vestingPeriodYears": 3,
+    "loanLimitPercentage": 30.0
+  }
+}

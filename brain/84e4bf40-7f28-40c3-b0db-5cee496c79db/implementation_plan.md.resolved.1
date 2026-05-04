@@ -1,0 +1,46 @@
+# NSIP Platform: Industry Standards Validation & Architecture Review
+
+While the local environment spins up (Docker is currently pulling images and booting the microservices), I have conducted a deep-dive review of the existing codebase to validate it against **Enterprise Industry Standards** for microservices. 
+
+Overall, the hexagonal architecture, Neo-Bank UI aesthetic, and event-driven foundation are excellent. However, to ensure this platform is truly production-ready, highly available, and secure, I have identified a few architectural gaps.
+
+## User Review Required
+
+Please review the following validations and let me know how you would like to proceed with each area.
+
+### 1. Dual-Write Problem in Saga Orchestrator (Critical)
+**Current Implementation:** In `LoanSagaManager.java`, the system saves the saga state to PostgreSQL and immediately fires a Kafka message within the same `@Transactional` block.
+**The Risk:** If the database commits successfully but the Kafka broker goes down milliseconds later, the system state becomes inconsistent (the database thinks the message was sent, but it wasn't).
+**Industry Standard:** The **Transactional Outbox Pattern**. We should save the Kafka event to an `outbox_events` table in the same database transaction, and use a separate relay (like Debezium or a scheduled poller) to publish to Kafka.
+> [!IMPORTANT]
+> **Question:** Shall I implement the Outbox Pattern for the Saga Orchestrator to guarantee at-least-once delivery?
+
+### 2. Token Lifecycle Management (Security)
+**Current Implementation:** `AuthService.java` generates a single JWT valid for 24 hours.
+**The Risk:** If a token is stolen, the attacker has full access for 24 hours. Furthermore, if a user is banned by an admin, their existing token remains fully active until it expires.
+**Industry Standard:** Short-lived **Access Tokens** (e.g., 15 minutes) paired with **Refresh Tokens** stored securely (HTTP-only cookies). 
+> [!WARNING]
+> **Question:** Would you like me to upgrade the authentication flow to use strict Access/Refresh token rotation?
+
+### 3. Distributed Tracing (Observability)
+**Current Implementation:** We successfully configured Prometheus to scrape `/actuator/prometheus` for metrics, giving us great dashboards.
+**The Risk:** With 9 microservices interacting via REST and Kafka, debugging a failed request (e.g., a Loan Application failing mid-flight) will be nearly impossible by just looking at isolated logs.
+**Industry Standard:** **OpenTelemetry & Distributed Tracing** (Zipkin or Jaeger). Every request should have a `trace-id` injected at the frontend and propagated through every HTTP header and Kafka header.
+> [!TIP]
+> **Question:** Shall I add Micrometer Tracing to automatically inject Correlation IDs into all logs and API requests?
+
+### 4. Resiliency & Circuit Breakers (Reliability)
+**Current Implementation:** The services communicate and handle failures manually via Saga compensations.
+**The Risk:** If the `contribution-service` experiences a severe slowdown, the `saga-orchestrator` might pile up thousands of threads waiting for timeouts, leading to cascading failures across the platform.
+**Industry Standard:** **Resilience4j Circuit Breakers**. We need fast-failing mechanisms to reject requests immediately when a downstream service is degraded.
+> [!TIP]
+> **Question:** Should I implement Resilience4j to protect inter-service communication and database calls?
+
+---
+
+## Verification Plan
+
+Once you provide feedback on the questions above, I will:
+1. Update the Java microservices to incorporate the approved architectural patterns.
+2. Provide a Walkthrough of the updated codebase.
+3. Validate that the Docker environment successfully brings up the hardened services.
