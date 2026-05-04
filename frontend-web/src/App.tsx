@@ -62,33 +62,52 @@ function Layout({ children, role }: { children: React.ReactNode, role: 'customer
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar sx={{ px: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: -1 }}>
-          NSIP <span style={{ color: role === 'admin' ? '#ef4444' : '#fff', fontWeight: 400 }}>{role.toUpperCase()}</span>
+      <Toolbar sx={{ px: 3, py: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: 900, color: 'primary.main', letterSpacing: -2, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ width: 32, height: 32, bgcolor: 'primary.main', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900 }}>N</Box>
+          NSIP
         </Typography>
       </Toolbar>
-      <Divider sx={{ opacity: 0.1 }} />
+      <Divider sx={{ opacity: 0.05 }} />
       <List sx={{ px: 2, py: 3 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+          <ListItem key={item.text} disablePadding sx={{ mb: 1.5 }}>
             <ListItemButton 
               onClick={() => { navigate(item.path); setMobileOpen(false); }}
               selected={location.pathname === item.path}
               sx={{ 
-                borderRadius: 2,
-                '&.Mui-selected': { bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }
+                borderRadius: 3,
+                py: 1.5,
+                transition: 'all 0.2s ease',
+                '&.Mui-selected': { 
+                  bgcolor: alpha('#8b5cf6', 0.1),
+                  color: 'primary.main',
+                  '&:hover': { bgcolor: alpha('#8b5cf6', 0.15) },
+                  '& .MuiListItemIcon-root': { color: 'primary.main' }
+                },
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.03)',
+                  transform: 'translateX(4px)'
+                }
               }}
             >
-              <ListItemIcon sx={{ color: location.pathname === item.path ? 'white' : 'inherit', minWidth: 40 }}>
+              <ListItemIcon sx={{ color: location.pathname === item.path ? 'primary.main' : 'text.secondary', minWidth: 45 }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.text} sx={{ '& .MuiTypography-root': { fontWeight: 500 } }} />
+              <ListItemText primary={item.text} sx={{ '& .MuiTypography-root': { fontWeight: 600, fontSize: '0.95rem' } }} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
       <Box sx={{ mt: 'auto', p: 3 }}>
-        <Button fullWidth variant="outlined" startIcon={<LogoutIcon />} onClick={() => navigate('/')} color="inherit" sx={{ opacity: 0.7 }}>Log Out</Button>
+        <Paper sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 3, mb: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>System Status</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ width: 8, height: 8, bgcolor: 'success.main', borderRadius: '50%' }} />
+            <Typography variant="caption" sx={{ fontWeight: 700 }}>All Systems Operational</Typography>
+          </Box>
+        </Paper>
+        <Button fullWidth variant="text" startIcon={<LogoutIcon />} onClick={() => navigate('/')} color="inherit" sx={{ opacity: 0.5, borderRadius: 2 }}>Log Out</Button>
       </Box>
     </Box>
   );
@@ -108,28 +127,30 @@ function Layout({ children, role }: { children: React.ReactNode, role: 'customer
           
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
             <Paper sx={{ 
-              p: '2px 12px', 
+              p: '4px 16px', 
               display: 'flex', 
               alignItems: 'center', 
               width: '100%',
               maxWidth: 600,
               bgcolor: 'rgba(255,255,255,0.03)', 
-              borderRadius: 3,
-              border: '1px solid rgba(255,255,255,0.05)',
-              transition: 'all 0.3s ease',
+              borderRadius: 4,
+              border: '1px solid rgba(255,255,255,0.08)',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               '&:focus-within': {
-                bgcolor: 'rgba(255,255,255,0.07)',
+                bgcolor: 'rgba(255,255,255,0.06)',
                 borderColor: 'primary.main',
-                boxShadow: '0 0 0 2px rgba(99,102,241,0.1)'
+                boxShadow: '0 0 0 4px rgba(139, 92, 246, 0.1)',
+                transform: 'scale(1.02)'
               }
             }}>
-              <SearchIcon sx={{ color: 'text.secondary', mr: 1, fontSize: '1.2rem' }} />
+              <SearchIcon sx={{ color: 'text.secondary', mr: 1.5, fontSize: '1.4rem' }} />
               <TextField 
-                placeholder="Search or ask Hafida..." 
+                placeholder="Search resources or ask Hafida..." 
                 fullWidth 
                 variant="standard" 
-                slotProps={{ input: { disableUnderline: true, sx: { fontSize: '0.9rem' } } }}
+                slotProps={{ input: { disableUnderline: true, sx: { fontSize: '1rem', fontWeight: 500 } } }}
               />
+              <Chip label="⌘K" size="small" sx={{ height: 20, bgcolor: 'rgba(255,255,255,0.05)', color: 'text.secondary', fontSize: '0.6rem' }} />
             </Paper>
           </Box>
 
@@ -179,13 +200,43 @@ function PortfolioPage() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {stats.map((s, i) => (
           <Grid key={i} size={{ xs: 12, md: 3 }}>
-            <Card sx={{ p: 3, height: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                {s.icon}
-                <Typography variant="subtitle2" color="text.secondary">{s.label}</Typography>
+            <Card sx={{ 
+              p: 3, 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '4px',
+                height: '100%',
+                background: i % 2 === 0 ? 'linear-gradient(to bottom, #8b5cf6, #d946ef)' : 'linear-gradient(to bottom, #06b6d4, #3b82f6)',
+              }
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Box sx={{ p: 1, bgcolor: alpha(i % 2 === 0 ? '#8b5cf6' : '#06b6d4', 0.1), borderRadius: 2 }}>
+                  {s.icon}
+                </Box>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600 }}>{s.label}</Typography>
               </Box>
-              <Typography variant="h5" sx={{ fontWeight: 800 }}>{s.value}</Typography>
-              <Typography variant="caption" sx={{ color: s.trend.includes('+') ? 'success.main' : 'text.secondary' }}>{s.trend}</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5 }}>{s.value}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="caption" sx={{ 
+                  color: s.trend.includes('+') ? 'success.main' : 'text.secondary',
+                  bgcolor: s.trend.includes('+') ? alpha('#10b981', 0.1) : alpha('#9ca3af', 0.1),
+                  px: 1,
+                  py: 0.2,
+                  borderRadius: 1,
+                  fontWeight: 700
+                }}>
+                  {s.trend}
+                </Typography>
+              </Box>
             </Card>
           </Grid>
         ))}
@@ -350,29 +401,48 @@ function WalletPage() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ 
-            background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', 
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%)', 
             color: 'white', 
-            minHeight: 200, 
+            minHeight: 220, 
             display: 'flex', 
             flexDirection: 'column', 
             justifyContent: 'space-between',
             p: 3,
-            borderRadius: 4,
-            boxShadow: '0 20px 40px rgba(99,102,241,0.3)'
+            borderRadius: 6,
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 20px 50px rgba(139, 92, 246, 0.4)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: -50,
+              right: -50,
+              width: 150,
+              height: 150,
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.1)',
+              filter: 'blur(40px)',
+            }
           }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-              <Typography variant="h6" sx={{ opacity: 0.8 }}>Digital Wallet</Typography>
-              <PublicIcon />
+              <Box>
+                <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 700, mb: -0.5 }}>Digital Wallet</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.7 }}>Saudi National Bank (Linked)</Typography>
+              </Box>
+              <PublicIcon sx={{ opacity: 0.8, fontSize: '2rem' }} />
             </Box>
-            <Typography variant="h4" sx={{ fontWeight: 800 }}>SAR 4,820.50</Typography>
+            <Box>
+              <Typography variant="h3" sx={{ fontWeight: 800, letterSpacing: -1 }}>SAR 4,820.50</Typography>
+              <Typography variant="caption" sx={{ opacity: 0.8 }}>Available Balance</Typography>
+            </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
-              <Typography variant="subtitle2" sx={{ letterSpacing: 2 }}>**** **** **** 8829</Typography>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>PREMIUM</Typography>
+              <Typography variant="h6" sx={{ letterSpacing: 4, fontFamily: 'monospace', opacity: 0.9 }}>**** 8829</Typography>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, bgcolor: 'rgba(255,255,255,0.2)', px: 1.5, py: 0.5, borderRadius: 2 }}>VISA PLATINUM</Typography>
             </Box>
           </Card>
           <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-            <Button fullWidth variant="contained" startIcon={<AddIcon />}>Top Up</Button>
-            <Button fullWidth variant="outlined" startIcon={<DownloadIcon />}>Withdraw</Button>
+            <Button fullWidth variant="contained" startIcon={<AddIcon />} sx={{ borderRadius: 3, py: 1.5 }}>Top Up</Button>
+            <Button fullWidth variant="outlined" startIcon={<DownloadIcon />} sx={{ borderRadius: 3, py: 1.5 }}>Withdraw</Button>
           </Stack>
         </Grid>
         
@@ -639,14 +709,64 @@ function Hafida() {
 
   return (
     <>
-      <Fab color="primary" sx={{ position: 'fixed', bottom: 30, right: 30, width: 70, height: 70 }} onClick={() => setOpen(!open)}>
-        <AiIcon sx={{ fontSize: 35 }} />
+      <Fab 
+        color="primary" 
+        sx={{ 
+          position: 'fixed', 
+          bottom: 30, 
+          right: 30, 
+          width: 80, 
+          height: 80,
+          boxShadow: '0 15px 35px rgba(139, 92, 246, 0.4)',
+          '&:hover': { transform: 'scale(1.1) rotate(5deg)' },
+          transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            border: '2px solid #8b5cf6',
+            animation: 'pulse 2s infinite',
+          }
+        }} 
+        onClick={() => setOpen(!open)}
+      >
+        <AiIcon sx={{ fontSize: 40 }} />
       </Fab>
       
-      <Drawer anchor="right" open={open} onClose={() => setOpen(false)} slotProps={{ paper: { sx: { width: 400, bgcolor: 'background.paper', p: 0 } } }}>
-        <Box sx={{ p: 3, bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', gap: 2 }}>
-          <AiIcon />
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>Hafida - Smart Assistant</Typography>
+      <Drawer 
+        anchor="right" 
+        open={open} 
+        onClose={() => setOpen(false)} 
+        slotProps={{ 
+          paper: { 
+            sx: { 
+              width: { xs: '100%', md: 450 }, 
+              bgcolor: '#030712', 
+              p: 0,
+              borderLeft: '1px solid rgba(255, 255, 255, 0.05)',
+              boxShadow: '-20px 0 50px rgba(0,0,0,0.5)'
+            } 
+          } 
+        }}
+      >
+        <Box sx={{ 
+          p: 4, 
+          background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', 
+          color: 'white', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 2,
+          boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+        }}>
+          <Badge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color="success" sx={{ '& .MuiBadge-badge': { width: 12, height: 12, borderRadius: '50%', border: '2px solid white' } }}>
+            <Avatar sx={{ width: 50, height: 50, bgcolor: 'rgba(255,255,255,0.2)' }}><AiIcon sx={{ fontSize: 30 }} /></Avatar>
+          </Badge>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: -0.5 }}>Hafida</Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>Virtual Assistant • Online</Typography>
+          </Box>
         </Box>
         <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
           {messages.map((m, i) => (
@@ -1134,46 +1254,79 @@ function LoginPage() {
   const handleMfaSelect = (type: string) => { setMfaType(type); setStep(3); };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', p: 4 }}>
-      <Card sx={{ maxWidth: 400, width: '100%', p: 2 }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      background: 'radial-gradient(circle at top right, #1e1b4b 0%, #030712 100%)',
+      p: 4,
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <Box sx={{ position: 'absolute', top: -100, left: -100, width: 400, height: 400, background: 'rgba(139, 92, 246, 0.05)', borderRadius: '50%', filter: 'blur(100px)' }} />
+      <Box sx={{ position: 'absolute', bottom: -100, right: -100, width: 400, height: 400, background: 'rgba(6, 182, 212, 0.05)', borderRadius: '50%', filter: 'blur(100px)' }} />
+      
+      <Card sx={{ 
+        maxWidth: 450, 
+        width: '100%', 
+        p: 3, 
+        borderRadius: 8, 
+        bgcolor: alpha('#111827', 0.4),
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+      }}>
         <CardContent>
-          <Typography variant="h4" sx={{ fontWeight: 800, textAlign: 'center', mb: 1 }}>NSIP</Typography>
-          <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 4 }}>National Social Insurance Platform</Typography>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography variant="h3" sx={{ fontWeight: 900, color: 'primary.main', letterSpacing: -3, mb: 1 }}>NSIP</Typography>
+            <Typography variant="subtitle1" sx={{ color: 'text.secondary', fontWeight: 500 }}>National Social Insurance Platform</Typography>
+          </Box>
+          
+          {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
+          
           {step === 1 && (
             <form onSubmit={handleLogin}>
-              <TextField 
-                fullWidth label="Email / User" sx={{ mb: 2 }} required 
-                value={credentials.email} onChange={(e) => setCredentials({...credentials, email: e.target.value})}
-              />
-              <TextField 
-                fullWidth label="Password" type="password" sx={{ mb: 3 }} required 
-                value={credentials.password} onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-              />
-              <Button fullWidth variant="contained" type="submit" size="large" disabled={loading}>
-                {loading ? 'Authenticating...' : 'Sign In'}
-              </Button>
-              <Box sx={{ mt: 3, textAlign: 'center' }}>
-                <Button size="small" onClick={() => navigate('/employer/payroll')}>Demo Employer Login</Button>
-                <Button size="small" onClick={() => navigate('/admin/claims')}>Demo Admin Login</Button>
-              </Box>
+              <Stack spacing={2.5}>
+                <TextField 
+                  fullWidth label="Email / Username" variant="outlined" required 
+                  slotProps={{ input: { sx: { borderRadius: 3 } } }}
+                  value={credentials.email} onChange={(e) => setCredentials({...credentials, email: e.target.value})}
+                />
+                <TextField 
+                  fullWidth label="Password" type="password" variant="outlined" required 
+                  slotProps={{ input: { sx: { borderRadius: 3 } } }}
+                  value={credentials.password} onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                />
+                <Button fullWidth variant="contained" type="submit" size="large" disabled={loading} sx={{ py: 2, borderRadius: 3, fontSize: '1.1rem' }}>
+                  {loading ? 'Authenticating...' : 'Sign In'}
+                </Button>
+                
+                <Divider sx={{ my: 2 }}><Typography variant="caption" color="text.secondary">QUICK DEMO ACCESS</Typography></Divider>
+                
+                <Stack direction="row" spacing={2}>
+                  <Button fullWidth variant="outlined" onClick={() => navigate('/employer/payroll')} sx={{ borderRadius: 3 }}>Employer</Button>
+                  <Button fullWidth variant="outlined" onClick={() => navigate('/admin/claims')} sx={{ borderRadius: 3 }}>Admin</Button>
+                </Stack>
+              </Stack>
             </form>
           )}
           {step === 2 && (
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Security Method</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, textAlign: 'center' }}>Identity Verification</Typography>
               <Stack spacing={2}>
-                <Button fullWidth variant="outlined" startIcon={<NafathIcon />} onClick={() => handleMfaSelect('Nafath')}>Nafath</Button>
-                <Button fullWidth variant="outlined" startIcon={<BioIcon />} onClick={() => handleMfaSelect('Biometric')}>Iris / Face ID</Button>
-                <Button fullWidth variant="outlined" startIcon={<OtpIcon />} onClick={() => handleMfaSelect('OTP')}>SMS OTP</Button>
+                <Button fullWidth variant="outlined" startIcon={<NafathIcon />} onClick={() => handleMfaSelect('Nafath')} sx={{ py: 2, borderRadius: 3, borderWidth: 2 }}>Sign in with Nafath</Button>
+                <Button fullWidth variant="outlined" startIcon={<BioIcon />} onClick={() => handleMfaSelect('Biometric')} sx={{ py: 2, borderRadius: 3, borderWidth: 2 }}>Face ID / Touch ID</Button>
+                <Button fullWidth variant="outlined" startIcon={<OtpIcon />} onClick={() => handleMfaSelect('OTP')} sx={{ py: 2, borderRadius: 3, borderWidth: 2 }}>SMS Verification</Button>
               </Stack>
             </Box>
           )}
           {step === 3 && (
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{mfaType} Verification</Typography>
-              <TextField fullWidth placeholder="Enter 6-digit code" sx={{ mb: 3 }} />
-              <Button fullWidth variant="contained" onClick={() => navigate('/customer/portfolio')}>Verify</Button>
+              <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>{mfaType} Verification</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>A verification code has been sent to your registered device.</Typography>
+              <TextField fullWidth placeholder="0 0 0 0 0 0" slotProps={{ input: { sx: { textAlign: 'center', letterSpacing: 10, fontSize: '1.5rem', fontWeight: 800, borderRadius: 3 } } }} sx={{ mb: 4 }} />
+              <Button fullWidth variant="contained" size="large" onClick={() => navigate('/customer/portfolio')} sx={{ py: 2, borderRadius: 3 }}>Verify & Enter</Button>
             </Box>
           )}
         </CardContent>
