@@ -62,12 +62,30 @@ function Layout({ children, role }: { children: React.ReactNode, role: 'customer
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar sx={{ px: 3, py: 2 }}>
-        <Typography variant="h5" sx={{ fontWeight: 900, color: 'primary.main', letterSpacing: -2, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 32, height: 32, bgcolor: 'primary.main', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 900 }}>N</Box>
-          NSIP
-        </Typography>
-      </Toolbar>
+      <Box sx={{ p: 3, mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+          <Avatar sx={{ width: 45, height: 45, bgcolor: 'primary.main', border: '2px solid rgba(255,255,255,0.1)' }}>SJ</Avatar>
+          <Box>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1 }}>Sarah Jenkins</Typography>
+            <Typography variant="caption" color="text.secondary">sarah.j@email.com</Typography>
+          </Box>
+        </Box>
+        <Paper sx={{ 
+          p: '4px 12px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          bgcolor: 'rgba(255,255,255,0.03)', 
+          borderRadius: 2,
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <SearchIcon sx={{ color: 'text.secondary', mr: 1, fontSize: '1rem' }} />
+          <TextField 
+            placeholder="Search..." 
+            variant="standard" 
+            slotProps={{ input: { disableUnderline: true, sx: { fontSize: '0.8rem' } } }}
+          />
+        </Paper>
+      </Box>
       <Divider sx={{ opacity: 0.05 }} />
       <List sx={{ px: 2, py: 3 }}>
         {menuItems.map((item) => (
@@ -182,84 +200,120 @@ function Layout({ children, role }: { children: React.ReactNode, role: 'customer
 // =============================================================================
 
 function PortfolioPage() {
-  const stats = [
-    { label: 'Total Contributions', value: 'SAR 145,200', trend: '+4% vs last mo', icon: <PortfolioIcon color="primary" /> },
-    { label: 'Investment Growth', value: 'SAR 12,450', trend: '+8.2%', icon: <PlanningIcon color="secondary" /> },
-    { label: 'Active Loans', value: '1', trend: 'SAR 45k outstanding', icon: <WalletIcon color="error" /> },
-    { label: 'Vesting Status', value: '4.2 Years', trend: 'Fully Vested', icon: <CheckIcon color="success" /> },
-  ];
-
-  const loans = [
-    { id: 'LN-2024-001', type: 'Personal Loan', amount: '50,000', status: 'In Repayment', progress: 15, dueDate: 'Nov 12, 2024' },
-    { id: 'LN-2023-085', type: 'Marriage Loan', amount: '30,000', status: 'Fully Repaid', progress: 100, dueDate: 'Completed' },
+  const transactions = [
+    { type: 'Pension Contribution', date: 'Jan 15', source: 'Employer Fund', amount: '+$1,250.00', color: '#10b981', icon: <PortfolioIcon fontSize="small" /> },
+    { type: 'Health Premium', date: 'Jan 10', source: 'State Health', amount: '-$450.00', color: '#ef4444', icon: <FitnessIcon fontSize="small" /> },
+    { type: 'Dividend Payout', date: 'Jan 02', source: 'ETF Fund', amount: '+$850.50', color: '#8b5cf6', icon: <PlanningIcon fontSize="small" /> },
+    { type: 'State Contribution', date: 'Dec 28', source: 'Govt. Offset', amount: '+$300.00', color: '#10b981', icon: <PortfolioIcon fontSize="small" /> },
   ];
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 4 }}>My Portfolio</Typography>
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {stats.map((s, i) => (
-          <Grid key={i} size={{ xs: 12, md: 3 }}>
-            <Card sx={{ 
-              p: 3, 
-              height: '100%', 
-              display: 'flex', 
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '4px',
-                height: '100%',
-                background: i % 2 === 0 ? 'linear-gradient(to bottom, #8b5cf6, #d946ef)' : 'linear-gradient(to bottom, #06b6d4, #3b82f6)',
-              }
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Box sx={{ p: 1, bgcolor: alpha(i % 2 === 0 ? '#8b5cf6' : '#06b6d4', 0.1), borderRadius: 2 }}>
-                  {s.icon}
-                </Box>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600 }}>{s.label}</Typography>
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5 }}>{s.value}</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="caption" sx={{ 
-                  color: s.trend.includes('+') ? 'success.main' : 'text.secondary',
-                  bgcolor: s.trend.includes('+') ? alpha('#10b981', 0.1) : alpha('#9ca3af', 0.1),
-                  px: 1,
-                  py: 0.2,
-                  borderRadius: 1,
-                  fontWeight: 700
-                }}>
-                  {s.trend}
-                </Typography>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, color: 'secondary.main' }}>Social Insurance Dashboard</Typography>
+        <Typography variant="subtitle1" color="text.secondary">Welcome back, Sarah Jenkins!</Typography>
+      </Box>
 
-      <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Loan Management</Typography>
       <Grid container spacing={3}>
-        {loans.map(loan => (
-          <Grid key={loan.id} size={{ xs: 12, md: 6 }}>
-            <Card sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{loan.type} <Typography component="span" variant="caption" color="text.secondary">({loan.id})</Typography></Typography>
-                <Chip label={loan.status} size="small" color={loan.status === 'Fully Repaid' ? 'success' : 'primary'} />
+        {/* Main Balance Hero */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Card sx={{ 
+            p: 4, 
+            height: '100%',
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.2)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ opacity: 0.7, fontWeight: 700 }}>Total Pension Balance</Typography>
+                <Typography variant="h2" sx={{ fontWeight: 900, letterSpacing: -2 }}>$345,780.20</Typography>
+                <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 800, mt: 1 }}>+12.8% YoY Growth</Typography>
               </Box>
-              <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>SAR {loan.amount}</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <LinearProgress variant="determinate" value={loan.progress} sx={{ flexGrow: 1, height: 8, borderRadius: 4 }} />
-                <Typography variant="caption">{loan.progress}%</Typography>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="subtitle2" sx={{ opacity: 0.7, fontWeight: 700 }}>Projected Retirement (Age 67)</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800 }}>$890,500.00</Typography>
               </Box>
-              <Typography variant="caption" color="text.secondary">Next Payment Due: {loan.dueDate}</Typography>
-            </Card>
-          </Grid>
-        ))}
+            </Box>
+            <Divider sx={{ opacity: 0.1, my: 3 }} />
+            <Stack direction="row" spacing={4}>
+              <Box>
+                <Typography variant="caption" sx={{ opacity: 0.6 }}>Portfolio Performance</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>18.5% YoY</Typography>
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ opacity: 0.6 }}>Next Vesting Event</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>Nov 2024</Typography>
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        {/* Investment Growth Chart */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, alignSelf: 'flex-start', mb: 3 }}>Investment Growth</Typography>
+            <Box sx={{ position: 'relative', width: 160, height: 160 }}>
+              <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                <circle cx="18" cy="18" r="16" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="4"></circle>
+                <circle cx="18" cy="18" r="16" fill="transparent" stroke="#8b5cf6" strokeWidth="4" strokeDasharray="45 100"></circle>
+                <circle cx="18" cy="18" r="16" fill="transparent" stroke="#06b6d4" strokeWidth="4" strokeDasharray="30 100" strokeDashoffset="-45"></circle>
+                <circle cx="18" cy="18" r="16" fill="transparent" stroke="#ec4899" strokeWidth="4" strokeDasharray="25 100" strokeDashoffset="-75"></circle>
+              </svg>
+              <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ fontWeight: 900 }}>Diversified</Typography>
+              </Box>
+            </Box>
+            <Stack direction="row" spacing={2} sx={{ mt: 3, width: '100%', justifyContent: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 8, height: 8, bgcolor: '#8b5cf6', borderRadius: '50%' }} /><Typography variant="caption">Stocks</Typography></Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 8, height: 8, bgcolor: '#06b6d4', borderRadius: '50%' }} /><Typography variant="caption">Mutual Funds</Typography></Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ width: 8, height: 8, bgcolor: '#ec4899', borderRadius: '50%' }} /><Typography variant="caption">ETFs</Typography></Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        {/* Recent Transactions */}
+        <Grid size={{ xs: 12 }}>
+          <Card sx={{ p: 0 }}>
+            <Box sx={{ p: 4, pb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>Recent Transactions</Typography>
+            </Box>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
+                    <TableCell sx={{ fontWeight: 700, color: 'text.secondary' }}>Type</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: 'text.secondary' }}>Date</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: 'text.secondary' }}>Source</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: 'text.secondary', textAlign: 'right' }}>Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {transactions.map((t, i) => (
+                    <TableRow key={i} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                      <TableCell>
+                        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+                          <Box sx={{ p: 1, bgcolor: alpha(t.color, 0.1), color: t.color, borderRadius: 2, display: 'flex' }}>
+                            {t.icon}
+                          </Box>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>{t.type}</Typography>
+                        </Stack>
+                      </TableCell>
+                      <TableCell><Typography variant="body2" color="text.secondary">{t.date}</Typography></TableCell>
+                      <TableCell><Typography variant="body2" color="text.secondary">{t.source}</Typography></TableCell>
+                      <TableCell sx={{ textAlign: 'right' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 900, color: t.amount.includes('+') ? 'success.main' : 'error.main' }}>
+                          {t.amount}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        </Grid>
       </Grid>
     </Box>
   );
