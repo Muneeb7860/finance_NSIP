@@ -83,8 +83,8 @@ services:
       - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_auth
-      SPRING_DATASOURCE_USERNAME: nsip_user
-      SPRING_DATASOURCE_PASSWORD: nsip_password
+      SPRING_DATASOURCE_USERNAME: auth_user
+      SPRING_DATASOURCE_PASSWORD: auth_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
     depends_on:
       - postgres
@@ -101,8 +101,8 @@ services:
       - "8082:8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_claims
-      SPRING_DATASOURCE_USERNAME: nsip_user
-      SPRING_DATASOURCE_PASSWORD: nsip_password
+      SPRING_DATASOURCE_USERNAME: claim_user
+      SPRING_DATASOURCE_PASSWORD: claim_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
     depends_on:
       - postgres
@@ -119,8 +119,8 @@ services:
       - "8083:8083"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_contributions
-      SPRING_DATASOURCE_USERNAME: nsip_user
-      SPRING_DATASOURCE_PASSWORD: nsip_password
+      SPRING_DATASOURCE_USERNAME: contribution_user
+      SPRING_DATASOURCE_PASSWORD: contribution_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
     depends_on:
       - postgres
@@ -137,6 +137,8 @@ services:
       - "8084:8084"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_education
+      SPRING_DATASOURCE_USERNAME: education_user
+      SPRING_DATASOURCE_PASSWORD: education_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
     depends_on:
       - postgres
@@ -153,6 +155,8 @@ services:
       - "8085:8085"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_events
+      SPRING_DATASOURCE_USERNAME: event_user
+      SPRING_DATASOURCE_PASSWORD: event_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
     depends_on:
       - postgres
@@ -174,9 +178,35 @@ services:
     networks:
       - nsip-network
 
+  # ============================================================
+  # SECURITY GUARDRAILS: IMMUTABLE BACKUPS
+  # ============================================================
+  db-backup:
+    image: prodrigestivill/postgres-backup-local:14-alpine
+    container_name: nsip-db-backup
+    restart: always
+    volumes:
+      - ./backups:/backups
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_CLUSTER=true
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=nsip_db
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=8080
+    depends_on:
+      - postgres
+    networks:
+      - nsip-network
+
 volumes:
   postgres_data:
   redis_data:
+  backup_data: # Immutable backup volume
 
 networks:
   nsip-network:
