@@ -57,4 +57,8 @@ export const api = {
 
   // Payments
   getUserRepayments: (userId: string) => request(`/api/v1/payments/repayments/${userId}`),
+
+  // LiveKit Assistant
+  getLiveKitToken: (roomName?: string) => 
+    request('/api/auth/livekit/token', { method: 'POST', body: JSON.stringify({ roomName }) }),
 };

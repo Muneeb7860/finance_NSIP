@@ -1,9 +1,45 @@
-import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Grid, Button, Stack, Paper } from '@mui/material';
+import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Grid, Button, Stack } from '@mui/material';
+import { Assessment as PortfolioIcon } from '@mui/icons-material';
+
 
 export function AdminClaimsPage() {
+  const metrics = [
+    { title: 'Approved Loans', value: 'SAR 3.1B', trend: '+12%', sub: 'Taqdeer Loan Book', icon: <PortfolioIcon sx={{ color: '#10b981' }} /> },
+    { title: 'App Rating', value: '4.8/5', trend: 'Excellent', sub: '2.94M Users', icon: <PortfolioIcon sx={{ color: '#f59e0b' }} /> },
+    { title: 'Complaint Reduction', value: '14%', trend: '-2.5%', sub: 'Optimized Workflows', icon: <PortfolioIcon sx={{ color: '#ef4444' }} /> },
+    { title: 'RPA Cost Savings', value: 'SAR 15M', trend: 'Annual', sub: 'Automated Processing', icon: <PortfolioIcon sx={{ color: '#8b5cf6' }} /> },
+  ];
+
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>Claim Approvals</Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5 }}>National Impact Dashboard</Typography>
+          <Typography variant="subtitle1" color="text.secondary">Real-time governance and service metrics</Typography>
+        </Box>
+        <Stack direction="row" spacing={2}>
+          <Button variant="outlined" startIcon={<PortfolioIcon />}>Export Report</Button>
+          <Button variant="contained">Global Settings</Button>
+        </Stack>
+      </Box>
+
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {metrics.map((m, i) => (
+          <Grid key={i} size={{ xs: 12, md: 3 }}>
+            <Card sx={{ p: 3, height: '100%', border: '1px solid rgba(255,255,255,0.05)', position: 'relative', overflow: 'hidden' }}>
+              <Box sx={{ position: 'absolute', top: -10, right: -10, opacity: 0.05 }}>{m.icon}</Box>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'block', mb: 1 }}>{m.title}</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5 }}>{m.value}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: 'success.main' }}>{m.trend}</Typography>
+                <Typography variant="caption" color="text.secondary">| {m.sub}</Typography>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Claim Approvals Queue</Typography>
       <Card>
         <TableContainer>
           <Table>
@@ -95,7 +131,7 @@ export function AdminSLAPage() {
                     <TableCell>Admin_User_99</TableCell>
                     <TableCell><Chip label="High" color="error" size="small" /></TableCell>
                     <TableCell sx={{ textAlign: 'right' }}>
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                         <Button size="small" variant="contained" color="success">Approve</Button>
                         <Button size="small" variant="outlined" color="error">Reject</Button>
                       </Stack>

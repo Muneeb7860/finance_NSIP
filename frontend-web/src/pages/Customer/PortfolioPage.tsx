@@ -1,6 +1,6 @@
 import { 
   Box, Typography, Grid, Card, Divider, Stack, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, alpha 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, alpha, Button 
 } from '@mui/material';
 import { 
   Assessment as PortfolioIcon, FitnessCenter as FitnessIcon, 
@@ -55,6 +55,20 @@ export default function PortfolioPage() {
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>Nov 2024</Typography>
               </Box>
             </Stack>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ p: 4, height: '100%', border: '1px solid #10b981', bgcolor: 'rgba(16, 185, 129, 0.05)' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: 'success.main', display: 'block', mb: 0.5 }}>TAQDEER UTILIZATION</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 900 }}>37.31%</Typography>
+              </Box>
+              <PortfolioIcon sx={{ color: 'success.main', opacity: 0.5 }} />
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Your loyalty tier has been upgraded to <b>Platinum</b> based on consistent contributions.</Typography>
+            <Button fullWidth variant="contained" color="success">Claim Rewards</Button>
           </Card>
         </Grid>
 

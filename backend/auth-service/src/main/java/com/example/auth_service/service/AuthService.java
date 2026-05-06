@@ -103,7 +103,7 @@ public class AuthService {
             User user = userRepository.findById(uuid)
                     .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
-            return generateTokens(user);
+            return generateTokens(Objects.requireNonNull(user));
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid or expired refresh token.");
         }

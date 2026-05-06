@@ -38,7 +38,11 @@ public class LearningController {
             int score = Integer.parseInt(Objects.requireNonNull(body.get("score"), "Score is required"));
             String userName = body.getOrDefault("userName", "Contributor");
             
-            return ResponseEntity.ok(learningService.submitQuiz(userId, courseId, score, userName));
+            return ResponseEntity.ok(learningService.submitQuiz(
+                    Objects.requireNonNull(userId),
+                    Objects.requireNonNull(courseId),
+                    score,
+                    userName));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

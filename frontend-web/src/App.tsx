@@ -2,9 +2,8 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import theme from './theme';
 
-// Layout & AI
+// Layout
 import Layout from './components/Layout';
-import Hafida from './components/Hafida';
 
 // Pages
 import LoginPage from './pages/Login/LoginPage';
@@ -15,6 +14,8 @@ import { WellnessPage, PlanningPage } from './pages/Customer/OtherPages';
 import { PayrollPage, EventProposalPage } from './pages/Employer/EmployerPages';
 import { AdminClaimsPage, AdminEventsPage, AdminSLAPage } from './pages/Admin/AdminPages';
 import { ProfilePage, NotificationsPage, HelpPage } from './pages/Shared/SharedPages';
+
+import { AIAssistant } from './components/assistant/AIAssistant';
 
 export default function App() {
   return (
@@ -70,7 +71,7 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-        <Hafida />
+        <AIAssistant />
       </BrowserRouter>
     </ThemeProvider>
   );

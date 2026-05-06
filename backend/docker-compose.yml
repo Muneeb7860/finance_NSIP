@@ -59,13 +59,16 @@ services:
   # ============================================================
   api-gateway:
     build:
-      context: ./api-gateway
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: api-gateway
     container_name: nsip-gateway
     ports:
       - "8080:8080"
     environment:
       SPRING_REDIS_HOST: redis
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - redis
     networks:
@@ -76,16 +79,19 @@ services:
   # ============================================================
   auth-service:
     build:
-      context: ./auth-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth-service
     container_name: nsip-auth
     ports:
-      - "8081:8081"
+      - "8081:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_auth
       SPRING_DATASOURCE_USERNAME: auth_user
       SPRING_DATASOURCE_PASSWORD: auth_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - postgres
       - kafka
@@ -94,16 +100,19 @@ services:
 
   claim-service:
     build:
-      context: ./claim-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: claim-service
     container_name: nsip-claim
     ports:
-      - "8082:8082"
+      - "8082:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_claims
       SPRING_DATASOURCE_USERNAME: claim_user
       SPRING_DATASOURCE_PASSWORD: claim_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - postgres
       - kafka
@@ -112,16 +121,19 @@ services:
 
   contribution-service:
     build:
-      context: ./contribution-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: contribution-service
     container_name: nsip-contribution
     ports:
-      - "8083:8083"
+      - "8083:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_contributions
       SPRING_DATASOURCE_USERNAME: contribution_user
       SPRING_DATASOURCE_PASSWORD: contribution_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - postgres
       - kafka
@@ -130,16 +142,19 @@ services:
 
   education-service:
     build:
-      context: ./education-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: education-service
     container_name: nsip-education
     ports:
-      - "8084:8084"
+      - "8084:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_education
       SPRING_DATASOURCE_USERNAME: education_user
       SPRING_DATASOURCE_PASSWORD: education_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - postgres
       - kafka
@@ -148,16 +163,19 @@ services:
 
   event-service:
     build:
-      context: ./event-service
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: event-service
     container_name: nsip-event
     ports:
-      - "8085:8085"
+      - "8085:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_events
       SPRING_DATASOURCE_USERNAME: event_user
       SPRING_DATASOURCE_PASSWORD: event_pass
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - postgres
       - kafka
@@ -166,13 +184,16 @@ services:
 
   notification-engine:
     build:
-      context: ./notification-engine
+      context: .
       dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: notification-engine
     container_name: nsip-notification
     ports:
-      - "8090:8090"
+      - "8090:8080"
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
     depends_on:
       - kafka
     networks:

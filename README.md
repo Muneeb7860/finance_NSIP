@@ -1,6 +1,6 @@
 # NSIP - National Social Insurance Platform
 
-A production-ready, microservices-based social insurance platform built with Spring Boot 3.2.5, JDK 17, and Hexagonal Architecture.
+A production-ready, microservices-based social insurance platform built with Spring Boot 3.2.5, JDK 17, and Hexagonal Architecture. Now enhanced with **Multimodal AI Capabilities** and **Azure AKS Deployment**.
 
 ## 🏗 Architecture
 
@@ -8,6 +8,11 @@ A production-ready, microservices-based social insurance platform built with Spr
 graph TD
     Client[Web/Mobile Client] --> Gateway[API Gateway :8080]
     
+    subgraph "AI & Real-time"
+        Client <--> LiveKit[LiveKit WebRTC]
+        LiveKit <--> Gemini[Gemini 1.5 Flash]
+    end
+
     subgraph "Backend Services"
         Gateway --> Auth[Auth Service :8081]
         Gateway --> Claim[Claim Service :8082]
@@ -21,50 +26,46 @@ graph TD
         Gateway --> Notif[Notification Engine :8090]
     end
     
-    subgraph "Infrastructure"
-        Auth --> DB[(PostgreSQL)]
-        Claim --> DB
-        Event --> Kafka{Kafka}
-        Notif --> Kafka
-        Gateway --> Redis[(Redis - Rate Limiting)]
+    subgraph "Infrastructure (Azure)"
+        AKS[Azure Kubernetes Service]
+        Auth --> DB[(Azure Postgres v4)]
+        Gateway --> Redis[(Azure Redis v4)]
+        ACR[(Azure Container Registry)]
     end
 ```
 
 ## 🛡 Hardening Features
+- **Multimodal AI Assistant**: Integrated LiveKit + Gemini 1.5 Flash for real-time Voice, Video, and Text interaction.
+- **Azure Hardened Infrastructure**: Deployed on AKS in `southeastasia` with managed Postgres and Redis.
 - **Distributed Tracing**: Automatic `X-Correlation-ID` propagation across all services.
 - **API Resilience**: Circuit Breakers (Resilience4j) and Redis-based Rate Limiting at the Gateway.
 - **Hexagonal Architecture**: Strict separation of domain logic from infrastructure adapters.
-- **Container Health**: Integrated Docker Health Checks for self-healing orchestration.
-- **Security**: Centralized Global Exception Handling and restricted CORS policies.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- JDK 17
-- Maven 3.9+
-- Docker & Docker Compose
+- JDK 17 & Maven 3.9+
+- Docker & Azure CLI
+- LiveKit Cloud Account & Google AI Studio Key
 
-### Quick Start
-1. **Build the Platform**:
+### Azure Deployment (CI/CD)
+1. **Provision Infrastructure**:
    ```bash
-   mvn clean install -DskipTests
+   cd azure/terraform
+   terraform init && terraform apply
    ```
-2. **Launch Infrastructure**:
-   ```bash
-   docker-compose up -d
-   ```
-3. **Run Services Locally**:
-   Use the provided script:
-   ```bash
-   ./run-locally.sh
-   ```
+2. **Trigger Workflow**: Push to `main` to trigger `.github/workflows/deploy-azure.yml`.
+
+### Local Development
+1. **Build the Platform**: `mvn clean install -DskipTests`
+2. **Run Infrastructure**: `docker-compose up -d`
+3. **Run Services**: `./run-locally.sh`
 
 ## 📂 Repository Structure
-- `/backend`: Java microservices and shared `nsip-common` library.
-- `/frontend-web`: Material UI React portal.
-- `/frontend-mobile`: Flutter-based mobile application.
-- `/k8s`: Kubernetes manifests for production deployment.
-- `/legacy`: Archive of previous platform iterations.
+- `/backend`: Java microservices and `nsip-common`.
+- `/frontend-web`: Material UI React portal with LiveKit Assistant.
+- `/azure`: Terraform scripts and Cloud configuration.
+- `/k8s`: Kubernetes manifests for Production (v4).
 
 ## 📝 License
 Proprietary - National Social Insurance Authority.

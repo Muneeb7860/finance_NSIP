@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Card, LinearProgress, Button, Chip, alpha, Paper } from '@mui/material';
+import { Box, Typography, Grid, Card, LinearProgress, Button, Chip, alpha, Paper, Stack } from '@mui/material';
 import { 
   PlayCircle as PlayIcon, 
   CheckCircle as DoneIcon, EmojiEvents as TrophyIcon 
@@ -28,27 +28,80 @@ export default function LearningPage() {
       </Box>
 
       <Grid container spacing={3}>
-        {courses.map((c, i) => (
-          <Grid key={i} size={{ xs: 12, md: 4 }}>
-            <Card sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
-                <Chip label={c.category} size="small" variant="outlined" />
-                <Typography variant="caption" color="text.secondary">{c.status}</Typography>
-              </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>{c.title}</Typography>
-              <Box sx={{ flexGrow: 1, mb: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography variant="caption">Progress</Typography>
-                  <Typography variant="caption" sx={{ fontWeight: 800 }}>{c.progress}%</Typography>
-                </Box>
-                <LinearProgress variant="determinate" value={c.progress} sx={{ height: 6, borderRadius: 3 }} />
-              </Box>
-              <Button fullWidth variant={c.progress === 100 ? "outlined" : "contained"} startIcon={c.progress === 100 ? <DoneIcon /> : <PlayIcon />}>
-                {c.progress === 100 ? "Review Course" : "Continue Learning"}
-              </Button>
-            </Card>
+        {/* Course List */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Grid container spacing={3}>
+            {courses.map((c, i) => (
+              <Grid key={i} size={{ xs: 12, md: 6 }}>
+                <Card sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between' }}>
+                    <Chip label={c.category} size="small" variant="outlined" />
+                    <Typography variant="caption" color="text.secondary">{c.status}</Typography>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>{c.title}</Typography>
+                  <Box sx={{ flexGrow: 1, mb: 3 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="caption">Progress</Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800 }}>{c.progress}%</Typography>
+                    </Box>
+                    <LinearProgress variant="determinate" value={c.progress} sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.05)' }} />
+                  </Box>
+                  <Button fullWidth variant={c.progress === 100 ? "outlined" : "contained"} startIcon={c.progress === 100 ? <DoneIcon /> : <PlayIcon />}>
+                    {c.progress === 100 ? "Review Course" : "Continue Learning"}
+                  </Button>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
+        </Grid>
+
+        {/* Gamification Sidebar */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Stack spacing={3}>
+            {/* Leaderboard */}
+            <Card sx={{ p: 3, bgcolor: 'rgba(255,255,255,0.02)' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>National Leaderboard</Typography>
+              <Stack spacing={2}>
+                {[
+                  { name: 'Ahmad S.', xp: '4,250', rank: 1, color: '#f59e0b' },
+                  { name: 'Sarah J. (You)', xp: '1,250', rank: 12, color: '#8b5cf6' },
+                  { name: 'Khalid M.', xp: '950', rank: 45, color: 'text.secondary' },
+                ].map((u, i) => (
+                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, borderRadius: 2, bgcolor: u.rank === 12 ? alpha('#8b5cf6', 0.1) : 'transparent' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 900, color: u.color }}>#{u.rank}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{u.name}</Typography>
+                    </Box>
+                    <Typography variant="caption" sx={{ fontWeight: 800 }}>{u.xp} XP</Typography>
+                  </Box>
+                ))}
+              </Stack>
+              <Button fullWidth sx={{ mt: 2, fontSize: '0.7rem' }}>View Full Rankings</Button>
+            </Card>
+
+            {/* Badges */}
+            <Card sx={{ p: 3 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Unlocked Badges</Typography>
+              <Grid container spacing={1}>
+                {[1, 2, 3, 4].map((b) => (
+                  <Grid key={b} size={{ xs: 3 }}>
+                    <Box sx={{ 
+                      aspectRatio: '1/1', 
+                      borderRadius: '50%', 
+                      bgcolor: alpha('#10b981', 0.1), 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      border: '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                      <TrophyIcon sx={{ fontSize: '1.2rem', color: '#10b981' }} />
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </Card>
+          </Stack>
+        </Grid>
       </Grid>
     </Box>
   );

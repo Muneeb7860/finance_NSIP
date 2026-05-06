@@ -1,0 +1,48 @@
+name: Deploy NSIP to Azure
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Build and push all services to ACR
+      run: |
+        az acr login --name nsipregistryv4
+        
+        # 1. Build Frontend
+        docker build -t nsipregistryv4.azurecr.io/frontend:latest ./frontend-web
+        docker push nsipregistryv4.azurecr.io/frontend:latest
+        
+        # 2. Build Backend Services (Unified Dockerfile)
+        SERVICES=("api-gateway" "auth-service" "claim-service" "contribution-service" "education-service" "event-service" "notification-engine" "payment-service" "review-service" "rewards-service" "saga-orchestrator")
+        
+        for SERVICE in "${SERVICES[@]}"; do
+          echo "🚀 Building $SERVICE..."
+          docker build -t nsipregistryv4.azurecr.io/$SERVICE:latest --build-arg SERVICE_NAME=$SERVICE ./backend
+          docker push nsipregistryv4.azurecr.io/$SERVICE:latest
+        done
+
+    - name: Set up AKS context
+      uses: azure/aks-set-context@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        resource-group: nsip-prod-rg-v4
+        cluster-name: nsip-aks-cluster
+
+    - name: Deploy to AKS
+      run: |
+        # Apply specific manifests for Azure environment
+        kubectl apply -f ./k8s/namespace.yaml
+        kubectl apply -f ./k8s/azure-config.yaml
+        kubectl apply -f ./k8s/azure-deploy-all.yaml
+        kubectl apply -f ./k8s/ingress.yaml

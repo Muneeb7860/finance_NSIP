@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 # Copy parent pom
@@ -15,6 +15,8 @@ COPY payment-service/pom.xml payment-service/
 COPY review-service/pom.xml review-service/
 COPY rewards-service/pom.xml rewards-service/
 COPY saga-orchestrator/pom.xml saga-orchestrator/
+COPY nsip-common/pom.xml nsip-common/
+COPY api-gateway/pom.xml api-gateway/
 
 # Resolve dependencies
 RUN mvn dependency:go-offline -B
@@ -30,4 +32,5 @@ WORKDIR /app
 ARG SERVICE_NAME
 COPY --from=build /app/${SERVICE_NAME}/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Use sh -c to allow environment variable expansion for JAVA_OPTS
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]

@@ -13,22 +13,40 @@ import {
 export default function Hafida() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { text: 'Hello! I am Hafida, your NSIP AI Assistant. How can I help you today?', sender: 'ai' }
+    { text: 'Hello! I am Hafida Pro, your intelligent NSIP assistant. I can help you with pension rules, claim statuses, and even loyalty rewards like Taqdeer.', sender: 'ai' }
   ]);
+  const [input, setInput] = useState('');
   const navigate = useNavigate();
 
-  const handleOption = (opt: string) => {
-    setMessages([...messages, { text: opt, sender: 'user' }]);
+  const processQuery = (query: string) => {
+    setMessages(prev => [...prev, { text: query, sender: 'user' }]);
+    
     setTimeout(() => {
       let reply = "";
-      if (opt.includes('Portfolio')) { reply = "Redirecting you to your Portfolio..."; navigate('/customer/portfolio'); }
-      else if (opt.includes('Ticket')) reply = "I have created support ticket #TKT-992. An agent will contact you shortly.";
-      else if (opt.includes('Certificate')) reply = "Generating your GOSI Compliance Certificate... Done! Check your downloads.";
-      else reply = "I'm sorry, I didn't quite get that. Can you try again?";
+      const q = query.toLowerCase();
+
+      // Intelligent Logic Engine
+      if (q.includes('pension')) {
+        reply = "Under Saudi GOSI rules, you are eligible for full pension at 60 with 120 months of contributions, or early at any age with 300 months. Based on your profile, you are 65% of the way there!";
+      } else if (q.includes('taqdeer') || q.includes('loyalty')) {
+        reply = "You are currently in the Platinum Tier (37.31% utilization). You have SAR 450 in pending rewards. Would you like to claim them now?";
+      } else if (q.includes('loan') || q.includes('approved')) {
+        reply = "I see your SAR 25,000 Taqdeer loan was approved yesterday. The funds will be in your wallet by 4 PM today.";
+      } else if (q.includes('portfolio') || q.includes('go to')) {
+        reply = "Understood. Navigating to your National Portfolio now...";
+        setTimeout(() => navigate('/customer/portfolio'), 1500);
+      } else if (q.includes('certificate')) {
+        reply = "Generating your GOSI Compliance Certificate... Authenticating with blockchain... Done! You can download it from your notifications.";
+      } else {
+        reply = "That's a great question! I've searched our national knowledge base: '"+ query +"' requires a manual review. I have opened a high-priority ticket for you.";
+      }
       
       setMessages(prev => [...prev, { text: reply, sender: 'ai' }]);
     }, 1000);
+    setInput('');
   };
+
+  const handleOption = (opt: string) => processQuery(opt);
 
   return (
     <>
@@ -106,8 +124,18 @@ export default function Hafida() {
             <Button size="small" variant="outlined" startIcon={<CertificateIcon />} onClick={() => handleOption('Generate Certificate')}>Generate Certificate</Button>
           </Stack>
           <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-            <TextField fullWidth size="small" placeholder="Ask Hafida anything..." />
-            <IconButton color="primary"><SendIcon /></IconButton>
+            <TextField 
+              fullWidth 
+              size="small" 
+              placeholder="Ask Hafida anything..." 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && processQuery(input)}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
+            />
+            <IconButton color="primary" onClick={() => processQuery(input)} disabled={!input.trim()}>
+              <SendIcon />
+            </IconButton>
           </Box>
         </Box>
       </Drawer>

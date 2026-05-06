@@ -1,6 +1,5 @@
 package com.example.education_service.controller;
 
-import com.example.education_service.model.*;
 import com.example.education_service.service.AdvisorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -88,8 +87,8 @@ public class AdvisorController {
             String scheduledAtStr = Objects.requireNonNull(body.get("scheduledAt"), "Scheduled at is required");
             
             return ResponseEntity.ok(advisorService.bookSession(
-                    customerId,
-                    advisorId,
+                    Objects.requireNonNull(customerId),
+                    Objects.requireNonNull(advisorId),
                     LocalDateTime.parse(scheduledAtStr)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
