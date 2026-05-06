@@ -199,6 +199,106 @@ services:
     networks:
       - nsip-network
 
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: payment-service
+    container_name: nsip-payment
+    ports:
+      - "8088:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_payments
+      SPRING_DATASOURCE_USERNAME: payment_user
+      SPRING_DATASOURCE_PASSWORD: payment_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - nsip-network
+
+  review-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: review-service
+    container_name: nsip-review
+    ports:
+      - "8089:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_reviews
+      SPRING_DATASOURCE_USERNAME: review_user
+      SPRING_DATASOURCE_PASSWORD: review_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - nsip-network
+
+  rewards-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: rewards-service
+    container_name: nsip-rewards
+    ports:
+      - "8086:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_rewards
+      SPRING_DATASOURCE_USERNAME: rewards_user
+      SPRING_DATASOURCE_PASSWORD: rewards_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - nsip-network
+
+  saga-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: saga-orchestrator
+    container_name: nsip-saga
+    ports:
+      - "8087:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_saga
+      SPRING_DATASOURCE_USERNAME: saga_user
+      SPRING_DATASOURCE_PASSWORD: saga_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
+    depends_on:
+      - postgres
+      - kafka
+    deploy:
+      replicas: 2
+    networks:
+      - nsip-network
+
+  ai-agent:
+    build:
+      context: ./ai-agent
+    container_name: nsip-ai-agent
+    environment:
+      LIVEKIT_URL: ${LIVEKIT_URL}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
+    volumes:
+      - ./ai-agent/credentials.json:/app/credentials.json:ro
+    networks:
+      - nsip-network
+
   # ============================================================
   # SECURITY GUARDRAILS: IMMUTABLE BACKUPS
   # ============================================================

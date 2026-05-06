@@ -4,6 +4,9 @@ import com.example.rewards_service.model.AdvisorSession;
 import com.example.rewards_service.model.PointsLedger;
 import com.example.rewards_service.repository.AdvisorSessionRepository;
 import com.example.rewards_service.repository.PointsLedgerRepository;
+import com.example.rewards_service.dto.LeaderboardEntry;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -12,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -28,6 +33,9 @@ public class RewardsService {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private static final int SESSION_COST = 1000;
     private static final int CANCELLATION_WINDOW_HOURS = 24;
 
@@ -39,8 +47,47 @@ public class RewardsService {
     @Transactional
     public void handleGamificationEvent(String payload) {
         log.info("Received gamification event: {}", payload);
-        // In production, parse with Jackson ObjectMapper
-        // For now, this demonstrates the listener is wired correctly
+        try {
+            JsonNode node = objectMapper.readTree(payload);
+            UUID userId = UUID.fromString(node.get("userId").asText());
+            String eventType = node.get("eventType").asText();
+            
+            int points = 0;
+            String description = "";
+            
+            switch (eventType) {
+                case "COURSE_COMPLETED":
+                    points = 500;
+                    description = "Completed Learning Module";
+                    break;
+                case "QUIZ_PASSED":
+                    points = 100;
+                    description = "Passed Knowledge Quiz";
+                    break;
+                case "EVENT_ATTENDED":
+                    points = 200;
+                    description = "Attended Community Event";
+                    break;
+                default:
+                    log.warn("Unknown event type: {}", eventType);
+                    return;
+            }
+            
+            awardPoints(userId, points, description);
+            
+        } catch (Exception e) {
+            log.error("Failed to process gamification event: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Get the top users leaderboard.
+     */
+    public List<LeaderboardEntry> getLeaderboard(int limit) {
+        return pointsLedgerRepository.getLeaderboard().stream()
+                .limit(limit)
+                .map(row -> new LeaderboardEntry((UUID) row[0], (Long) row[1]))
+                .collect(Collectors.toList());
     }
 
     /**

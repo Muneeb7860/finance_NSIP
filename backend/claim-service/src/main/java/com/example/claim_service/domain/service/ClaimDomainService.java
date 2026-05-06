@@ -2,6 +2,7 @@ package com.example.claim_service.domain.service;
 
 import com.example.claim_service.application.port.in.ClaimUseCase;
 import com.example.claim_service.application.port.out.ClaimRepositoryPort;
+import com.example.claim_service.application.port.out.ClaimReviewerPort;
 import com.example.claim_service.domain.model.Claim;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,9 +10,11 @@ import java.util.List;
 public class ClaimDomainService implements ClaimUseCase {
 
     private final ClaimRepositoryPort repository;
+    private final ClaimReviewerPort reviewer;
 
-    public ClaimDomainService(ClaimRepositoryPort repository) {
+    public ClaimDomainService(ClaimRepositoryPort repository, ClaimReviewerPort reviewer) {
         this.repository = repository;
+        this.reviewer = reviewer;
     }
 
     @Override
@@ -23,7 +26,19 @@ public class ClaimDomainService implements ClaimUseCase {
 
         claim.setStatus(Claim.ClaimStatus.PENDING);
         claim.setCreatedAt(LocalDateTime.now());
-        return repository.save(claim);
+        
+        Claim saved = repository.save(claim);
+        
+        // Trigger AI Review
+        try {
+            String[] aiResults = reviewer.review(saved);
+            saved.setAiRecommendation(aiResults[0]);
+            saved.setAiReasoning(aiResults[1]);
+            return repository.save(saved);
+        } catch (Exception e) {
+            // Log and continue — don't block the submission if AI fails
+            return saved;
+        }
     }
 
     @Override

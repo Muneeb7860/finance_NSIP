@@ -32,6 +32,11 @@ jobs:
           docker push nsipregistryv4.azurecr.io/$SERVICE:latest
         done
 
+        # 3. Build AI Agent (Separate Dockerfile)
+        echo "🤖 Building ai-agent..."
+        docker build -t nsipregistryv4.azurecr.io/ai-agent:latest ./backend/ai-agent
+        docker push nsipregistryv4.azurecr.io/ai-agent:latest
+
     - name: Set up AKS context
       uses: azure/aks-set-context@v1
       with:
