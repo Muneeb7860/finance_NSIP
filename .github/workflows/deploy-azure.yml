@@ -1,53 +1,100 @@
-name: Deploy NSIP to Azure
+name: Deploy NSIP to Azure (Parallel)
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Build and push all services to ACR
-      run: |
-        az acr login --name nsipregistryv4
-        
-        # 1. Build Frontend
-        docker build -t nsipregistryv4.azurecr.io/frontend:latest ./frontend-web
-        docker push nsipregistryv4.azurecr.io/frontend:latest
-        
-        # 2. Build Backend Services (Unified Dockerfile)
-        SERVICES=("api-gateway" "auth-service" "claim-service" "contribution-service" "education-service" "event-service" "notification-engine" "payment-service" "review-service" "rewards-service" "saga-orchestrator")
-        
-        for SERVICE in "${SERVICES[@]}"; do
-          echo "🚀 Building $SERVICE..."
-          docker build -t nsipregistryv4.azurecr.io/$SERVICE:latest --build-arg SERVICE_NAME=$SERVICE ./backend
-          docker push nsipregistryv4.azurecr.io/$SERVICE:latest
-        done
+      - name: Build and push Frontend
+        run: |
+          az acr login --name nsipregistryv4
+          docker build -t nsipregistryv4.azurecr.io/frontend:latest ./frontend-web
+          docker push nsipregistryv4.azurecr.io/frontend:latest
 
-        # 3. Build AI Agent (Separate Dockerfile)
-        echo "🤖 Building ai-agent..."
-        docker build -t nsipregistryv4.azurecr.io/ai-agent:latest ./backend/ai-agent
-        docker push nsipregistryv4.azurecr.io/ai-agent:latest
+  build-backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [
+          "api-gateway",
+          "auth-service",
+          "claim-service",
+          "contribution-service",
+          "education-service",
+          "event-service",
+          "notification-engine",
+          "payment-service",
+          "review-service",
+          "rewards-service",
+          "saga-orchestrator"
+        ]
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Set up AKS context
-      uses: azure/aks-set-context@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-        resource-group: nsip-prod-rg-v4
-        cluster-name: nsip-aks-cluster
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy to AKS
-      run: |
-        # Apply specific manifests for Azure environment
-        kubectl apply -f ./k8s/namespace.yaml
-        kubectl apply -f ./k8s/azure-config.yaml
-        kubectl apply -f ./k8s/azure-deploy-all.yaml
-        kubectl apply -f ./k8s/ingress.yaml
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build and push Backend Service
+        run: |
+          az acr login --name nsipregistryv4
+          docker build -t nsipregistryv4.azurecr.io/${{ matrix.service }}:latest --build-arg SERVICE_NAME=${{ matrix.service }} ./backend
+          docker push nsipregistryv4.azurecr.io/${{ matrix.service }}:latest
+
+  build-ai-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push AI Agent
+        run: |
+          az acr login --name nsipregistryv4
+          docker build -t nsipregistryv4.azurecr.io/ai-agent:latest ./backend/ai-agent
+          docker push nsipregistryv4.azurecr.io/ai-agent:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-frontend, build-backend, build-ai-agent]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: nsip-prod-rg-v4
+          cluster-name: nsip-aks-cluster
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f ./k8s/namespace.yaml
+          kubectl apply -f ./k8s/azure-config.yaml
+          kubectl apply -f ./k8s/azure-deploy-all.yaml
+          kubectl apply -f ./k8s/ingress.yaml
