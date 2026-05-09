@@ -1,4 +1,4 @@
-name: Deploy NSIP to Azure (Parallel)
+name: Deploy NSIP to Azure (Optimized)
 
 on:
   push:
@@ -15,11 +15,17 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push Frontend
-        run: |
-          az acr login --name nsipregistryv4
-          docker build -t nsipregistryv4.azurecr.io/frontend:latest ./frontend-web
-          docker push nsipregistryv4.azurecr.io/frontend:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend-web
+          push: true
+          tags: nsipregistryv4.azurecr.io/frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-backend:
     runs-on: ubuntu-latest
@@ -47,17 +53,24 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push Backend Service
-        run: |
-          az acr login --name nsipregistryv4
-          docker build -t nsipregistryv4.azurecr.io/${{ matrix.service }}:latest --build-arg SERVICE_NAME=${{ matrix.service }} ./backend
-          docker push nsipregistryv4.azurecr.io/${{ matrix.service }}:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          build-args: SERVICE_NAME=${{ matrix.service }}
+          push: true
+          tags: nsipregistryv4.azurecr.io/${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-ai-agent:
     runs-on: ubuntu-latest
@@ -69,11 +82,17 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push AI Agent
-        run: |
-          az acr login --name nsipregistryv4
-          docker build -t nsipregistryv4.azurecr.io/ai-agent:latest ./backend/ai-agent
-          docker push nsipregistryv4.azurecr.io/ai-agent:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/ai-agent
+          push: true
+          tags: nsipregistryv4.azurecr.io/ai-agent:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy:
     runs-on: ubuntu-latest
@@ -98,3 +117,12 @@ jobs:
           kubectl apply -f ./k8s/azure-config.yaml
           kubectl apply -f ./k8s/azure-deploy-all.yaml
           kubectl apply -f ./k8s/ingress.yaml
+
+      - name: Verify Deployment Health
+        run: |
+          echo "🕒 Waiting for deployments to stabilize..."
+          DEPLOYMENTS=$(kubectl get deployments -n nsip -o name)
+          for deploy in $DEPLOYMENTS; do
+            kubectl rollout status $deploy -n nsip --timeout=120s
+          done
+          echo "✅ All services are healthy!"
