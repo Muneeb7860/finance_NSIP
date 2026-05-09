@@ -81,7 +81,10 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:3000"
+            allowedOrigins: 
+              - "http://localhost:3000"
+              - "http://localhost:5173"
+              - "https://nsip-web.azurewebsites.net"
             allowedMethods: GET,POST,PUT,DELETE,OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
@@ -105,7 +108,7 @@ management:
       show-details: always
 
 # ============================================================
-# API DOCUMENTATION (Option C)
+# API DOCUMENTATION
 # ============================================================
 springdoc:
   api-docs:

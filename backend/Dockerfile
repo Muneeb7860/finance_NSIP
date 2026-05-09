@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy parent pom
@@ -27,7 +27,7 @@ ARG SERVICE_NAME
 RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests
 
 # Run stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 ARG SERVICE_NAME
 COPY --from=build /app/${SERVICE_NAME}/target/*.jar app.jar

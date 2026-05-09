@@ -73,6 +73,32 @@ resource "azurerm_redis_cache" "nsip_redis" {
   minimum_tls_version = "1.2"
 }
 
+# 5. Event Hubs (Kafka Interface)
+resource "azurerm_eventhub_namespace" "nsip_eventhubs" {
+  name                = "nsip-eventhubs-v4"
+  location            = azurerm_resource_group.nsip_rg.location
+  resource_group_name = azurerm_resource_group.nsip_rg.name
+  sku                 = "Standard" # Required for Kafka support
+  capacity            = 1
+}
+
+resource "azurerm_eventhub" "nsip_topic" {
+  name                = "nsip-core-events"
+  namespace_name      = azurerm_eventhub_namespace.nsip_eventhubs.name
+  resource_group_name = azurerm_resource_group.nsip_rg.name
+  partition_count     = 2
+  message_retention   = 1
+}
+
+resource "azurerm_eventhub_namespace_authorization_rule" "nsip_auth" {
+  name                = "nsip-auth-rule"
+  namespace_name      = azurerm_eventhub_namespace.nsip_eventhubs.name
+  resource_group_name = azurerm_resource_group.nsip_rg.name
+  listen              = true
+  send                = true
+  manage              = false
+}
+
 resource "random_string" "suffix" {
   length  = 6
   special = false
@@ -85,4 +111,9 @@ output "acr_login_server" {
 
 output "aks_cluster_name" {
   value = azurerm_kubernetes_cluster.nsip_aks.name
+}
+
+output "eventhubs_connection_string" {
+  value     = azurerm_eventhub_namespace_authorization_rule.nsip_auth.primary_connection_string
+  sensitive = true
 }

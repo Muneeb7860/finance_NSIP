@@ -30,6 +30,7 @@ services:
       - nsip-network
 
   kafka:
+    platform: linux/amd64
     image: confluentinc/cp-kafka:7.3.0
     container_name: nsip-kafka
     ports:
@@ -47,6 +48,7 @@ services:
       - nsip-network
 
   zookeeper:
+    platform: linux/amd64
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: nsip-zookeeper
     environment:

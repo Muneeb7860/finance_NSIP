@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/auth/livekit")
+@RequestMapping("/api/v1/auth/livekit")
 @RequiredArgsConstructor
 public class LiveKitController {
 
