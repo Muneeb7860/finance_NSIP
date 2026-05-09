@@ -1,26 +1,26 @@
 package com.example.education_service.controller;
 
-import com.example.education_service.model.UserCourseProgress;
-import com.example.education_service.repository.UserCourseProgressRepository;
+import com.example.education_service.service.LearningService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.lang.NonNull;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/learning")
+@Tag(name = "Learning Gamification", description = "Endpoints for course progression and interactive gamification")
 public class LearningGamificationController {
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final LearningService learningService;
 
-    @Autowired
-    private UserCourseProgressRepository progressRepository;
+    public LearningGamificationController(LearningService learningService) {
+        this.learningService = learningService;
+    }
 
     /**
      * Complete a video course with gamified quiz.
@@ -30,64 +30,32 @@ public class LearningGamificationController {
      * Uses a DB unique constraint on (userId, courseId) as a safety net.
      */
     @PostMapping("/videos/{videoId}/complete")
-    @Transactional
-    public ResponseEntity<?> completeVideoWithInteractiveGamification(
-            @PathVariable UUID videoId,
-            @RequestParam UUID userId,
-            @RequestParam UUID courseId,
+    @PreAuthorize("#userId.toString().equals(authentication.name) or hasRole('ADMIN')")
+    @Operation(summary = "Complete a video course", description = "Records completion, validates quiz score, and awards gamification points.")
+    public ResponseEntity<Map<String, Object>> completeVideoWithInteractiveGamification(
+            @PathVariable @NonNull UUID videoId,
+            @RequestParam @NonNull UUID userId,
+            @RequestParam @NonNull UUID courseId,
             @RequestParam int interactiveQuizScore) {
 
-        // FLAW #13 FIX: Prevent duplicate course completions
-        if (progressRepository.existsByUserIdAndCourseIdAndCompletedTrue(userId, courseId)) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Course already completed. Points were previously awarded.",
-                    "courseId", courseId
-            ));
+        try {
+            Map<String, Object> result = learningService.completeVideoWithGamification(userId, videoId, courseId, interactiveQuizScore);
+            if (result.containsKey("error")) {
+                return ResponseEntity.badRequest().body(result);
+            }
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-
-        // Gamification Rule: User must score > 70% on the interactive video quiz
-        if (interactiveQuizScore < 70) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Quiz failed. Score " + interactiveQuizScore + "% is below the 70% threshold. Rewatch and try again."
-            ));
-        }
-
-        // Gamification Logic: Award 50 base points + bonus for high scores
-        int awardedPoints = 50 + (interactiveQuizScore - 70);
-
-        // Persist completion record
-        UserCourseProgress progress = progressRepository.findByUserIdAndCourseId(userId, courseId)
-                .orElseGet(() -> {
-                    UserCourseProgress p = new UserCourseProgress();
-                    p.setUserId(userId);
-                    p.setCourseId(courseId);
-                    return p;
-                });
-        progress.setCompleted(true);
-        progress.setQuizScore(interactiveQuizScore);
-        progress.setCertified(interactiveQuizScore >= 90); // Certify for scores >= 90%
-        progress.setCompletedAt(LocalDateTime.now());
-        progressRepository.save(progress);
-
-        // Publish event to Kafka for the rewards-service
-        String eventPayload = String.format(
-                "{\"userId\":\"%s\", \"courseId\":\"%s\", \"videoId\":\"%s\", \"pointsEarned\":%d, \"certified\":%b, \"event\":\"COURSE_COMPLETED\"}",
-                userId, courseId, videoId, awardedPoints, progress.isCertified());
-        kafkaTemplate.send("gamification.events", eventPayload);
-
-        return ResponseEntity.ok(Map.of(
-                "message", "Congratulations! You scored " + interactiveQuizScore + "% and earned " + awardedPoints + " points!",
-                "points", awardedPoints,
-                "certified", progress.isCertified(),
-                "courseId", courseId
-        ));
     }
 
     /**
      * Get user's learning progress across all courses.
      */
     @GetMapping("/progress/{userId}")
-    public ResponseEntity<?> getUserProgress(@PathVariable UUID userId) {
-        return ResponseEntity.ok(progressRepository.findByUserId(userId));
+    @PreAuthorize("#userId.toString().equals(authentication.name) or hasRole('ADMIN')")
+    @Operation(summary = "Get user progress", description = "Retrieve a user's course completions and scores.")
+    public ResponseEntity<?> getUserProgress(@PathVariable @NonNull UUID userId) {
+        return ResponseEntity.ok(learningService.getUserProgress(userId));
     }
 }

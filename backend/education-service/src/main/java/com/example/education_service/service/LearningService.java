@@ -27,6 +27,7 @@ public class LearningService {
     @Autowired private LearningStreakRepository streakRepo;
     @Autowired private StreakService streakService;
     @Autowired private KafkaTemplate<String, String> kafkaTemplate;
+    @Autowired private VideoRepository videoRepo;
 
     private static final AtomicLong CERT_COUNTER = new AtomicLong(1);
 
@@ -123,11 +124,84 @@ public class LearningService {
                 "certificate", cert != null ? cert.getCertificateNumber() : "N/A"
         );
     }
+
+    /**
+     * Complete a video course with gamified quiz.
+     * FLAW #13 FIX: Checks if the user has already completed this course.
+     * If so, rejects the request to prevent infinite point farming.
+     * Uses a DB unique constraint on (userId, courseId) as a safety net.
+     */
+    @Transactional
+    public Map<String, Object> completeVideoWithGamification(@NonNull UUID userId, @NonNull UUID videoId, @NonNull UUID courseId, int interactiveQuizScore) {
+        if (interactiveQuizScore < 0 || interactiveQuizScore > 100) {
+            throw new IllegalArgumentException("Quiz score must be between 0 and 100.");
+        }
+
+        Video video = videoRepo.findById(videoId)
+                .orElseThrow(() -> new IllegalArgumentException("Video not found."));
+
+        if (video.getCourse() == null || !video.getCourse().getId().equals(courseId)) {
+            throw new IllegalArgumentException("Video does not belong to the specified course.");
+        }
+
+        UserCourseProgress progress = progressRepo.findByUserIdAndCourseId(userId, courseId)
+                .orElseGet(() -> {
+                    UserCourseProgress p = new UserCourseProgress();
+                    p.setUserId(userId);
+                    p.setCourseId(courseId);
+                    return p;
+                });
+
+        if (progress.isCompleted()) {
+            throw new IllegalArgumentException("Course already completed. Points were previously awarded.");
+        }
+
+        int attemptCount = progress.getAttemptCount() + 1;
+        progress.setAttemptCount(attemptCount);
+        progress.setQuizScore(Math.max(progress.getQuizScore(), interactiveQuizScore));
+
+        if (interactiveQuizScore < 70) {
+            progressRepo.save(progress);
+            return Map.of(
+                    "error", "Quiz failed. Score " + interactiveQuizScore + "% is below the 70% threshold. Rewatch and try again.",
+                    "attempt", attemptCount,
+                    "bestScore", progress.getQuizScore()
+            );
+        }
+
+        int awardedPoints = 50 + (interactiveQuizScore - 70);
+        boolean newlyCertified = interactiveQuizScore >= 90;
+
+        progress.setCompleted(true);
+        progress.setCertified(progress.isCertified() || newlyCertified);
+        if (progress.getCompletedAt() == null) {
+            progress.setCompletedAt(LocalDateTime.now());
+        }
+        progressRepo.save(progress);
+
+        // Publish event to Kafka for the rewards-service
+        String eventPayload = String.format(
+                "{\"userId\":\"%s\", \"courseId\":\"%s\", \"videoId\":\"%s\", \"pointsEarned\":%d, \"certified\":%b, \"event\":\"COURSE_COMPLETED\"}",
+                userId, courseId, videoId, awardedPoints, progress.isCertified());
+        kafkaTemplate.send("gamification.events", eventPayload);
+
+        return Map.of(
+                "message", "Congratulations! You scored " + interactiveQuizScore + "% and earned " + awardedPoints + " points!",
+                "points", awardedPoints,
+                "certified", progress.isCertified(),
+                "courseId", courseId
+        );
+    }
+
     // Streak management is now handled by StreakService (weekly/monthly model)
 
     // =========================================================================
     // Certificates
     // =========================================================================
+
+    public List<UserCourseProgress> getUserProgress(@NonNull UUID userId) {
+        return progressRepo.findByUserId(userId);
+    }
 
     public List<Certificate> getUserCertificates(UUID userId) {
         return certRepo.findByUserId(userId);
