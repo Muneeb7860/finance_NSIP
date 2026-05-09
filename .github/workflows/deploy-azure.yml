@@ -7,19 +7,13 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     steps:
     - uses: actions/checkout@v3
 
     - name: Azure Login
-      uses: azure/login@v2
+      uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Build and push all services to ACR
       run: |
@@ -44,8 +38,9 @@ jobs:
         docker push nsipregistryv4.azurecr.io/ai-agent:latest
 
     - name: Set up AKS context
-      uses: azure/aks-set-context@v3
+      uses: azure/aks-set-context@v1
       with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
         resource-group: nsip-prod-rg-v4
         cluster-name: nsip-aks-cluster
 
