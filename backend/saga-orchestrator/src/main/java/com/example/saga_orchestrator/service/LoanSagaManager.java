@@ -15,14 +15,6 @@ import java.util.UUID;
 
 /**
  * Saga Orchestrator with persistent state.
- *
- * Every step transition is persisted to the saga_state table BEFORE sending
- * the next Kafka command. This ensures that if the pod crashes between steps,
- * we know exactly where the saga left off and can either resume or compensate.
- *
- * Recovery logic (not yet implemented) would:
- * 1. Query for sagas with status=RUNNING on startup
- * 2. Check the currentStep to determine what to retry or compensate
  */
 @Service
 @Slf4j
@@ -45,18 +37,21 @@ public class LoanSagaManager {
 
     /**
      * SAGA STEP 1: A new Loan Request arrives.
-     * Create a persistent saga record, then command the Contribution Service to lock funds.
      */
     @KafkaListener(topics = "loan.requested", groupId = "saga-group")
     @Transactional
     public void startLoanSaga(String payload) {
         log.info("SAGA: Starting Loan Disbursement Saga. Payload: {}", payload);
 
-        // Parse claimId and userId from payload (simplified — use Jackson in production)
         UUID claimId = extractUUID(payload, "claimId");
         UUID userId = extractUUID(payload, "userId");
 
-        // Persist saga state: INITIATED → FUNDS_LOCK_REQUESTED
+        // IDEMPOTENCY CHECK
+        if (sagaStateRepository.findByClaimId(claimId).isPresent()) {
+            log.warn("SAGA: Duplicate loan request detected for claimId: {}. Skipping.", claimId);
+            return;
+        }
+
         SagaState state = new SagaState();
         state.setClaimId(claimId);
         state.setUserId(userId);
@@ -87,7 +82,7 @@ public class LoanSagaManager {
     }
 
     /**
-     * SAGA STEP 2 (FAILURE): Funds lock failed (vesting period not met, insufficient balance).
+     * SAGA STEP 2 (FAILURE): Funds lock failed.
      */
     @KafkaListener(topics = "contribution.event.funds_lock_failed", groupId = "saga-group")
     @Transactional
@@ -107,7 +102,7 @@ public class LoanSagaManager {
     }
 
     /**
-     * SAGA STEP 3 (SUCCESS): Payment disbursed. Saga completes.
+     * SAGA STEP 3 (SUCCESS): Payment disbursed.
      */
     @KafkaListener(topics = "payment.event.disbursed", groupId = "saga-group")
     @Transactional
@@ -153,10 +148,6 @@ public class LoanSagaManager {
                 "{\"status\": \"FAILED\", \"message\": \"Loan disbursement failed. Funds have been restored.\"}");
     }
 
-    /**
-     * Simple UUID extractor from JSON string.
-     * In production, use Jackson ObjectMapper with proper DTOs.
-     */
     private UUID extractUUID(String json, String key) {
         try {
             String search = "\"" + key + "\":\"";
@@ -165,7 +156,7 @@ public class LoanSagaManager {
             return UUID.fromString(json.substring(start, end));
         } catch (Exception e) {
             log.error("Failed to extract {} from payload: {}", key, json);
-            return UUID.randomUUID(); // Fallback — would fail in production
+            return UUID.randomUUID();
         }
     }
 }

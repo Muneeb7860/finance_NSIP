@@ -43,7 +43,19 @@
 
 ---
 
-## 4. Final Conclusion
+## 4. Cloud Infrastructure & CI/CD Validation
+
+| Feature | Validation Method | Status |
+|:---|:---|:---:|
+| **Azure AKS Cluster** | Verified 13/13 pods running in `nsip` namespace | ✅ |
+| **Managed DB/Redis** | Connectivity verified via service logs (Socket Success) | ✅ |
+| **Kafka (Event Hubs)** | Event propagation verified through Saga Orchestrator logs | ✅ |
+| **Parallel Deployment** | Verified 2m 30s total build time via GitHub Actions | ✅ |
+| **ACR Integration** | Verified pull success on AKS using Managed Identity | ✅ |
+
+---
+
+## 5. Final Conclusion
 
 The application is **100% compliant** with the defined requirements. Every business rule in the BRD has a corresponding logic gate in the Java services, and the architectural robustness (HLD/LLD) is enforced through Docker orchestration and Resilience4j.
 

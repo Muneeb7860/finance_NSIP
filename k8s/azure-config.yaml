@@ -9,9 +9,9 @@ data:
   SPRING_DATASOURCE_USERNAME: "nsipadmin@nsip-postgres-v4"
   
   # --- Azure Cache for Redis ---
-  SPRING_REDIS_HOST: "nsip-redis-v4.redis.cache.windows.net"
-  SPRING_REDIS_PORT: "6380"
-  SPRING_REDIS_SSL: "true"
+  SPRING_DATA_REDIS_HOST: "nsip-redis-v4.redis.cache.windows.net"
+  SPRING_DATA_REDIS_PORT: "6380"
+  SPRING_DATA_REDIS_SSL: "true"
   
   # --- Kafka (Azure Event Hubs) ---
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "nsip-eventhubs-v4.servicebus.windows.net:9093"

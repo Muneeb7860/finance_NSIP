@@ -33,15 +33,15 @@ export const api = {
     request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(data) }),
 
   // Advisor Sessions
-  getAdvisors: () => request('/api/v1/advisors'),
-  bookSession: (data: any) => request('/api/v1/advisors/sessions/book', { method: 'POST', body: JSON.stringify(data) }),
-  getCustomerSessions: (userId: string) => request(`/api/v1/advisors/sessions/customer/${userId}`),
+  getAdvisors: () => request('/api/v1/learning/advisors'),
+  bookSession: (data: any) => request('/api/v1/learning/sessions/book', { method: 'POST', body: JSON.stringify(data) }),
+  getCustomerSessions: (userId: string) => request(`/api/v1/learning/sessions/customer/${userId}`),
   cancelSession: (sessionId: string, reason: string) => 
-    request(`/api/v1/advisors/sessions/${sessionId}/customer-cancel`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
+    request(`/api/v1/learning/sessions/${sessionId}/customer-cancel`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
   rescheduleSession: (sessionId: string, newTime: string) => 
-    request(`/api/v1/advisors/sessions/${sessionId}/reschedule`, { method: 'PATCH', body: JSON.stringify({ newTime }) }),
+    request(`/api/v1/learning/sessions/${sessionId}/reschedule`, { method: 'PATCH', body: JSON.stringify({ newTime }) }),
   submitReview: (sessionId: string, data: any) => 
-    request(`/api/v1/advisors/sessions/${sessionId}/review`, { method: 'POST', body: JSON.stringify(data) }),
+    request(`/api/v1/learning/sessions/${sessionId}/review`, { method: 'POST', body: JSON.stringify(data) }),
 
   // Claims
   submitClaim: (userId: string, claimType: string, amount: string, description: string) =>
@@ -64,5 +64,5 @@ export const api = {
 
   // LiveKit Assistant
   getLiveKitToken: (roomName?: string) => 
-    request('/api/auth/livekit/token', { method: 'POST', body: JSON.stringify({ roomName }) }),
+    request('/api/v1/auth/livekit/token', { method: 'POST', body: JSON.stringify({ roomName }) }),
 };
