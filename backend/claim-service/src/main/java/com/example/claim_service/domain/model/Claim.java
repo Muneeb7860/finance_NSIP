@@ -10,6 +10,8 @@ public class Claim {
     private BigDecimal amount;
     private String description;
     private ClaimStatus status;
+    private String aiRecommendation;
+    private String aiReasoning;
     private LocalDateTime createdAt;
 
     public Claim() {}
@@ -37,6 +39,10 @@ public class Claim {
     public void setDescription(String description) { this.description = description; }
     public ClaimStatus getStatus() { return status; }
     public void setStatus(ClaimStatus status) { this.status = status; }
+    public String getAiRecommendation() { return aiRecommendation; }
+    public void setAiRecommendation(String aiRecommendation) { this.aiRecommendation = aiRecommendation; }
+    public String getAiReasoning() { return aiReasoning; }
+    public void setAiReasoning(String aiReasoning) { this.aiReasoning = aiReasoning; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 

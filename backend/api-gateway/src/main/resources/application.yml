@@ -34,54 +34,57 @@ spring:
 
       routes:
         - id: auth-service
-          uri: http://auth-service:8081
+          uri: http://auth-service:8080
           predicates:
             - Path=/api/v1/auth/**
         
         - id: claim-service
-          uri: http://claim-service:8082
+          uri: http://claim-service:8080
           predicates:
             - Path=/api/v1/claims/**
         
         - id: contribution-service
-          uri: http://contribution-service:8083
+          uri: http://contribution-service:8080
           predicates:
             - Path=/api/v1/contributions/**
         
         - id: education-service
-          uri: http://education-service:8084
+          uri: http://education-service:8080
           predicates:
             - Path=/api/v1/learning/**
         
         - id: event-service
-          uri: http://event-service:8085
+          uri: http://event-service:8080
           predicates:
             - Path=/api/v1/events/**
         
         - id: rewards-service
-          uri: http://rewards-service:8086
+          uri: http://rewards-service:8080
           predicates:
             - Path=/api/v1/rewards/**
         
         - id: payment-service
-          uri: http://payment-service:8088
+          uri: http://payment-service:8080
           predicates:
             - Path=/api/v1/payments/**
         
         - id: review-service
-          uri: http://review-service:8089
+          uri: http://review-service:8080
           predicates:
             - Path=/api/v1/reviews/**
         
         - id: notification-engine
-          uri: http://notification-engine:8090
+          uri: http://notification-engine:8080
           predicates:
             - Path=/api/v1/notifications/**
 
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:3000"
+            allowedOrigins: 
+              - "http://localhost:3000"
+              - "http://localhost:5173"
+              - "https://nsip-web.azurewebsites.net"
             allowedMethods: GET,POST,PUT,DELETE,OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
@@ -103,3 +106,22 @@ management:
   endpoint:
     health:
       show-details: always
+
+# ============================================================
+# API DOCUMENTATION
+# ============================================================
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: Auth Service
+        url: /api/v1/auth/v3/api-docs
+      - name: Claim Service
+        url: /api/v1/claims/v3/api-docs
+      - name: Contribution Service
+        url: /api/v1/contributions/v3/api-docs
+      - name: Event Service
+        url: /api/v1/events/v3/api-docs

@@ -3,17 +3,25 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Box, Drawer, AppBar, Toolbar, Typography, List, 
   ListItem, ListItemButton, ListItemIcon, ListItemText, Container,
-  IconButton, Divider, Paper, TextField, Stack, Badge, Avatar, alpha, Button, Chip
+  IconButton, Divider, Paper, TextField, Stack, Badge, Avatar, alpha, Button, Chip,
+  Menu, MenuItem
 } from '@mui/material';
 import { 
   School as SchoolIcon, AccountBalanceWallet as WalletIcon, 
   FitnessCenter as FitnessIcon, TrendingUp as PlanningIcon, 
   Menu as MenuIcon, Logout as LogoutIcon, Assessment as PortfolioIcon,
   Business as BusinessIcon, Security as AdminIcon,
-  Notifications as NotificationIcon, Search as SearchIcon
+  Notifications as NotificationIcon, Search as SearchIcon,
+  Payment as FinancialIcon, Psychology as LmsIcon
 } from '@mui/icons-material';
 
 const DRAWER_WIDTH = 280;
+
+const MOCK_NOTIFICATIONS = [
+  { id: 1, title: 'Approved Loan Funds', desc: 'SAR 25,000 has been credited to your wallet.', type: 'financial', time: '2m ago', icon: <FinancialIcon /> },
+  { id: 2, title: 'New Course Available', desc: 'Sustainable Investing 101 is now open.', type: 'lms', time: '1h ago', icon: <LmsIcon /> },
+  { id: 3, title: 'Security Alert', desc: 'Login detected from a new Azure region.', type: 'security', time: '3h ago', icon: <AdminIcon /> },
+];
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,8 +30,12 @@ interface LayoutProps {
 
 export default function Layout({ children, role }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleNotifOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleNotifClose = () => setAnchorEl(null);
 
   const menuConfigs = {
     customer: [
@@ -158,9 +170,54 @@ export default function Layout({ children, role }: LayoutProps) {
           </Box>
 
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <IconButton color="inherit" onClick={() => navigate(`/${role}/notifications`)}>
-              <Badge badgeContent={3} color="error"><NotificationIcon /></Badge>
+            <IconButton color="inherit" onClick={handleNotifOpen}>
+              <Badge badgeContent={MOCK_NOTIFICATIONS.length} color="error" overlap="circular">
+                <NotificationIcon />
+              </Badge>
             </IconButton>
+            
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleNotifClose}
+              slotProps={{ 
+                paper: { 
+                  sx: { 
+                    width: 380, 
+                    mt: 1.5, 
+                    bgcolor: '#111827', 
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                    borderRadius: 3
+                  } 
+                } 
+              }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Notifications</Typography>
+                <Button size="small" variant="text" sx={{ fontSize: '0.7rem' }}>Mark all read</Button>
+              </Box>
+              <Divider sx={{ opacity: 0.05 }} />
+              {MOCK_NOTIFICATIONS.map((n) => (
+                <MenuItem key={n.id} onClick={handleNotifClose} sx={{ py: 2, px: 2, display: 'flex', gap: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                  <Avatar sx={{ bgcolor: alpha(n.type === 'financial' ? '#10b981' : n.type === 'lms' ? '#8b5cf6' : '#ef4444', 0.1), color: n.type === 'financial' ? '#10b981' : n.type === 'lms' ? '#8b5cf6' : '#ef4444' }}>
+                    {n.icon}
+                  </Avatar>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{n.title}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{n.desc}</Typography>
+                    <Typography variant="caption" sx={{ fontSize: '0.65rem', opacity: 0.5 }}>{n.time}</Typography>
+                  </Box>
+                </MenuItem>
+              ))}
+              <Divider sx={{ opacity: 0.05 }} />
+              <Box sx={{ p: 1.5 }}>
+                <Button fullWidth variant="contained" size="small" onClick={() => navigate(`/${role}/notifications`)} sx={{ borderRadius: 2 }}>See All Activity</Button>
+              </Box>
+            </Menu>
+
             <IconButton onClick={() => navigate(`/${role}/profile`)} sx={{ p: 0 }}>
               <Avatar sx={{ bgcolor: role === 'admin' ? 'error.main' : 'secondary.main', width: 35, height: 35, fontSize: '0.9rem' }}>SJ</Avatar>
             </IconButton>

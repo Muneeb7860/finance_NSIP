@@ -40,21 +40,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            String token = Objects.requireNonNull(authHeader.substring(7));
             try {
-                UUID userId = Objects.requireNonNull(authService.validateToken(token));
-                String role = Objects.requireNonNull(authService.extractRole(token));
+                UUID userId = authService.validateToken(token);
+                String role = authService.extractRole(token);
 
-                // Create Spring Security authentication with the user's role as granted authority
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userId,
-                                null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                        );
+                if (userId != null && role != null) {
+                    // Create Spring Security authentication with the user's role as granted authority
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userId,
+                                    null,
+                                    List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                            );
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Authenticated user: {} with role: {}", userId, role);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Authenticated user: {} with role: {}", userId, role);
+                }
 
             } catch (Exception e) {
                 log.warn("JWT validation failed: {}", e.getMessage());

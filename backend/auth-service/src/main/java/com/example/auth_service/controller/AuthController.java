@@ -1,6 +1,6 @@
 package com.example.auth_service.controller;
 
-import com.example.auth_service.model.*;
+import com.example.auth_service.model.User;
 import com.example.auth_service.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

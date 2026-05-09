@@ -5,6 +5,10 @@
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
+if (import.meta.env.DEV) {
+  console.log(`🚀 NSIP API Base: ${API_BASE || 'Relative (Vite Proxy)'}`);
+}
+
 async function request(path: string, options?: RequestInit) {
   const token = localStorage.getItem('nsip_token');
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -57,4 +61,8 @@ export const api = {
 
   // Payments
   getUserRepayments: (userId: string) => request(`/api/v1/payments/repayments/${userId}`),
+
+  // LiveKit Assistant
+  getLiveKitToken: (roomName?: string) => 
+    request('/api/auth/livekit/token', { method: 'POST', body: JSON.stringify({ roomName }) }),
 };

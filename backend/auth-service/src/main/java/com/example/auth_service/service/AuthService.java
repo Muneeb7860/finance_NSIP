@@ -103,7 +103,7 @@ public class AuthService {
             User user = userRepository.findById(uuid)
                     .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
-            return generateTokens(user);
+            return generateTokens(Objects.requireNonNull(user));
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid or expired refresh token.");
         }
@@ -137,6 +137,7 @@ public class AuthService {
      * Validate a JWT token and extract the user ID.
      * Throws if the token is expired, tampered, or malformed.
      */
+    @NonNull
     public UUID validateToken(@NonNull String token) {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         String userId = Jwts.parser()
@@ -145,20 +146,21 @@ public class AuthService {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
-        return UUID.fromString(userId);
+        return Objects.requireNonNull(UUID.fromString(Objects.requireNonNull(userId)));
     }
 
     /**
      * Extract the role from a validated JWT token.
      */
+    @NonNull
     public String extractRole(@NonNull String token) {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        return Jwts.parser()
+        return Objects.requireNonNull(Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
-                .get("role", String.class);
+                .get("role", String.class));
     }
 
     public Optional<User> findById(@NonNull UUID id) {

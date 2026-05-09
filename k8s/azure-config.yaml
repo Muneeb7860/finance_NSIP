@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nsip-azure-config
+  namespace: nsip
+data:
+  # --- Azure Database for PostgreSQL ---
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://nsip-postgres-v4.postgres.database.azure.com:5432/nsip_db?sslmode=require"
+  SPRING_DATASOURCE_USERNAME: "nsipadmin@nsip-postgres-v4"
+  
+  # --- Azure Cache for Redis ---
+  SPRING_REDIS_HOST: "nsip-redis-v4.redis.cache.windows.net"
+  SPRING_REDIS_PORT: "6380"
+  SPRING_REDIS_SSL: "true"
+  
+  # --- Kafka (Azure Event Hubs) ---
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "nsip-eventhubs-v4.servicebus.windows.net:9093"
+  SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: "SASL_SSL"
+  SPRING_KAFKA_PROPERTIES_SASL_MECHANISM: "PLAIN"
+  SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="${EVENT_HUBS_CONNECTION_STRING}";'
+  
+  # --- Application Runtime ---
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+  LOGGING_LEVEL_ROOT: "INFO"
+  JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nsip-azure-secrets
+  namespace: nsip
+type: Opaque
+data:
+  # INSTRUCTIONS: These secrets must be applied manually via kubectl or injected via GitHub Secrets.
+  # Hardcoded secrets were removed to comply with GitHub Secret Scanning.
+  SPRING_DATASOURCE_PASSWORD: "U2VjdXJlUGFzc3dvcmQxMjMh" # Placeholder
+  SPRING_REDIS_PASSWORD: "UmVkaXNQYXNzd29yZDEyMyE=" # Placeholder
+  EVENT_HUBS_CONNECTION_STRING: "RW50ZXJDb25uZWN0aW9uU3RyaW5nSGVyZQ==" # Placeholder

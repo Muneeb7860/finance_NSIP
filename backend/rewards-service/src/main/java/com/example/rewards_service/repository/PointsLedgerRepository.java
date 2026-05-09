@@ -11,4 +11,7 @@ public interface PointsLedgerRepository extends JpaRepository<PointsLedger, UUID
 
     @Query("SELECT COALESCE(SUM(p.pointDelta), 0) FROM PointsLedger p WHERE p.userId = :userId")
     int getTotalPointsByUserId(UUID userId);
+
+    @Query("SELECT p.userId, SUM(p.pointDelta) as totalPoints FROM PointsLedger p GROUP BY p.userId ORDER BY totalPoints DESC")
+    List<Object[]> getLeaderboard();
 }
