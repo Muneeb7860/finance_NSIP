@@ -268,7 +268,7 @@ services:
       dockerfile: Dockerfile
       args:
         SERVICE_NAME: saga-orchestrator
-    container_name: nsip-saga
+    # container_name: nsip-saga
     ports:
       - "8087:8080"
     environment:
