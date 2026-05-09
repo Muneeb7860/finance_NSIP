@@ -40,10 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            String token = Objects.requireNonNull(authHeader.substring(7));
             try {
-                UUID userId = Objects.requireNonNull(authService.validateToken(token));
-                String role = Objects.requireNonNull(authService.extractRole(token));
+                UUID userId = authService.validateToken(token);
+                String role = authService.extractRole(token);
 
                 if (userId != null && role != null) {
                     // Create Spring Security authentication with the user's role as granted authority
