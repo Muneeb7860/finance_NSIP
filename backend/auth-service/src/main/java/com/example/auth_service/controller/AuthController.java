@@ -72,4 +72,17 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @Operation(summary = "Get user profile by ID", description = "Returns user details (name, email, role). Internal use only.")
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUserProfile(@PathVariable @org.springframework.lang.NonNull String userId) {
+        return authService.getUserById(userId)
+                .map(user -> ResponseEntity.ok(Map.of(
+                        "userId", user.getId(),
+                        "fullName", user.getFullName(),
+                        "email", user.getEmail(),
+                        "role", user.getRole()
+                )))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

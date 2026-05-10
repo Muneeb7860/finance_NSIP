@@ -1,5 +1,6 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "automatic",
-    "python.defaultInterpreterPath": "backend/ai-agent/.venv/bin/python"
+    "python.defaultInterpreterPath": "backend/ai-agent/.venv/bin/python",
+    "java.debug.settings.onBuildFailureProceed": true
 }

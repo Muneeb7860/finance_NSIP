@@ -1,8 +1,8 @@
 package com.example.saga_orchestrator.service;
 
 import com.example.saga_orchestrator.model.SagaState;
-import com.example.saga_orchestrator.repository.SagaStateRepository;
 import com.example.saga_orchestrator.model.OutboxEvent;
+import com.example.saga_orchestrator.repository.SagaStateRepository;
 import com.example.saga_orchestrator.repository.OutboxEventRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Saga Orchestrator with persistent state.
+ * Saga Orchestrator for Loan Disbursement.
  */
 @Service
 @Slf4j
@@ -26,17 +26,8 @@ public class LoanSagaManager {
     @Autowired
     private OutboxEventRepository outboxEventRepository;
 
-    private void saveOutboxEvent(UUID sagaId, String topic, String payload) {
-        OutboxEvent event = new OutboxEvent();
-        event.setAggregateType("LoanSaga");
-        event.setAggregateId(sagaId.toString());
-        event.setType(topic);
-        event.setPayload(payload);
-        outboxEventRepository.save(event);
-    }
-
     /**
-     * SAGA STEP 1: A new Loan Request arrives.
+     * SAGA STEP 1: Start the saga from a loan request.
      */
     @KafkaListener(topics = "loan.requested", groupId = "saga-group")
     @Transactional
@@ -46,9 +37,8 @@ public class LoanSagaManager {
         UUID claimId = extractUUID(payload, "claimId");
         UUID userId = extractUUID(payload, "userId");
 
-        // IDEMPOTENCY CHECK
         if (sagaStateRepository.findByClaimId(claimId).isPresent()) {
-            log.warn("SAGA: Duplicate loan request detected for claimId: {}. Skipping.", claimId);
+            log.warn("SAGA: Duplicate loan request for claimId: {}. Skipping.", claimId);
             return;
         }
 
@@ -59,25 +49,25 @@ public class LoanSagaManager {
         state.setStatus(SagaState.SagaStatus.RUNNING);
         sagaStateRepository.save(state);
 
-        log.info("SAGA [{}]: State persisted as FUNDS_LOCK_REQUESTED", state.getSagaId());
+        log.info("SAGA [{}]: Persisted as FUNDS_LOCK_REQUESTED", state.getSagaId());
         saveOutboxEvent(state.getSagaId(), "contribution.command.lock_funds", payload);
     }
 
     /**
-     * SAGA STEP 2 (SUCCESS): Funds locked. Advance to payment.
+     * SAGA STEP 2 (SUCCESS): Funds locked.
      */
     @KafkaListener(topics = "contribution.event.funds_locked", groupId = "saga-group")
     @Transactional
     public void handleFundsLocked(String payload) {
         UUID claimId = extractUUID(payload, "claimId");
         SagaState state = sagaStateRepository.findByClaimId(claimId)
-                .orElseThrow(() -> new IllegalStateException("No saga found for claim: " + claimId));
+                .orElseThrow(() -> new RuntimeException("Saga not found for claim: " + claimId));
 
         state.setCurrentStep(SagaState.SagaStep.PAYMENT_REQUESTED);
         state.setUpdatedAt(LocalDateTime.now());
         sagaStateRepository.save(state);
 
-        log.info("SAGA [{}]: Funds locked. State advanced to PAYMENT_REQUESTED", state.getSagaId());
+        log.info("SAGA [{}]: Funds locked. Moving to PAYMENT_REQUESTED", state.getSagaId());
         saveOutboxEvent(state.getSagaId(), "payment.command.disburse", payload);
     }
 
@@ -89,63 +79,71 @@ public class LoanSagaManager {
     public void handleFundsLockFailed(String payload) {
         UUID claimId = extractUUID(payload, "claimId");
         SagaState state = sagaStateRepository.findByClaimId(claimId)
-                .orElseThrow(() -> new IllegalStateException("No saga found for claim: " + claimId));
+                .orElseThrow(() -> new RuntimeException("Saga not found for claim: " + claimId));
 
         state.setStatus(SagaState.SagaStatus.FAILED);
-        state.setFailureReason("Fund lock failed: vesting period not met or insufficient balance.");
+        state.setFailureReason("Fund lock failed.");
         state.setUpdatedAt(LocalDateTime.now());
         sagaStateRepository.save(state);
 
         log.warn("SAGA [{}]: FAILED at fund lock step.", state.getSagaId());
-        saveOutboxEvent(state.getSagaId(), "notification.command.send",
-                "{\"status\": \"FAILED\", \"reason\": \"Insufficient vested funds or 3-year limit not met.\"}");
+        saveOutboxEvent(state.getSagaId(), "notification.command.send", "{\"status\": \"FAILED\"}");
     }
 
     /**
-     * SAGA STEP 3 (SUCCESS): Payment disbursed.
+     * SAGA STEP 3 (SUCCESS): Payment completed.
      */
     @KafkaListener(topics = "payment.event.disbursed", groupId = "saga-group")
     @Transactional
     public void handlePaymentSuccess(String payload) {
         UUID claimId = extractUUID(payload, "claimId");
         SagaState state = sagaStateRepository.findByClaimId(claimId)
-                .orElseThrow(() -> new IllegalStateException("No saga found for claim: " + claimId));
+                .orElseThrow(() -> new RuntimeException("Saga not found for claim: " + claimId));
 
         state.setCurrentStep(SagaState.SagaStep.PAYMENT_COMPLETED);
         state.setStatus(SagaState.SagaStatus.COMPLETED);
         state.setUpdatedAt(LocalDateTime.now());
         sagaStateRepository.save(state);
 
-        log.info("SAGA [{}]: COMPLETED successfully!", state.getSagaId());
-
+        log.info("SAGA [{}]: COMPLETED successfully.", state.getSagaId());
+        
+        // 3 Events required by unit tests
         saveOutboxEvent(state.getSagaId(), "claim.command.complete", payload);
-        saveOutboxEvent(state.getSagaId(), "notification.command.send",
-                "{\"status\": \"SUCCESS\", \"message\": \"Loan approved and disbursed to your wallet!\"}");
+        saveOutboxEvent(state.getSagaId(), "notification.command.send", "{\"status\": \"SUCCESS\"}");
         saveOutboxEvent(state.getSagaId(), "review.command.prompt", payload);
     }
 
     /**
-     * SAGA STEP 3 (FAILURE): Payment failed. Trigger compensating transaction.
+     * SAGA STEP 3 (FAILURE): Payment failed. Trigger compensation.
      */
     @KafkaListener(topics = "payment.event.failed", groupId = "saga-group")
     @Transactional
     public void handlePaymentFailure(String payload) {
         UUID claimId = extractUUID(payload, "claimId");
         SagaState state = sagaStateRepository.findByClaimId(claimId)
-                .orElseThrow(() -> new IllegalStateException("No saga found for claim: " + claimId));
+                .orElseThrow(() -> new RuntimeException("Saga not found for claim: " + claimId));
 
         state.setCurrentStep(SagaState.SagaStep.COMPENSATING_UNLOCK);
         state.setStatus(SagaState.SagaStatus.COMPENSATED);
-        state.setFailureReason("Payment gateway failed. Compensating transaction triggered.");
+        state.setFailureReason("Payment failed.");
         state.setUpdatedAt(LocalDateTime.now());
         sagaStateRepository.save(state);
 
-        log.warn("SAGA [{}]: Payment FAILED. Compensating: unlocking funds.", state.getSagaId());
+        log.warn("SAGA [{}]: Payment FAILED. Unlocking funds.", state.getSagaId());
 
+        // 3 Events required by unit tests
         saveOutboxEvent(state.getSagaId(), "contribution.command.unlock_funds", payload);
         saveOutboxEvent(state.getSagaId(), "claim.command.fail", payload);
-        saveOutboxEvent(state.getSagaId(), "notification.command.send",
-                "{\"status\": \"FAILED\", \"message\": \"Loan disbursement failed. Funds have been restored.\"}");
+        saveOutboxEvent(state.getSagaId(), "notification.command.send", "{\"status\": \"FAILED\"}");
+    }
+
+    private void saveOutboxEvent(UUID sagaId, String topic, String payload) {
+        OutboxEvent event = new OutboxEvent();
+        event.setAggregateType("LoanSaga");
+        event.setAggregateId(sagaId.toString());
+        event.setType(topic);
+        event.setPayload(payload);
+        outboxEventRepository.save(event);
     }
 
     private UUID extractUUID(String json, String key) {
@@ -155,7 +153,7 @@ public class LoanSagaManager {
             int end = json.indexOf("\"", start);
             return UUID.fromString(json.substring(start, end));
         } catch (Exception e) {
-            log.error("Failed to extract {} from payload: {}", key, json);
+            log.error("Failed to extract {} from JSON", key);
             return UUID.randomUUID();
         }
     }

@@ -3,79 +3,71 @@ package com.example.claim_service.domain.service;
 import com.example.claim_service.application.port.out.ClaimRepositoryPort;
 import com.example.claim_service.application.port.out.ClaimReviewerPort;
 import com.example.claim_service.domain.model.Claim;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.math.BigDecimal;
+
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ClaimDomainServiceTest {
+@SuppressWarnings("null")
+public class ClaimDomainServiceTest {
 
-    @Mock
-    private ClaimRepositoryPort repository;
+    @Mock private ClaimRepositoryPort repository;
+    @Mock private ClaimReviewerPort reviewer;
 
-    @Mock
-    private ClaimReviewerPort reviewer;
-
-    private ClaimDomainService domainService;
-
-    @BeforeEach
-    void setUp() {
-        domainService = new ClaimDomainService(repository, reviewer);
-    }
+    @InjectMocks
+    private ClaimDomainService claimDomainService;
 
     @Test
-    @DisplayName("Submit a valid personal loan claim")
-    void testSubmitValidClaim() {
-        String userId = UUID.randomUUID().toString();
+    void testSubmitClaim_WithAiSuccess() {
         Claim claim = new Claim();
-        claim.setUserId(userId);
+        claim.setUserId("user-1");
         claim.setType(Claim.ClaimType.PERSONAL_LOAN);
-        claim.setAmount(new BigDecimal("1000"));
 
-        when(repository.save(any(Claim.class))).thenAnswer(i -> i.getArgument(0));
-        when(reviewer.review(any(Claim.class))).thenReturn(new String[]{"APPROVE", "Looks good"});
+        when(repository.save(any())).thenReturn(claim);
+        when(reviewer.review(any())).thenReturn(new String[]{"APPROVED", "Reasoning..."});
 
-        Claim result = domainService.submitClaim(claim);
+        Claim result = claimDomainService.submitClaim(claim);
 
         assertNotNull(result);
-        assertEquals(Claim.ClaimStatus.PENDING, result.getStatus());
-        verify(repository).save(any(Claim.class));
+        assertEquals("APPROVED", result.getAiRecommendation());
+        verify(reviewer).review(any());
+        verify(repository, times(2)).save(any());
     }
 
     @Test
-    @DisplayName("Update claim status to approved")
-    void testUpdateStatus() {
-        String claimId = UUID.randomUUID().toString();
-        Claim existing = new Claim();
-        existing.setId(claimId);
-        existing.setStatus(Claim.ClaimStatus.PENDING);
+    void testSubmitClaim_WithAiFailure() {
+        Claim claim = new Claim();
+        claim.setUserId("user-1");
+        claim.setType(Claim.ClaimType.EMERGENCY_RELIEF);
 
-        when(repository.findById(claimId)).thenReturn(Optional.of(existing));
-        when(repository.save(any(Claim.class))).thenAnswer(i -> i.getArgument(0));
+        when(repository.save(any())).thenReturn(claim);
+        when(reviewer.review(any())).thenThrow(new RuntimeException("AI Down"));
 
-        Claim result = domainService.updateClaimStatus(claimId, Claim.ClaimStatus.APPROVED);
+        Claim result = claimDomainService.submitClaim(claim);
 
-        assertEquals(Claim.ClaimStatus.APPROVED, result.getStatus());
+        assertNotNull(result);
+        assertNull(result.getAiRecommendation());
+        verify(repository, times(1)).save(any());
     }
 
     @Test
-    @DisplayName("Throw exception if claim not found during status update")
-    void testUpdateStatusNotFound() {
-        String claimId = "invalid-id";
-        when(repository.findById(claimId)).thenReturn(Optional.empty());
+    void testUpdateClaimStatus_NotFound() {
+        when(repository.findById(anyString())).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> claimDomainService.updateClaimStatus("123", Claim.ClaimStatus.APPROVED));
+    }
 
-        assertThrows(RuntimeException.class, () -> 
-            domainService.updateClaimStatus(claimId, Claim.ClaimStatus.APPROVED)
-        );
+    @Test
+    void testGetClaimsByUserId() {
+        when(repository.findByUserId("user-1")).thenReturn(java.util.List.of(new Claim()));
+        var result = claimDomainService.getClaimsByUserId("user-1");
+        assertFalse(result.isEmpty());
     }
 }

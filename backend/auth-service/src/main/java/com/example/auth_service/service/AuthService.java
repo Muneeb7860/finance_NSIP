@@ -166,4 +166,13 @@ public class AuthService {
     public Optional<User> findById(@NonNull UUID id) {
         return userRepository.findById(id);
     }
+
+    public Optional<User> getUserById(@NonNull String id) {
+        try {
+            UUID uuid = java.util.Objects.requireNonNull(UUID.fromString(id));
+            return userRepository.findById(uuid);
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
 }

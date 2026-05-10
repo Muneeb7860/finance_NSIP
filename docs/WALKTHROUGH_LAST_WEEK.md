@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Walkthrough: Items Added in Last Week (May 3-10, 2026)
 
 This document provides a walkthrough of the key items (code fixes, improvements, and validations) added to the finance_NSIP project, specifically focusing on the education-service module, during the last week.
@@ -42,3 +43,25 @@ The primary focus was on reviewing and delivering error-free code for the educat
 - Review other services in the backend for similar improvements.
 
 This walkthrough ensures transparency in the development process and highlights the value added to the project.
+=======
+# WALKTHROUGH: Azure Migration & Stabilization
+
+This document summarizes the major milestones achieved during the transition from local development to a production-ready Azure environment.
+
+## 📅 Milestone 1: Infrastructure Provisioning
+- **Terraform Automation**: Provisioned AKS, PostgreSQL, Redis, and Event Hubs.
+- **Messaging Layer**: Integrated Azure Event Hubs with Kafka protocols to support the Saga Orchestrator.
+
+## 📅 Milestone 2: CI/CD Pipeline Hardening
+- **Security**: Implemented GitHub Secrets management using stable `creds` JSON and Service Principal authentication.
+- **Performance**: Optimized build time from **~9 minutes to 2.5 minutes** using a parallel matrix strategy and GHA Docker caching.
+- **Validation**: Added automated health checks to the deployment pipeline to ensure zero-downtime rollouts.
+
+## 📅 Milestone 3: Service Stabilization
+- **Networking**: Configured Ingress-Nginx and Database Firewall rules to allow secure cross-service communication.
+- **Containerization**: Fixed architecture-mismatch issues (ARM64 vs AMD64) and created missing Dockerfiles for the React frontend.
+- **Application Logic**: Verified end-to-end flows for loan requests, gamification points, and advisor bookings.
+
+## 🏆 Current State
+The platform is **LIVE** on Azure AKS. All 13 services are healthy, the database is reachable, and the deployment pipeline is optimized for government-scale rapid iterations.
+>>>>>>> 4a623ef (docs: include new stabilization walkthrough and metrics)

@@ -87,7 +87,7 @@ services:
         SERVICE_NAME: auth-service
     container_name: nsip-auth
     ports:
-      - "8081:8080"
+      - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_auth
       SPRING_DATASOURCE_USERNAME: auth_user
@@ -108,7 +108,7 @@ services:
         SERVICE_NAME: claim-service
     container_name: nsip-claim
     ports:
-      - "8082:8080"
+      - "8082:8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_claims
       SPRING_DATASOURCE_USERNAME: claim_user
@@ -129,7 +129,7 @@ services:
         SERVICE_NAME: contribution-service
     container_name: nsip-contribution
     ports:
-      - "8083:8080"
+      - "8083:8083"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_contributions
       SPRING_DATASOURCE_USERNAME: contribution_user
@@ -150,7 +150,7 @@ services:
         SERVICE_NAME: education-service
     container_name: nsip-education
     ports:
-      - "8084:8080"
+      - "8084:8084"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_education
       SPRING_DATASOURCE_USERNAME: education_user
@@ -171,7 +171,7 @@ services:
         SERVICE_NAME: event-service
     container_name: nsip-event
     ports:
-      - "8085:8080"
+      - "8085:8085"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_events
       SPRING_DATASOURCE_USERNAME: event_user
@@ -192,7 +192,7 @@ services:
         SERVICE_NAME: notification-engine
     container_name: nsip-notification
     ports:
-      - "8090:8080"
+      - "8090:8090"
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: nsip-kafka:29092
       JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
@@ -209,7 +209,7 @@ services:
         SERVICE_NAME: payment-service
     container_name: nsip-payment
     ports:
-      - "8088:8080"
+      - "8088:8088"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_payments
       SPRING_DATASOURCE_USERNAME: payment_user
@@ -230,7 +230,7 @@ services:
         SERVICE_NAME: review-service
     container_name: nsip-review
     ports:
-      - "8089:8080"
+      - "8089:8089"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_reviews
       SPRING_DATASOURCE_USERNAME: review_user
@@ -251,7 +251,7 @@ services:
         SERVICE_NAME: rewards-service
     container_name: nsip-rewards
     ports:
-      - "8086:8080"
+      - "8086:8086"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_rewards
       SPRING_DATASOURCE_USERNAME: rewards_user
@@ -272,7 +272,7 @@ services:
         SERVICE_NAME: saga-orchestrator
     # container_name: nsip-saga
     ports:
-      - "8087:8080"
+      - "8087:8087"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/nsip_saga
       SPRING_DATASOURCE_USERNAME: saga_user

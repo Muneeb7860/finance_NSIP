@@ -5,11 +5,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Persists the state of each Saga transaction.
- * If the orchestrator pod restarts mid-saga, it can resume from the last known step.
- * Without this table, a pod crash could leave funds permanently locked.
- */
 @Entity
 @Table(name = "saga_state")
 @Data
