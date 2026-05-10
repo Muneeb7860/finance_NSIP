@@ -139,13 +139,20 @@ jobs:
           kubectl apply -f ./k8s/azure-deploy-all.yaml
           kubectl apply -f ./k8s/ingress.yaml
 
-      - name: Verify Deployment Health
+      - name: Verify Core Services Health
         run: |
-          echo "🕒 Waiting for deployments to stabilize..."
-          DEPLOYMENTS=$(kubectl get deployments -n nsip -o name | grep -v 'ai-agent')
-          for deploy in $DEPLOYMENTS; do
+          echo "🕒 Waiting for core services to stabilize..."
+          for deploy in $(kubectl get deployments -n nsip -o name | grep -v 'ai-agent'); do
+            echo "  Checking $deploy..."
             kubectl rollout status $deploy -n nsip --timeout=120s
           done
           echo "✅ All core services are healthy!"
-          echo "⏳ Checking ai-agent status (non-blocking)..."
-          kubectl rollout status deployment/ai-agent -n nsip --timeout=120s || echo "⚠️  ai-agent not yet ready (LiveKit worker - check logs with: kubectl logs -n nsip -l app=ai-agent)"
+
+      - name: Verify AI Agent Health
+        continue-on-error: true
+        run: |
+          echo "⏳ Restarting ai-agent to clear any stale state..."
+          kubectl rollout restart deployment/ai-agent -n nsip
+          echo "⏳ Waiting for ai-agent to stabilize (non-blocking)..."
+          kubectl rollout status deployment/ai-agent -n nsip --timeout=120s
+          echo "✅ ai-agent is healthy!"
