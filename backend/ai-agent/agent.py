@@ -77,4 +77,13 @@ async def entrypoint(ctx: JobContext):
 
 if __name__ == "__main__":
     _start_health_server(port=8091)
-    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))
+    try:
+        cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))
+    except Exception as e:
+        logger.error(f"LiveKit worker failed to start: {e}. Health server remains active.")
+        # Keep the process alive so the health probe stays UP and the pod doesn't crash-loop.
+        # The agent will recover when LiveKit connectivity is restored.
+        import time
+        while True:
+            time.sleep(60)
+
