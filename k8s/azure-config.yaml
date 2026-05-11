@@ -6,7 +6,7 @@ metadata:
 data:
   # --- Azure Database for PostgreSQL ---
   SPRING_DATASOURCE_URL: "jdbc:postgresql://nsip-postgres-v4.postgres.database.azure.com:5432/nsip_db?sslmode=require"
-  SPRING_DATASOURCE_USERNAME: "nsipadmin@nsip-postgres-v4"
+  SPRING_DATASOURCE_USERNAME: "nsipadmin"
   
   # --- Azure Cache for Redis ---
   SPRING_DATA_REDIS_HOST: "nsip-redis-v4.redis.cache.windows.net"
