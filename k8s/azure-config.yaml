@@ -22,7 +22,7 @@ data:
   # --- Application Runtime ---
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
   LOGGING_LEVEL_ROOT: "INFO"
-  JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Xss256k -Dspring.main.lazy-initialization=true"
+  JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseCompressedOops -Xss256k -Dspring.main.lazy-initialization=true -Dspring.jpa.open-in-view=false"
 ---
 apiVersion: v1
 kind: Secret

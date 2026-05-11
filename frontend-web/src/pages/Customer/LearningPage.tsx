@@ -1,15 +1,24 @@
-import { Box, Typography, Grid, Card, LinearProgress, Button, Chip, alpha, Paper, Stack } from '@mui/material';
+import { useState } from 'react';
+import { Box, Typography, Grid, Card, LinearProgress, Button, Chip, alpha, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { 
   PlayCircle as PlayIcon, 
   CheckCircle as DoneIcon, EmojiEvents as TrophyIcon 
 } from '@mui/icons-material';
 
 export default function LearningPage() {
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+
   const courses = [
-    { title: 'Social Insurance 101', progress: 100, category: 'Compliance', status: 'Completed', xp: 500 },
-    { title: 'Pension Optimization', progress: 45, category: 'Finance', status: 'In Progress', xp: 200 },
-    { title: 'Disability Coverage', progress: 10, category: 'Policy', status: 'In Progress', xp: 50 },
+    { id: '1', title: 'Social Insurance 101', progress: 100, category: 'Compliance', status: 'Completed', xp: 500 },
+    { id: '2', title: 'Pension Optimization', progress: 45, category: 'Finance', status: 'In Progress', xp: 200 },
+    { id: '3', title: 'Disability Coverage', progress: 10, category: 'Policy', status: 'In Progress', xp: 50 },
   ];
+
+  const handleQuizSubmit = () => {
+    alert(`Quiz for ${selectedCourse.title} submitted! You scored 95% and earned 150 points.`);
+    setShowQuiz(false);
+  };
 
   return (
     <Box>
@@ -28,7 +37,6 @@ export default function LearningPage() {
       </Box>
 
       <Grid container spacing={3}>
-        {/* Course List */}
         <Grid size={{ xs: 12, md: 8 }}>
           <Grid container spacing={3}>
             {courses.map((c, i) => (
@@ -46,19 +54,27 @@ export default function LearningPage() {
                     </Box>
                     <LinearProgress variant="determinate" value={c.progress} sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.05)' }} />
                   </Box>
-                  <Button fullWidth variant={c.progress === 100 ? "outlined" : "contained"} startIcon={c.progress === 100 ? <DoneIcon /> : <PlayIcon />}>
-                    {c.progress === 100 ? "Review Course" : "Continue Learning"}
-                  </Button>
+                  <Stack direction="row" spacing={1}>
+                    <Button fullWidth variant={c.progress === 100 ? "outlined" : "contained"} startIcon={c.progress === 100 ? <DoneIcon /> : <PlayIcon />}>
+                      {c.progress === 100 ? "Review" : "Learn"}
+                    </Button>
+                    <Button 
+                      fullWidth 
+                      variant="contained" 
+                      color="secondary"
+                      onClick={() => { setSelectedCourse(c); setShowQuiz(true); }}
+                    >
+                      Quiz
+                    </Button>
+                  </Stack>
                 </Card>
               </Grid>
             ))}
           </Grid>
         </Grid>
 
-        {/* Gamification Sidebar */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
-            {/* Leaderboard */}
             <Card sx={{ p: 3, bgcolor: 'rgba(255,255,255,0.02)' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>National Leaderboard</Typography>
               <Stack spacing={2}>
@@ -76,24 +92,14 @@ export default function LearningPage() {
                   </Box>
                 ))}
               </Stack>
-              <Button fullWidth sx={{ mt: 2, fontSize: '0.7rem' }}>View Full Rankings</Button>
             </Card>
 
-            {/* Badges */}
             <Card sx={{ p: 3 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Unlocked Badges</Typography>
               <Grid container spacing={1}>
                 {[1, 2, 3, 4].map((b) => (
                   <Grid key={b} size={{ xs: 3 }}>
-                    <Box sx={{ 
-                      aspectRatio: '1/1', 
-                      borderRadius: '50%', 
-                      bgcolor: alpha('#10b981', 0.1), 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      border: '1px solid rgba(16, 185, 129, 0.2)'
-                    }}>
+                    <Box sx={{ aspectRatio: '1/1', borderRadius: '50%', bgcolor: alpha('#10b981', 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                       <TrophyIcon sx={{ fontSize: '1.2rem', color: '#10b981' }} />
                     </Box>
                   </Grid>
@@ -103,6 +109,23 @@ export default function LearningPage() {
           </Stack>
         </Grid>
       </Grid>
+
+      {/* Quiz Dialog */}
+      <Dialog open={showQuiz} onClose={() => setShowQuiz(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 800 }}>Quiz: {selectedCourse?.title}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 3, fontWeight: 600 }}>Question 1: What is the mandatory pension contribution rate for employees?</Typography>
+          <Stack spacing={2}>
+            <Button variant="outlined" sx={{ justifyContent: 'flex-start', textAlign: 'left' }}>A) 2%</Button>
+            <Button variant="outlined" color="primary" sx={{ justifyContent: 'flex-start', textAlign: 'left', border: '2px solid' }}>B) 4% (Correct)</Button>
+            <Button variant="outlined" sx={{ justifyContent: 'flex-start', textAlign: 'left' }}>C) 10%</Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setShowQuiz(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleQuizSubmit}>Submit Quiz</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -9,6 +9,7 @@ import Layout from './components/Layout';
 import LoginPage from './pages/Login/LoginPage';
 import PortfolioPage from './pages/Customer/PortfolioPage';
 import LearningPage from './pages/Customer/LearningPage';
+import AdvisorsPage from './pages/Customer/AdvisorsPage';
 import WalletPage from './pages/Customer/WalletPage';
 import { WellnessPage, PlanningPage } from './pages/Customer/OtherPages';
 import { PayrollPage, EventProposalPage } from './pages/Employer/EmployerPages';
@@ -31,6 +32,7 @@ export default function App() {
               <Routes>
                 <Route path="portfolio" element={<PortfolioPage />} />
                 <Route path="learning" element={<LearningPage />} />
+                <Route path="advisors" element={<AdvisorsPage />} />
                 <Route path="wellness" element={<WellnessPage />} />
                 <Route path="wallet" element={<WalletPage />} />
                 <Route path="planning" element={<PlanningPage />} />

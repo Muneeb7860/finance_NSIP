@@ -72,11 +72,34 @@ export default function PortfolioPage() {
           </Card>
         </Grid>
 
-        {/* Investment Growth Chart */}
+        {/* Personal Loan Application */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Card sx={{ p: 4, height: '100%', border: '1px solid rgba(139, 92, 246, 0.3)', bgcolor: 'rgba(139, 92, 246, 0.02)' }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>Apply for Personal Loan</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+              As a Platinum member, you are eligible for a personal loan capped at <b>30% of your vested savings</b>.
+            </Typography>
+            
+            <Grid container spacing={4} alignItems="center">
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: 'primary.main', display: 'block', mb: 1 }}>ELIBILITY LIMIT (SAR)</Typography>
+                <Typography variant="h3" sx={{ fontWeight: 900 }}>SAR 103,734</Typography>
+                <Typography variant="caption" color="text.secondary">Based on $345,780.20 balance</Typography>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Button fullWidth variant="contained" size="large" sx={{ py: 2 }}>Start Application</Button>
+                <Typography variant="caption" sx={{ display: 'block', mt: 1, textAlign: 'center', opacity: 0.6 }}>
+                  Saga-orchestrated approval (~3s)
+                </Typography>
+              </Grid>
+            </Grid>
+          </Card>
+        </Grid>
+
         <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, alignSelf: 'flex-start', mb: 3 }}>Investment Growth</Typography>
-            <Box sx={{ position: 'relative', width: 160, height: 160 }}>
+            <Box sx={{ position: 'relative', width: 140, height: 140 }}>
               <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
                 <circle cx="18" cy="18" r="16" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="4"></circle>
                 <circle cx="18" cy="18" r="16" fill="transparent" stroke="#8b5cf6" strokeWidth="4" strokeDasharray="45 100"></circle>

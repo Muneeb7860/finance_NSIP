@@ -41,6 +41,7 @@ export default function Layout({ children, role }: LayoutProps) {
     customer: [
       { text: 'Dashboard', icon: <PortfolioIcon />, path: '/customer/portfolio' },
       { text: 'Learning & LMS', icon: <SchoolIcon />, path: '/customer/learning' },
+      { text: 'Financial Advisors', icon: <LmsIcon />, path: '/customer/advisors' },
       { text: 'Digital Wallet', icon: <WalletIcon />, path: '/customer/wallet' },
       { text: 'Wellness & Care', icon: <FitnessIcon />, path: '/customer/wellness' },
       { text: 'Financial Planning', icon: <PlanningIcon />, path: '/customer/planning' },

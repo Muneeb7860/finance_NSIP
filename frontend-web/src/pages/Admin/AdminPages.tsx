@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Grid, Button, Stack } from '@mui/material';
 import { Assessment as PortfolioIcon } from '@mui/icons-material';
 
@@ -69,11 +70,79 @@ export function AdminClaimsPage() {
 }
 
 export function AdminEventsPage() {
+  const [level, setLevel] = useState('L1_REVIEWER');
+  const [pendingEvents, setPendingEvents] = useState([
+    { id: 'EVT-102', title: 'Financial Literacy Workshop', org: 'Standard Bank', budget: 15000, status: 'DRAFT' },
+    { id: 'EVT-105', title: 'Startup Networking Gala', org: 'Tech Hub', budget: 75000, status: 'DRAFT' },
+  ]);
+
+  const handleAction = (id: string, action: 'Approve' | 'Reject') => {
+    alert(`${action}d event ${id} at level ${level}`);
+    setPendingEvents(prev => prev.filter(e => e.id !== id));
+  };
+
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>Event Approvals</Typography>
-      <Card sx={{ p: 3 }}>
-        <Typography variant="body2" color="text.secondary">No pending event proposals.</Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5 }}>Event Approvals</Typography>
+          <Typography variant="subtitle1" color="text.secondary">Manage the 3-layer governance pipeline for community events.</Typography>
+        </Box>
+        <Stack direction="row" spacing={1}>
+          {['L1_REVIEWER', 'L2_MANAGER', 'L3_DIRECTOR'].map((lvl) => (
+            <Button 
+              key={lvl}
+              variant={level === lvl ? "contained" : "outlined"}
+              size="small"
+              onClick={() => setLevel(lvl)}
+            >
+              {lvl.replace('_', ' ')}
+            </Button>
+          ))}
+        </Stack>
+      </Box>
+
+      <Card>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
+                <TableCell sx={{ fontWeight: 700 }}>Event Details</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Organization</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Budget</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Current Stage</TableCell>
+                <TableCell sx={{ fontWeight: 700, textAlign: 'right' }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {pendingEvents.length > 0 ? pendingEvents.map((evt) => (
+                <TableRow key={evt.id}>
+                  <TableCell>
+                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{evt.title}</Typography>
+                    <Typography variant="caption" color="text.secondary">ID: {evt.id}</Typography>
+                  </TableCell>
+                  <TableCell>{evt.org}</TableCell>
+                  <TableCell>SAR {evt.budget.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Chip label={evt.status} size="small" color="warning" variant="outlined" />
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'right' }}>
+                    <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+                      <Button variant="contained" color="success" size="small" onClick={() => handleAction(evt.id, 'Approve')}>Approve</Button>
+                      <Button variant="outlined" color="error" size="small" onClick={() => handleAction(evt.id, 'Reject')}>Reject</Button>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={5} sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body2" color="text.secondary">No pending events at {level.replace('_', ' ')} stage.</Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Card>
     </Box>
   );
