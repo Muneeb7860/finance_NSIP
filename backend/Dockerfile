@@ -1,10 +1,8 @@
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-# Copy parent pom
+# Layer 1: Cache parent + child POMs (only invalidated when POMs change)
 COPY pom.xml .
-
-# Copy all child poms for dependency caching
 COPY auth-service/pom.xml auth-service/
 COPY claim-service/pom.xml claim-service/
 COPY contribution-service/pom.xml contribution-service/
@@ -18,19 +16,24 @@ COPY saga-orchestrator/pom.xml saga-orchestrator/
 COPY nsip-common/pom.xml nsip-common/
 COPY api-gateway/pom.xml api-gateway/
 
-# Resolve dependencies
-RUN mvn dependency:go-offline -B
+# Layer 2: Resolve all deps offline (cached unless POMs change)
+RUN mvn dependency:go-offline -B -q
 
-# Copy source and build
+# Layer 3: Build the specific service
 COPY . .
 ARG SERVICE_NAME
-RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests
+RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests -B -q
 
-# Run stage
-FROM eclipse-temurin:17-jre
+# ── Runtime: Alpine JRE (60% smaller than full JDK) ──────────────────────────
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+
+# Security: run as non-root
+RUN addgroup -S nsip && adduser -S nsip -G nsip
+USER nsip
+
 ARG SERVICE_NAME
 COPY --from=build /app/${SERVICE_NAME}/target/*.jar app.jar
+
 EXPOSE 8080
-# Use sh -c to allow environment variable expansion for JAVA_OPTS
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]
