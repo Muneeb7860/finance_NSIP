@@ -37,7 +37,10 @@ public class AdvisorSession {
     private String cancellationReason;
 
     public enum SessionStatus {
-        BOOKED,
+        PENDING_APPROVAL,
+        APPROVED,
+        REJECTED,
+        BOOKED, // Legacy
         RESCHEDULED,
         IN_PROGRESS,
         COMPLETED,

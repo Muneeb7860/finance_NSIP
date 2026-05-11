@@ -57,6 +57,10 @@ export const api = {
     request(`/api/v1/learning/sessions/${sessionId}/reschedule`, { method: 'PATCH', body: JSON.stringify({ newTime }) }),
   submitReview: (sessionId: string, data: any) => 
     request(`/api/v1/learning/sessions/${sessionId}/review`, { method: 'POST', body: JSON.stringify(data) }),
+  approveSession: (sessionId: string) => 
+    request(`/api/v1/learning/sessions/${sessionId}/approve`, { method: 'POST' }),
+  rejectSession: (sessionId: string, reason: string) => 
+    request(`/api/v1/learning/sessions/${sessionId}/reject`, { method: 'POST', body: JSON.stringify({ reason }) }),
 
   // Wellness
   getWellnessRegistrations: (userId: string) => request(`/api/v1/learning/wellness/${userId}`),

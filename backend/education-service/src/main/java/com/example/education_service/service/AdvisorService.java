@@ -124,9 +124,9 @@ public class AdvisorService {
 
         int cost = advisor.getPointsCost();
 
-        // Deduct points via Kafka event to rewards-service
+        // Deduct points via Kafka event to rewards-service (Locked until approved/rejected)
         kafkaTemplate.send("gamification.events", String.format(
-                "{\"userId\":\"%s\",\"pointsEarned\":%d,\"event\":\"SESSION_BOOKED\"}",
+                "{\"userId\":\"%s\",\"pointsEarned\":%d,\"event\":\"SESSION_BOOKED_PENDING\"}",
                 customerId, -cost));
 
         AdvisorSession session = new AdvisorSession();
@@ -134,17 +134,56 @@ public class AdvisorService {
         session.setCustomerId(customerId);
         session.setPointsCharged(cost);
         session.setScheduledAt(scheduledAt);
+        session.setStatus(AdvisorSession.SessionStatus.PENDING_APPROVAL);
         sessionRepo.save(session);
 
         advisor.setTotalSessions(advisor.getTotalSessions() + 1);
         profileRepo.save(advisor);
 
-        log.info("Session booked: customer={} advisor={} cost={} pts", customerId, advisor.getName(), cost);
+        log.info("Session request created: customer={} advisor={} cost={} pts", customerId, advisor.getName(), cost);
 
         kafkaTemplate.send("notification.command.send", String.format(
-                "{\"userId\":\"%s\",\"message\":\"Session booked with %s for %s. %d points deducted.\"}",
+                "{\"userId\":\"%s\",\"message\":\"Session request sent to %s for %s. %d points held pending approval.\"}",
                 customerId, advisor.getName(), scheduledAt, cost));
 
+        return session;
+    }
+
+    /** Advisor approves a pending session. */
+    @Transactional
+    public AdvisorSession approveSession(UUID sessionId) {
+        AdvisorSession session = sessionRepo.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found."));
+        if (session.getStatus() != AdvisorSession.SessionStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Only pending sessions can be approved.");
+        }
+        session.setStatus(AdvisorSession.SessionStatus.APPROVED);
+        sessionRepo.save(session);
+
+        kafkaTemplate.send("notification.command.send", String.format(
+                "{\"userId\":\"%s\",\"message\":\"Your advisor session on %s has been APPROVED.\"}",
+                session.getCustomerId(), session.getScheduledAt()));
+        return session;
+    }
+
+    /** Advisor rejects a pending session — points are refunded. */
+    @Transactional
+    public AdvisorSession rejectSession(UUID sessionId, String reason) {
+        AdvisorSession session = sessionRepo.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found."));
+        if (session.getStatus() != AdvisorSession.SessionStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Only pending sessions can be rejected.");
+        }
+        session.setStatus(AdvisorSession.SessionStatus.REJECTED);
+        session.setCancellationReason(reason);
+        sessionRepo.save(session);
+
+        // Restore points
+        restorePoints(session.getCustomerId(), session.getPointsCharged());
+
+        kafkaTemplate.send("notification.command.send", String.format(
+                "{\"userId\":\"%s\",\"message\":\"Your advisor session request was rejected. Reason: %s. Points refunded.\"}",
+                session.getCustomerId(), reason));
         return session;
     }
 

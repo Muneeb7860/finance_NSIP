@@ -36,7 +36,7 @@ public class AdvisorControllerTest {
         profile.setId(UUID.randomUUID());
         when(advisorService.registerAdvisor(any(), any(), any(), any())).thenReturn(profile);
 
-        mockMvc.perform(post("/api/v1/advisors/register")
+        mockMvc.perform(post("/api/v1/learning/advisors/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"userId\":\"" + UUID.randomUUID() + "\", \"name\":\"John\", \"specialty\":\"Finance\", \"bio\":\"Bio\"}"))
                 .andExpect(status().isOk())
@@ -47,9 +47,23 @@ public class AdvisorControllerTest {
     void testBookSession() throws Exception {
         when(advisorService.bookSession(any(), any(), any())).thenReturn(null);
 
-        mockMvc.perform(post("/api/v1/advisors/sessions/book")
+        mockMvc.perform(post("/api/v1/learning/sessions/book")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"customerId\":\"" + UUID.randomUUID() + "\", \"advisorId\":\"" + UUID.randomUUID() + "\", \"scheduledAt\":\"2023-12-01T10:00:00\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testApproveSession() throws Exception {
+        mockMvc.perform(post("/api/v1/learning/sessions/" + UUID.randomUUID() + "/approve"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testRejectSession() throws Exception {
+        mockMvc.perform(post("/api/v1/learning/sessions/" + UUID.randomUUID() + "/reject")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reason\":\"Duplicate request\"}"))
                 .andExpect(status().isOk());
     }
 }

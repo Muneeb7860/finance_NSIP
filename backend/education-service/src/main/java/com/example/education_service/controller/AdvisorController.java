@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/advisors")
+@RequestMapping("/api/v1/learning")
 @Tag(name = "Financial Advisors", description = "Advisor self-service, booking, cancellation, and reviews")
 public class AdvisorController {
 
@@ -22,7 +22,7 @@ public class AdvisorController {
     // --- ADVISOR SELF-SERVICE ---
 
     @Operation(summary = "Register as a financial advisor")
-    @PostMapping("/register")
+    @PostMapping("/advisors/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
         try {
             UUID userId = UUID.fromString(Objects.requireNonNull(body.get("userId"), "User ID is required"));
@@ -37,13 +37,34 @@ public class AdvisorController {
     }
 
     @Operation(summary = "Advisor views their schedule")
-    @GetMapping("/{advisorId}/schedule")
+    @GetMapping("/advisors/{advisorId}/schedule")
     public ResponseEntity<?> getSchedule(@PathVariable UUID advisorId) {
         return ResponseEntity.ok(advisorService.getMySchedule(advisorId));
     }
 
+    @Operation(summary = "Advisor approves a session request")
+    @PostMapping("/sessions/{sessionId}/approve")
+    public ResponseEntity<?> approveSession(@PathVariable UUID sessionId) {
+        try {
+            return ResponseEntity.ok(advisorService.approveSession(sessionId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Advisor rejects a session request")
+    @PostMapping("/sessions/{sessionId}/reject")
+    public ResponseEntity<?> rejectSession(@PathVariable UUID sessionId, @RequestBody Map<String, String> body) {
+        try {
+            String reason = body.getOrDefault("reason", "No reason provided");
+            return ResponseEntity.ok(advisorService.rejectSession(sessionId, reason));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @Operation(summary = "Advisor views their ratings and reviews")
-    @GetMapping("/{advisorId}/ratings")
+    @GetMapping("/advisors/{advisorId}/ratings")
     public ResponseEntity<?> getRatings(@PathVariable UUID advisorId) {
         return ResponseEntity.ok(advisorService.getMyRatings(advisorId));
     }
@@ -73,12 +94,12 @@ public class AdvisorController {
     // --- CUSTOMER ENDPOINTS ---
 
     @Operation(summary = "Browse all available advisors")
-    @GetMapping
+    @GetMapping("/advisors")
     public ResponseEntity<?> browseAdvisors() {
         return ResponseEntity.ok(advisorService.getActiveAdvisors());
     }
 
-    @Operation(summary = "Book a session (deducts points)")
+    @Operation(summary = "Book a session (starts as PENDING_APPROVAL)")
     @PostMapping("/sessions/book")
     public ResponseEntity<?> book(@RequestBody Map<String, String> body) {
         try {
@@ -87,8 +108,8 @@ public class AdvisorController {
             String scheduledAtStr = Objects.requireNonNull(body.get("scheduledAt"), "Scheduled at is required");
             
             return ResponseEntity.ok(advisorService.bookSession(
-                    Objects.requireNonNull(customerId),
-                    Objects.requireNonNull(advisorId),
+                    customerId,
+                    advisorId,
                     LocalDateTime.parse(scheduledAtStr)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

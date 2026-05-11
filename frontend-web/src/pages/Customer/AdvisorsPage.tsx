@@ -29,18 +29,19 @@ interface Session {
   advisorName: string;
   customerName: string;
   scheduledAt: string;
-  status: 'PENDING_ADVISOR' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
+  status: 'PENDING_APPROVAL' | 'APPROVED' | 'COMPLETED' | 'CANCELLED_BY_CUSTOMER' | 'CANCELLED_BY_ADVISOR' | 'REJECTED';
   pointsDeducted: number;
 }
 
 export default function AdvisorsPage() {
+  const DEMO_CUSTOMER_ID = 'c1234567-89ab-cdef-0123-456789abcdef';
+  const DEMO_ADVISOR_ID = 'a7654321-fedc-ba98-7654-3210fedcba98';
+
   const [tab, setTab] = useState(0);
   const [isAdvisorView, setIsAdvisorView] = useState(false);
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
-  const [sessions, setSessions] = useState<Session[]>([
-    { id: 'SES-901', advisorName: 'Dr. Fatima Al-Sayed', customerName: 'Sarah Jenkins', scheduledAt: '2024-11-20T10:00', status: 'PENDING_ADVISOR', pointsDeducted: 1000 },
-    { id: 'SES-802', advisorName: 'Omar Khalid', customerName: 'Sarah Jenkins', scheduledAt: '2024-10-15T14:30', status: 'COMPLETED', pointsDeducted: 1000 },
-  ]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(false);
   
   const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
   const [bookingDate, setBookingDate] = useState('');
@@ -51,6 +52,10 @@ export default function AdvisorsPage() {
     loadAdvisors();
   }, []);
 
+  useEffect(() => {
+    loadSessions();
+  }, [isAdvisorView, tab]);
+
   const loadAdvisors = async () => {
     try {
       const data = await api.getAdvisors();
@@ -60,34 +65,73 @@ export default function AdvisorsPage() {
     }
   };
 
+  const loadSessions = async () => {
+    setLoading(true);
+    try {
+      // In a real app, we'd use the logged-in user's ID
+      const data = isAdvisorView 
+        ? await api.getAdvisors().then(ads => ads[0]?.id ? api.request(`/api/v1/learning/advisors/${ads[0].id}/schedule`) : [])
+        : await api.getCustomerSessions(DEMO_CUSTOMER_ID);
+      
+      // Map backend model to frontend interface
+      const mapped = data.map((s: any) => ({
+        id: s.id,
+        advisorName: s.advisorName || 'Expert Advisor',
+        customerName: s.customerName || 'Contributor',
+        scheduledAt: s.scheduledAt,
+        status: s.status,
+        pointsDeducted: s.pointsCharged
+      }));
+      setSessions(mapped);
+    } catch (err) {
+      console.error('Failed to load sessions', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleBook = async () => {
     if (!selectedAdvisor || !bookingDate) return;
     try {
-      const newSession: Session = {
-        id: `SES-${Math.floor(Math.random() * 900) + 100}`,
-        advisorName: selectedAdvisor.name,
-        customerName: 'Sarah Jenkins',
-        scheduledAt: bookingDate,
-        status: 'PENDING_ADVISOR',
-        pointsDeducted: selectedAdvisor.pointsCost
-      };
-      setSessions([newSession, ...sessions]);
+      await api.bookSession({
+        customerId: DEMO_CUSTOMER_ID,
+        advisorId: selectedAdvisor.id,
+        scheduledAt: bookingDate
+      });
       alert('Request sent! Waiting for Advisor to accept/reject.');
       setSelectedAdvisor(null);
+      loadSessions();
       setTab(1);
     } catch (err: any) {
       alert(`Booking failed: ${err.message}`);
     }
   };
 
-  const handleAdvisorAction = (id: string, action: 'SCHEDULED' | 'REJECTED') => {
-    setSessions(prev => prev.map(s => s.id === id ? { ...s, status: action } : s));
-    alert(`Session ${id} ${action === 'SCHEDULED' ? 'Accepted' : 'Rejected'}.`);
+  const handleAdvisorAction = async (id: string, action: 'APPROVE' | 'REJECT') => {
+    try {
+      if (action === 'APPROVE') {
+        await api.approveSession(id);
+      } else {
+        const reason = window.prompt('Reason for rejection:');
+        if (reason === null) return;
+        await api.rejectSession(id, reason);
+      }
+      alert(`Session ${action === 'APPROVE' ? 'Approved' : 'Rejected'}.`);
+      loadSessions();
+    } catch (err: any) {
+      alert(`Action failed: ${err.message}`);
+    }
   };
 
-  const handleCancel = (id: string) => {
+  const handleCancel = async (id: string) => {
     if (window.confirm('Are you sure you want to cancel?')) {
-      setSessions(prev => prev.map(s => s.id === id ? { ...s, status: 'CANCELLED' } : s));
+      try {
+        await api.cancelSession(id, 'User cancelled');
+        alert('Session cancelled.');
+        loadSessions();
+      } catch (err: any) {
+        alert(`Cancellation failed: ${err.message}`);
+      }
     }
   };
 
@@ -159,29 +203,29 @@ export default function AdvisorsPage() {
                     <TableCell>{new Date(s.scheduledAt).toLocaleString()}</TableCell>
                     <TableCell>
                       <Chip 
-                        label={s.status.replace('_', ' ')} 
+                        label={s.status.replace(/_/g, ' ')} 
                         size="small" 
-                        color={s.status === 'SCHEDULED' ? 'success' : s.status === 'PENDING_ADVISOR' ? 'warning' : 'default'} 
-                        variant={s.status === 'PENDING_ADVISOR' ? 'outlined' : 'filled'}
+                        color={s.status === 'APPROVED' ? 'success' : s.status === 'PENDING_APPROVAL' ? 'warning' : s.status === 'REJECTED' ? 'error' : 'default'} 
+                        variant={s.status === 'PENDING_APPROVAL' ? 'outlined' : 'filled'}
                       />
                     </TableCell>
                     <TableCell sx={{ textAlign: 'right' }}>
                       <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                         {isAdvisorView ? (
-                          s.status === 'PENDING_ADVISOR' ? (
+                          s.status === 'PENDING_APPROVAL' ? (
                             <>
-                              <Button size="small" variant="contained" color="success" onClick={() => handleAdvisorAction(s.id, 'SCHEDULED')}>Accept</Button>
-                              <Button size="small" variant="outlined" color="error" onClick={() => handleAdvisorAction(s.id, 'REJECTED')}>Reject</Button>
+                              <Button size="small" variant="contained" color="success" onClick={() => handleAdvisorAction(s.id, 'APPROVE')}>Accept</Button>
+                              <Button size="small" variant="outlined" color="error" onClick={() => handleAdvisorAction(s.id, 'REJECT')}>Reject</Button>
                             </>
                           ) : (
                             <Typography variant="caption" color="text.secondary">No Actions</Typography>
                           )
                         ) : (
                           <>
-                            {s.status === 'PENDING_ADVISOR' && (
+                            {s.status === 'PENDING_APPROVAL' && (
                               <Button size="small" variant="outlined" color="error" onClick={() => handleCancel(s.id)}>Cancel Request</Button>
                             )}
-                            {s.status === 'SCHEDULED' && (
+                            {s.status === 'APPROVED' && (
                               <>
                                 <Button size="small" variant="outlined" startIcon={<RescheduleIcon />}>Reschedule</Button>
                                 <Button size="small" variant="outlined" color="error" startIcon={<CancelIcon />} onClick={() => handleCancel(s.id)}>Cancel</Button>

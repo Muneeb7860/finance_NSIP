@@ -50,9 +50,12 @@ public class RewardsService {
         try {
             JsonNode node = objectMapper.readTree(payload);
             UUID userId = UUID.fromString(node.get("userId").asText());
-            String eventType = node.get("eventType").asText();
             
-            int points = 0;
+            // Handle both "event" and "eventType" for backward compatibility
+            String eventType = node.has("eventType") ? node.get("eventType").asText() : 
+                               (node.has("event") ? node.get("event").asText() : "UNKNOWN");
+            
+            int points = node.has("pointsEarned") ? node.get("pointsEarned").asInt() : 0;
             String description = "";
             
             switch (eventType) {
@@ -68,16 +71,41 @@ public class RewardsService {
                     points = 200;
                     description = "Attended Community Event";
                     break;
+                case "SESSION_BOOKED_PENDING":
+                    description = "Point Lock: Advisor Session Pending Approval";
+                    break;
+                case "SESSION_CANCELLED_REFUND":
+                    description = "Refund: Advisor Session Cancelled";
+                    break;
                 default:
-                    log.warn("Unknown event type: {}", eventType);
-                    return;
+                    if (points != 0) {
+                        description = "Platform Event: " + eventType;
+                    } else {
+                        log.warn("Unknown event type with no points: {}", eventType);
+                        return;
+                    }
             }
             
-            awardPoints(userId, points, description);
+            // Special handling for negative points (deductions)
+            if (points < 0) {
+                deductPoints(userId, Math.abs(points), description);
+            } else if (points > 0) {
+                awardPoints(userId, points, description);
+            }
             
         } catch (Exception e) {
             log.error("Failed to process gamification event: {}", e.getMessage());
         }
+    }
+
+    /** Helper for point deductions. */
+    private void deductPoints(UUID userId, int points, String description) {
+        PointsLedger entry = new PointsLedger();
+        entry.setUserId(userId);
+        entry.setPointDelta(-points);
+        entry.setDescription(description);
+        pointsLedgerRepository.save(entry);
+        log.info("Deducted {} points from user {}. Reason: {}", points, userId, description);
     }
 
     /**

@@ -57,6 +57,42 @@ public class AdvisorServiceTest {
         AdvisorSession session = advisorService.bookSession(customerId, advisorId, LocalDateTime.now());
 
         assertNotNull(session);
+        assertEquals(AdvisorSession.SessionStatus.PENDING_APPROVAL, session.getStatus());
+        verify(kafkaTemplate, times(2)).send(anyString(), anyString());
+    }
+
+    @Test
+    void testApproveSession_Success() {
+        UUID sessionId = UUID.randomUUID();
+        AdvisorSession session = new AdvisorSession();
+        session.setId(sessionId);
+        session.setCustomerId(UUID.randomUUID());
+        session.setStatus(AdvisorSession.SessionStatus.PENDING_APPROVAL);
+        session.setScheduledAt(LocalDateTime.now());
+
+        when(sessionRepo.findById(sessionId)).thenReturn(Optional.of(session));
+
+        AdvisorSession result = advisorService.approveSession(sessionId);
+
+        assertEquals(AdvisorSession.SessionStatus.APPROVED, result.getStatus());
+        verify(kafkaTemplate).send(anyString(), anyString());
+    }
+
+    @Test
+    void testRejectSession_Success() {
+        UUID sessionId = UUID.randomUUID();
+        AdvisorSession session = new AdvisorSession();
+        session.setId(sessionId);
+        session.setCustomerId(UUID.randomUUID());
+        session.setStatus(AdvisorSession.SessionStatus.PENDING_APPROVAL);
+        session.setPointsCharged(1000);
+
+        when(sessionRepo.findById(sessionId)).thenReturn(Optional.of(session));
+
+        AdvisorSession result = advisorService.rejectSession(sessionId, "Not qualified");
+
+        assertEquals(AdvisorSession.SessionStatus.REJECTED, result.getStatus());
+        assertEquals("Not qualified", result.getCancellationReason());
         verify(kafkaTemplate, times(2)).send(anyString(), anyString());
     }
 
@@ -67,7 +103,7 @@ public class AdvisorServiceTest {
         session.setId(sessionId);
         session.setCustomerId(UUID.randomUUID());
         session.setPointsCharged(1000);
-        session.setStatus(AdvisorSession.SessionStatus.BOOKED);
+        session.setStatus(AdvisorSession.SessionStatus.APPROVED);
 
         when(sessionRepo.findById(sessionId)).thenReturn(Optional.of(session));
 
@@ -127,7 +163,7 @@ public class AdvisorServiceTest {
         AdvisorSession session = new AdvisorSession();
         session.setId(sessionId);
         session.setCustomerId(UUID.randomUUID());
-        session.setStatus(AdvisorSession.SessionStatus.BOOKED);
+        session.setStatus(AdvisorSession.SessionStatus.APPROVED);
         session.setPointsCharged(1000);
 
         when(sessionRepo.findById(sessionId)).thenReturn(Optional.of(session));
