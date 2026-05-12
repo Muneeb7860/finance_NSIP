@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 /// Centralized API Service for the Flutter mobile app.
 /// FLAW #27 FIX: Replaces hardcoded data with real HTTP calls.
 class ApiService {
-  static const String _baseUrl = 'http://localhost:8080'; // Hardened API Gateway
+  static const String _baseUrl = 'http://20.43.156.128'; // Production Azure LoadBalancer IP
   static String? _authToken;
 
   /// Set the JWT token after login

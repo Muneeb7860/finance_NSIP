@@ -80,7 +80,7 @@ export default function PortfolioPage() {
               As a Platinum member, you are eligible for a personal loan capped at <b>30% of your vested savings</b>.
             </Typography>
             
-            <Grid container spacing={4} alignItems="center">
+            <Grid container spacing={4} sx={{ alignItems: 'center' }}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: 'primary.main', display: 'block', mb: 1 }}>ELIBILITY LIMIT (SAR)</Typography>
                 <Typography variant="h3" sx={{ fontWeight: 900 }}>SAR 103,734</Typography>

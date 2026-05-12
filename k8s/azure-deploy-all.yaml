@@ -24,14 +24,14 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
           readinessProbe:
             httpGet: { path: /actuator/health, port: 8080 }
-            initialDelaySeconds: 45
+            initialDelaySeconds: 120
           livenessProbe:
             httpGet: { path: /actuator/health, port: 8080 }
-            initialDelaySeconds: 90
+            initialDelaySeconds: 180
 ---
 apiVersion: v1
 kind: Service
@@ -73,14 +73,14 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
           readinessProbe:
             httpGet: { path: /actuator/health, port: 8081 }
-            initialDelaySeconds: 45
+            initialDelaySeconds: 120
           livenessProbe:
             httpGet: { path: /actuator/health, port: 8081 }
-            initialDelaySeconds: 90
+            initialDelaySeconds: 180
 ---
 apiVersion: v1
 kind: Service
@@ -120,8 +120,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -161,8 +161,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -202,8 +202,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -243,8 +243,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -284,8 +284,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -325,8 +325,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -366,8 +366,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
           readinessProbe:
             httpGet: { path: /actuator/health, port: 8089 }
             initialDelaySeconds: 45
@@ -413,8 +413,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -454,8 +454,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 300m, memory: 384Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 300m, memory: 768Mi }
 ---
 apiVersion: v1
 kind: Service
@@ -497,8 +497,8 @@ spec:
             - secretRef:
                 name: nsip-azure-secrets
           resources:
-            requests: { cpu: 50m, memory: 192Mi }
-            limits: { cpu: 400m, memory: 512Mi }
+            requests: { cpu: 50m, memory: 768Mi }
+            limits: { cpu: 400m, memory: 768Mi }
           readinessProbe:
             httpGet: { path: /health, port: 8091 }
             initialDelaySeconds: 30
@@ -563,3 +563,43 @@ spec:
         target:
           type: Utilization
           averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nsip-fleet-hpa
+  namespace: nsip
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: auth-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway-hpa
+  namespace: nsip
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60

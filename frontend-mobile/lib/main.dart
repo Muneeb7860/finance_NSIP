@@ -23,7 +23,7 @@ class NSIPMobileApp extends StatelessWidget {
           error: Color(0xFFEF4444),
         ),
         fontFamily: 'Roboto',
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: const Color(0xFF171717),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 0,

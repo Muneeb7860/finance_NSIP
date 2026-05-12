@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Box, Typography, Grid, Card, Button, alpha, Slider, LinearProgress, Stack, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
-import { FitnessCenter as FitnessIcon, LocalHospital as HealthIcon } from '@mui/icons-material';
+import { FitnessCenter as FitnessIcon } from '@mui/icons-material';
 
 export function WellnessPage() {
   const [open, setOpen] = useState(false);

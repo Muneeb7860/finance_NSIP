@@ -24,3 +24,23 @@ spec:
                 name: api-gateway
                 port:
                   number: 80
+    - host: 20.43.156.128
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+    - host: app.nsip.gov
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

@@ -137,6 +137,9 @@ public class LoanSagaManager {
         saveOutboxEvent(state.getSagaId(), "notification.command.send", "{\"status\": \"FAILED\"}");
     }
 
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     private void saveOutboxEvent(UUID sagaId, String topic, String payload) {
         OutboxEvent event = new OutboxEvent();
         event.setAggregateType("LoanSaga");
@@ -148,12 +151,9 @@ public class LoanSagaManager {
 
     private UUID extractUUID(String json, String key) {
         try {
-            String search = "\"" + key + "\":\"";
-            int start = json.indexOf(search) + search.length();
-            int end = json.indexOf("\"", start);
-            return UUID.fromString(json.substring(start, end));
+            return UUID.fromString(objectMapper.readTree(json).get(key).asText());
         } catch (Exception e) {
-            log.error("Failed to extract {} from JSON", key);
+            log.error("Failed to extract {} from JSON: {}", key, e.getMessage());
             return UUID.randomUUID();
         }
     }

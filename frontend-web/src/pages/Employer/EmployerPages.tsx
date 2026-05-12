@@ -54,7 +54,7 @@ export function PayrollPage() {
 }
 
 export function EventProposalPage() {
-  const [events, setEvents] = useState([
+  const [events] = useState([
     { id: 'EVT-101', title: 'Ramadan 5K Run', budget: 50000, status: 'L2_APPROVED', color: 'info' },
     { id: 'EVT-102', title: 'Financial Literacy Workshop', budget: 15000, status: 'DRAFT', color: 'warning' },
     { id: 'EVT-103', title: 'Community Beach Cleanup', budget: 5000, status: 'LIVE', color: 'success' },
@@ -71,7 +71,7 @@ export function EventProposalPage() {
             <Stack spacing={3}>
               <TextField label="Event Name" fullWidth />
               <TextField label="Proposed Budget" fullWidth type="number" />
-              <TextField label="Event Date" fullWidth type="date" InputLabelProps={{ shrink: true }} />
+              <TextField label="Event Date" fullWidth type="date" slotProps={{ inputLabel: { shrink: true } }} />
               <Button variant="contained">Submit for Review</Button>
             </Stack>
           </Card>
@@ -99,7 +99,7 @@ export function EventProposalPage() {
                       <TableCell sx={{ fontWeight: 700 }}>{evt.title}</TableCell>
                       <TableCell>SAR {evt.budget.toLocaleString()}</TableCell>
                       <TableCell>
-                        <Stack direction="row" spacing={1} alignItems="center">
+                        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                           <Chip label={evt.status} color={evt.color as any} size="small" variant="outlined" />
                           {evt.status !== 'LIVE' && evt.status !== 'REJECTED' && (
                             <Typography variant="caption" color="text.secondary">

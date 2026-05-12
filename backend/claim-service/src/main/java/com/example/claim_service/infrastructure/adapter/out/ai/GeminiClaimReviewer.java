@@ -19,7 +19,7 @@ public class GeminiClaimReviewer implements ClaimReviewerPort {
     @Value("${google.cloud.project-id:nsip-prod}")
     private String projectId;
 
-    @Value("${google.cloud.location:us-central1}")
+    @Value("${google.cloud.location:asia-southeast1}")
     private String location;
 
     private final ObjectMapper objectMapper = new ObjectMapper();

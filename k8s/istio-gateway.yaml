@@ -12,24 +12,41 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "api.nsip.gov"
+    - "*"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: nsip-credential
+    hosts:
+    - "*"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: api-gateway-vs
+  name: nsip-vs
   namespace: nsip
 spec:
   hosts:
-  - "api.nsip.gov"
+  - "*"
   gateways:
   - nsip-gateway
   http:
   - match:
     - uri:
-        prefix: /
+        prefix: /api/
     route:
     - destination:
         host: api-gateway.nsip.svc.cluster.local
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend.nsip.svc.cluster.local
         port:
           number: 80

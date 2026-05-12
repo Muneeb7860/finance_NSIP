@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
-  Box, Typography, Grid, Card, Button, Avatar, Chip, Stack, Rating, 
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, alpha, Tabs, Tab,
+    Box, Typography, Grid, Card, Button, Avatar, Chip, Stack, Rating, 
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tabs, Tab,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 import { 
-  HistoryEdu as BioIcon, 
   EventAvailable as BookIcon,
-  Star as StarIcon,
   Cancel as CancelIcon,
   Update as RescheduleIcon,
   RateReview as ReviewIcon
@@ -35,13 +33,12 @@ interface Session {
 
 export default function AdvisorsPage() {
   const DEMO_CUSTOMER_ID = 'c1234567-89ab-cdef-0123-456789abcdef';
-  const DEMO_ADVISOR_ID = 'a7654321-fedc-ba98-7654-3210fedcba98';
 
   const [tab, setTab] = useState(0);
   const [isAdvisorView, setIsAdvisorView] = useState(false);
   const [advisors, setAdvisors] = useState<Advisor[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   
   const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
   const [bookingDate, setBookingDate] = useState('');
@@ -252,7 +249,7 @@ export default function AdvisorsPage() {
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Typography variant="body2" sx={{ mb: 3 }}>This session will deduct <b>{selectedAdvisor?.pointsCost} points</b>. Refunds available if cancelled 24h in advance.</Typography>
-            <TextField label="Select Date & Time" type="datetime-local" fullWidth InputLabelProps={{ shrink: true }} value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
+            <TextField label="Select Date & Time" type="datetime-local" fullWidth slotProps={{ inputLabel: { shrink: true } }} value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>

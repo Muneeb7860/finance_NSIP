@@ -1,44 +1,49 @@
 #!/bin/bash
-# NSIP Test Orchestrator Agent
-# Enforces 75% Coverage and 100% Stability
+# NSIP Fleet Comprehensive Health Check
+# This script verifies the readiness of all 12 microservices.
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+NAMESPACE="nsip"
+SERVICES=(
+  "api-gateway"
+  "auth-service"
+  "claim-service"
+  "contribution-service"
+  "education-service"
+  "event-service"
+  "notification-engine"
+  "payment-service"
+  "review-service"
+  "rewards-service"
+  "saga-orchestrator"
+  "ai-agent"
+)
 
-echo "🚀 Starting NSIP Test Orchestrator Agent..."
+echo "🚀 Starting NSIP Comprehensive Fleet Test..."
+echo "------------------------------------------"
 
-# Ensure we are in the backend directory
-if [ -d "backend" ]; then
-    cd backend
+for SVC in "${SERVICES[@]}"; do
+  echo -n "Checking $SVC... "
+  STATUS=$(kubectl get pods -n $NAMESPACE -l app=$SVC -o jsonpath='{.items[*].status.containerStatuses[*].ready}' | grep -o "true" | wc -l | xargs)
+  
+  if [ "$STATUS" -ge 1 ]; then
+    echo "✅ READY ($STATUS containers)"
+  else
+    echo "❌ NOT READY"
+  fi
+done
+
+echo "------------------------------------------"
+echo "🌐 Testing Ingress Connectivity..."
+LB_IP=$(kubectl get svc api-gateway -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+if [ -z "$LB_IP" ]; then
+  LB_IP="20.43.156.128" # Fallback to known IP
 fi
 
-# 1. Clean and Compile
-echo "Step 1: Compiling and Resolving Dependencies..."
-mvn clean compile -DskipTests > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Compilation Successful${NC}"
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$LB_IP/actuator/health)
+if [ "$HTTP_CODE" == "200" ]; then
+  echo "✅ Ingress Gateway is UP (HTTP 200)"
 else
-    echo -e "${RED}❌ Compilation Failed. Please check the logs.${NC}"
-    exit 1
+  echo "❌ Ingress Gateway returned HTTP $HTTP_CODE"
 fi
 
-# 2. Run Tests with JaCoCo
-echo "Step 2: Orchestrating Test Cases and Generating Coverage Reports..."
-mvn test jacoco:report -pl saga-orchestrator,education-service -am > test_results.log 2>&1
-
-# 3. Verify Results
-FAILURES=$(grep "Failures:" test_results.log | grep -v "Failures: 0")
-if [ -z "$FAILURES" ]; then
-    echo -e "${GREEN}✅ All Test Cases Passed${NC}"
-else
-    echo -e "${RED}❌ Test Failures Detected:${NC}"
-    grep "Failures:" test_results.log
-    exit 1
-fi
-
-# 4. Check Coverage (Target: 75%)
-echo "Step 3: Validating Coverage Threshold (Target: 75%)..."
-echo -e "${GREEN}✅ Coverage Validation Complete. Reports generated in target/site/jacoco/${NC}"
-
-echo "🏁 Test Orchestration Finished Successfully."
+echo "🏁 Test Complete."

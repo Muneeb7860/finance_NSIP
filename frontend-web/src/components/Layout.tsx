@@ -4,7 +4,7 @@ import {
   Box, Drawer, AppBar, Toolbar, Typography, List, 
   ListItem, ListItemButton, ListItemIcon, ListItemText, Container,
   IconButton, Divider, Paper, TextField, Stack, Badge, Avatar, alpha, Button, Chip,
-  Menu, MenuItem
+  Menu, MenuItem, Tooltip, Fab
 } from '@mui/material';
 import { 
   School as SchoolIcon, AccountBalanceWallet as WalletIcon, 
@@ -12,8 +12,10 @@ import {
   Menu as MenuIcon, Logout as LogoutIcon, Assessment as PortfolioIcon,
   Business as BusinessIcon, Security as AdminIcon,
   Notifications as NotificationIcon, Search as SearchIcon,
-  Payment as FinancialIcon, Psychology as LmsIcon
+  Payment as FinancialIcon, Psychology as LmsIcon,
+  Feedback as FeedbackIcon, Star as StarIcon
 } from '@mui/icons-material';
+import { api } from '../api';
 
 const DRAWER_WIDTH = 280;
 
@@ -33,6 +35,26 @@ export default function Layout({ children, role }: LayoutProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleFeedbackSubmit = async () => {
+    setSubmitting(true);
+    try {
+      // Mock userId for demo/testing
+      const userId = '947458a5-6912-4b1e-b6db-e56cfbdc4bcc'; 
+      await api.submitFeatureReview(userId, 'Overall App Experience', rating, comment);
+      setFeedbackOpen(false);
+      setComment('');
+      alert('Thank you for your feedback! This helps us build a better NSIP.');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleNotifOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
   const handleNotifClose = () => setAnchorEl(null);
@@ -234,6 +256,80 @@ export default function Layout({ children, role }: LayoutProps) {
       <Box component="main" sx={{ flexGrow: 1, p: 3, width: { md: `calc(100% - ${DRAWER_WIDTH}px)` }, mt: 8 }}>
         <Container maxWidth="xl">{children}</Container>
       </Box>
+
+      {/* Market Fit Testing: Feedback Button */}
+      <Box sx={{ position: 'fixed', bottom: 24, left: 24, zIndex: 1000 }}>
+        <Tooltip title="Give Feedback" placement="right">
+          <Fab 
+            size="small" 
+            color="secondary" 
+            onClick={() => setFeedbackOpen(true)}
+            sx={{ 
+              bgcolor: 'rgba(139, 92, 246, 0.1)', 
+              backdropFilter: 'blur(10px)',
+              color: 'primary.main',
+              border: '1px solid rgba(139, 92, 246, 0.2)',
+              '&:hover': { bgcolor: 'rgba(139, 92, 246, 0.2)' }
+            }}
+          >
+            <FeedbackIcon />
+          </Fab>
+        </Tooltip>
+      </Box>
+
+      {/* Feedback Dialog */}
+      <Menu
+        open={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+        anchorReference="anchorPosition"
+        anchorPosition={{ top: window.innerHeight - 300, left: 24 }}
+        slotProps={{ 
+          paper: { 
+            sx: { 
+              width: 320, 
+              p: 3, 
+              borderRadius: 4, 
+              bgcolor: 'rgba(17, 24, 39, 0.95)', 
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+            } 
+          } 
+        }}
+      >
+        <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Help us improve!</Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>How was your experience today?</Typography>
+        
+        <Stack direction="row" spacing={1} sx={{ mb: 2, justifyContent: 'center' }}>
+          {[1,2,3,4,5].map((s) => (
+            <IconButton key={s} onClick={() => setRating(s)} color={rating >= s ? "warning" : "default"}>
+              <StarIcon />
+            </IconButton>
+          ))}
+        </Stack>
+
+        <TextField 
+          fullWidth 
+          multiline 
+          rows={3} 
+          placeholder="Any suggestions or issues?" 
+          variant="outlined" 
+          size="small"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          sx={{ mb: 2, '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'rgba(255,255,255,0.03)' } }}
+        />
+
+        <Button 
+          fullWidth 
+          variant="contained" 
+          onClick={handleFeedbackSubmit} 
+          disabled={submitting}
+          sx={{ borderRadius: 2, py: 1 }}
+        >
+          {submitting ? 'Sending...' : 'Submit Feedback'}
+        </Button>
+      </Menu>
     </Box>
   );
 }
