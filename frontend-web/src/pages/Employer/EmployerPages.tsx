@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Box, Typography, Card, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Stack, TextField, Grid } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Typography, Card, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Stack, TextField, Grid, LinearProgress } from '@mui/material';
+import { api } from '../../api';
 
 export function PayrollPage() {
   const [uploading, setUploading] = useState(false);
@@ -54,11 +55,47 @@ export function PayrollPage() {
 }
 
 export function EventProposalPage() {
-  const [events] = useState([
-    { id: 'EVT-101', title: 'Ramadan 5K Run', budget: 50000, status: 'L2_APPROVED', color: 'info' },
-    { id: 'EVT-102', title: 'Financial Literacy Workshop', budget: 15000, status: 'DRAFT', color: 'warning' },
-    { id: 'EVT-103', title: 'Community Beach Cleanup', budget: 5000, status: 'LIVE', color: 'success' },
-  ]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ title: '', budget: '', date: '', description: '' });
+
+  useEffect(() => {
+    fetchMyEvents();
+  }, []);
+
+  const fetchMyEvents = async () => {
+    try {
+      // Mock userId for demo
+      const userId = '947458a5-6912-4b1e-b6db-e56cfbdc4bcc'; 
+      const data = await api.getMyEvents(userId);
+      setEvents(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const userId = '947458a5-6912-4b1e-b6db-e56cfbdc4bcc';
+      await api.submitEventProposal({
+        title: form.title,
+        description: form.description,
+        createdByUserId: userId,
+        organizationName: 'TechCorp LLC',
+        pointsReward: '100',
+        startTime: `${form.date}T09:00:00`
+      });
+      alert('Event proposal submitted successfully!');
+      setForm({ title: '', budget: '', date: '', description: '' });
+      fetchMyEvents();
+    } catch (err) {
+      alert('Failed to submit proposal');
+    }
+  };
+
+  if (loading) return <LinearProgress />;
 
   return (
     <Box>
@@ -69,10 +106,11 @@ export function EventProposalPage() {
           <Card sx={{ p: 4 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 800 }}>New Proposal</Typography>
             <Stack spacing={3}>
-              <TextField label="Event Name" fullWidth />
-              <TextField label="Proposed Budget" fullWidth type="number" />
-              <TextField label="Event Date" fullWidth type="date" slotProps={{ inputLabel: { shrink: true } }} />
-              <Button variant="contained">Submit for Review</Button>
+              <TextField label="Event Name" fullWidth value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} />
+              <TextField label="Proposed Budget" fullWidth type="number" value={form.budget} onChange={(e) => setForm({...form, budget: e.target.value})} />
+              <TextField label="Event Date" fullWidth type="date" value={form.date} onChange={(e) => setForm({...form, date: e.target.value})} slotProps={{ inputLabel: { shrink: true } }} />
+              <TextField label="Description" fullWidth multiline rows={2} value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} />
+              <Button variant="contained" onClick={handleSubmit}>Submit for Review</Button>
             </Stack>
           </Card>
         </Grid>
@@ -86,27 +124,22 @@ export function EventProposalPage() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Title</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Budget</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Approval Stage</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Stage</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {events.map((evt) => (
+                  {events.length === 0 ? (
+                    <TableRow><TableCell colSpan={3} sx={{ textAlign: 'center', py: 4 }}>No proposals yet.</TableCell></TableRow>
+                  ) : events.map((evt) => (
                     <TableRow key={evt.id}>
-                      <TableCell>{evt.id}</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>{evt.title}</TableCell>
-                      <TableCell>SAR {evt.budget.toLocaleString()}</TableCell>
+                      <TableCell><Chip label={evt.status} color={evt.status === 'LIVE' ? 'success' : 'warning'} size="small" variant="outlined" /></TableCell>
                       <TableCell>
-                        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                          <Chip label={evt.status} color={evt.color as any} size="small" variant="outlined" />
-                          {evt.status !== 'LIVE' && evt.status !== 'REJECTED' && (
-                            <Typography variant="caption" color="text.secondary">
-                              {evt.status === 'DRAFT' ? 'Awaiting L1' : evt.status === 'L1_APPROVED' ? 'Awaiting L2' : 'Awaiting L3'}
-                            </Typography>
-                          )}
-                        </Stack>
+                        <Typography variant="caption" color="text.secondary">
+                          {evt.status === 'DRAFT' ? 'L1 Review' : evt.status === 'L1_APPROVED' ? 'L2 Review' : evt.status === 'L2_APPROVED' ? 'L3 Final' : 'Completed'}
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   ))}

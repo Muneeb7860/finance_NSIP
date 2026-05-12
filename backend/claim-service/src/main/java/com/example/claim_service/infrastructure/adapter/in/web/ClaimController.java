@@ -31,6 +31,19 @@ public class ClaimController {
         return ResponseEntity.ok(claimUseCase.submitClaim(claim));
     }
 
+    @PostMapping("/loan")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<Claim> submitLoanRequest(@RequestBody Map<String, String> body) {
+        Claim claim = new Claim();
+        claim.setUserId(body.get("userId"));
+        claim.setType(Claim.ClaimType.PERSONAL_LOAN);
+        claim.setAmount(new BigDecimal(body.get("amount")));
+        claim.setDescription(body.get("description"));
+        claim.setStatus(Claim.ClaimStatus.PENDING);
+        
+        return ResponseEntity.ok(claimUseCase.submitLoanRequest(claim));
+    }
+
     @GetMapping("/user/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Claim>> getUserClaims(@PathVariable String userId) {

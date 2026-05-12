@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Grid, Button, Stack } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Grid, Button, Stack, LinearProgress } from '@mui/material';
 import { Assessment as PortfolioIcon } from '@mui/icons-material';
+import { api } from '../../api';
 
 
 export function AdminClaimsPage() {
@@ -71,15 +72,50 @@ export function AdminClaimsPage() {
 
 export function AdminEventsPage() {
   const [level, setLevel] = useState('L1_REVIEWER');
-  const [pendingEvents, setPendingEvents] = useState([
-    { id: 'EVT-102', title: 'Financial Literacy Workshop', org: 'Standard Bank', budget: 15000, status: 'DRAFT' },
-    { id: 'EVT-105', title: 'Startup Networking Gala', org: 'Tech Hub', budget: 75000, status: 'DRAFT' },
-  ]);
+  const [pendingEvents, setPendingEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAction = (id: string, action: 'Approve' | 'Reject') => {
-    alert(`${action}d event ${id} at level ${level}`);
-    setPendingEvents(prev => prev.filter(e => e.id !== id));
+  useEffect(() => {
+    fetchPending();
+  }, [level]);
+
+  const fetchPending = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getEventsPendingAtLevel(level);
+      setPendingEvents(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleAction = async (id: string, action: 'Approve' | 'Reject') => {
+    try {
+      const approverId = '947458a5-6912-4b1e-b6db-e56cfbdc4bcc';
+      const payload = {
+        approverUserId: approverId,
+        approverName: 'Admin System',
+        level: level,
+        comment: `${action}d via Admin Dashboard`,
+        rejectionReason: action === 'Reject' ? 'Policy violation or insufficient budget' : undefined
+      };
+
+      if (action === 'Approve') {
+        await api.approveEvent(id, payload);
+      } else {
+        await api.rejectEvent(id, payload);
+      }
+      
+      alert(`Event ${id} ${action}d successfully.`);
+      fetchPending();
+    } catch (err) {
+      alert('Action failed');
+    }
+  };
+
+  if (loading) return <LinearProgress />;
 
   return (
     <Box>
@@ -109,8 +145,7 @@ export function AdminEventsPage() {
               <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
                 <TableCell sx={{ fontWeight: 700 }}>Event Details</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Organization</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Budget</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Current Stage</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 700, textAlign: 'right' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -121,8 +156,7 @@ export function AdminEventsPage() {
                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{evt.title}</Typography>
                     <Typography variant="caption" color="text.secondary">ID: {evt.id}</Typography>
                   </TableCell>
-                  <TableCell>{evt.org}</TableCell>
-                  <TableCell>SAR {evt.budget.toLocaleString()}</TableCell>
+                  <TableCell>{evt.organizationName || 'N/A'}</TableCell>
                   <TableCell>
                     <Chip label={evt.status} size="small" color="warning" variant="outlined" />
                   </TableCell>
@@ -135,7 +169,7 @@ export function AdminEventsPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={5} sx={{ textAlign: 'center', py: 4 }}>
+                  <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body2" color="text.secondary">No pending events at {level.replace('_', ' ')} stage.</Typography>
                   </TableCell>
                 </TableRow>

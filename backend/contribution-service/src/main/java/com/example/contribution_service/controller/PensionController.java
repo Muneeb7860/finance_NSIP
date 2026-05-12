@@ -22,4 +22,10 @@ public class PensionController {
             @RequestParam BigDecimal monthlySalary) {
         return ResponseEntity.ok(pensionService.calculateEstimate(userId, currentAge, monthlySalary));
     }
+
+    @PostMapping("/certificate")
+    public ResponseEntity<?> requestCertificate(@RequestParam UUID userId) {
+        String url = pensionService.generateCertificate(userId);
+        return ResponseEntity.ok(java.util.Map.of("certificateUrl", url, "status", "ISSUED"));
+    }
 }

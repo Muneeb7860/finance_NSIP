@@ -57,4 +57,18 @@ public class RewardsController {
     public ResponseEntity<?> rescheduleSession(@PathVariable UUID sessionId, @RequestParam String newTime) {
         return ResponseEntity.ok(rewardsService.rescheduleSession(sessionId, LocalDateTime.parse(newTime)));
     }
+
+    @PostMapping("/redeem")
+    public ResponseEntity<?> redeem(@RequestBody Map<String, String> body) {
+        try {
+            UUID userId = UUID.fromString(Objects.requireNonNull(body.get("userId"), "User ID is required"));
+            String itemName = Objects.requireNonNull(body.get("itemName"), "Item name is required");
+            int cost = Integer.parseInt(Objects.requireNonNull(body.get("cost"), "Cost is required"));
+            
+            String code = rewardsService.redeemPoints(userId, itemName, cost);
+            return ResponseEntity.ok(Map.of("status", "SUCCESS", "voucherCode", code));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

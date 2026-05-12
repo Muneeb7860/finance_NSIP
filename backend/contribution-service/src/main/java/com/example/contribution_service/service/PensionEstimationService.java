@@ -65,6 +65,20 @@ public class PensionEstimationService {
     }
 
     /**
+     * Generate a verified contribution certificate for the user.
+     */
+    public String generateCertificate(UUID userId) {
+        BigDecimal totalSavings = contributionRepository.getTotalSavingsByUserId(userId);
+        String certificateId = "NSIP-CERT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        
+        log.info("Generating Contribution Certificate {} for user {}. Total Balance: SAR {}", 
+                 certificateId, userId, totalSavings);
+        
+        // In a real system, this would generate a PDF and store it in S3
+        return "https://nsip.gov.sa/download/certificate/" + certificateId;
+    }
+
+    /**
      * Pension estimate response object.
      */
     public record PensionEstimate(

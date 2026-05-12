@@ -11,19 +11,18 @@ public class ClaimDomainService implements ClaimUseCase {
 
     private final ClaimRepositoryPort repository;
     private final ClaimReviewerPort reviewer;
+    private final com.example.claim_service.application.port.out.ClaimEventPort eventPort;
 
-    public ClaimDomainService(ClaimRepositoryPort repository, ClaimReviewerPort reviewer) {
+    public ClaimDomainService(ClaimRepositoryPort repository, 
+                              ClaimReviewerPort reviewer,
+                              com.example.claim_service.application.port.out.ClaimEventPort eventPort) {
         this.repository = repository;
         this.reviewer = reviewer;
+        this.eventPort = eventPort;
     }
 
     @Override
     public Claim submitClaim(Claim claim) {
-        // Business Rule: Validate 3-year vesting for loans
-        if (claim.getType() == Claim.ClaimType.PERSONAL_LOAN) {
-            validateVestingPeriod(claim.getUserId());
-        }
-
         claim.setStatus(Claim.ClaimStatus.PENDING);
         claim.setCreatedAt(LocalDateTime.now());
         
@@ -36,9 +35,24 @@ public class ClaimDomainService implements ClaimUseCase {
             saved.setAiReasoning(aiResults[1]);
             return repository.save(saved);
         } catch (Exception e) {
-            // Log and continue — don't block the submission if AI fails
             return saved;
         }
+    }
+
+    @Override
+    public Claim submitLoanRequest(Claim claim) {
+        // Business Rule: Validate 3-year vesting for loans
+        validateVestingPeriod(claim.getUserId());
+
+        claim.setStatus(Claim.ClaimStatus.PENDING);
+        claim.setCreatedAt(LocalDateTime.now());
+        
+        Claim saved = repository.save(claim);
+        
+        // Emit event to start SAGA
+        eventPort.emitLoanRequested(saved);
+        
+        return saved;
     }
 
     @Override

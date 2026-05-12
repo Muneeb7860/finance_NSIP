@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Configuration;
 public class ClaimConfiguration {
 
     @Bean
-    public ClaimDomainService claimDomainService(ClaimRepositoryPort repositoryPort, ClaimReviewerPort reviewerPort) {
-        return new ClaimDomainService(repositoryPort, reviewerPort);
+    public ClaimDomainService claimDomainService(ClaimRepositoryPort repositoryPort, 
+                                               ClaimReviewerPort reviewerPort,
+                                               com.example.claim_service.application.port.out.ClaimEventPort eventPort) {
+        return new ClaimDomainService(repositoryPort, reviewerPort, eventPort);
     }
 }

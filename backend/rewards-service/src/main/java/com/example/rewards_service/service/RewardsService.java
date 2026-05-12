@@ -281,7 +281,29 @@ public class RewardsService {
         kafkaTemplate.send("notification.command.send",
                 String.format("{\"userId\":\"%s\", \"message\":\"Your advisor session has been rescheduled to %s\"}", session.getUserId(), newTime));
 
-        log.info("Session {} rescheduled to {}", sessionId, newTime);
-        return session;
+    /**
+     * Redeem points for a digital voucher or perk.
+     */
+    @Transactional
+    public String redeemPoints(UUID userId, String itemName, int cost) {
+        int balance = pointsLedgerRepository.getTotalPointsByUserId(userId);
+        if (balance < cost) {
+            throw new IllegalArgumentException("Insufficient points for redemption. Need " + cost + ".");
+        }
+
+        PointsLedger deduction = new PointsLedger();
+        deduction.setUserId(userId);
+        deduction.setPointDelta(-cost);
+        deduction.setDescription("Redeemed: " + itemName);
+        pointsLedgerRepository.save(deduction);
+
+        String voucherCode = "VOUCH-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        log.info("Points redeemed: user {} spent {} points for {}. Voucher: {}", userId, cost, itemName, voucherCode);
+
+        kafkaTemplate.send("notification.command.send",
+                String.format("{\"userId\":\"%s\", \"message\":\"Redemption successful! Your code for %s is %s\"}", 
+                              userId, itemName, voucherCode));
+
+        return voucherCode;
     }
 }

@@ -33,12 +33,12 @@ export const api = {
     request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(data) }),
 
   // Events
-  getLiveEvents: () => request('/api/v1/events/live'),
-  getMyEvents: (userId: string) => request(`/api/v1/events/my/${userId}`),
+  getLiveEvents: () => request('/api/v1/events'),
+  getMyEvents: (userId: string) => request(`/api/v1/events/my-events/${userId}`),
   submitEventProposal: (data: any) => request('/api/v1/events/propose', { method: 'POST', body: JSON.stringify(data) }),
   getEventsPendingAtLevel: (level: string) => request(`/api/v1/events/pending/${level}`),
-  approveEvent: (eventId: string, data: any) => request(`/api/v1/events/${eventId}/approve`, { method: 'POST', body: JSON.stringify(data) }),
-  rejectEvent: (eventId: string, data: any) => request(`/api/v1/events/${eventId}/reject`, { method: 'POST', body: JSON.stringify(data) }),
+  approveEvent: (eventId: string, data: any) => request(`/api/v1/events/${eventId}/approve`, { method: 'PATCH', body: JSON.stringify(data) }),
+  rejectEvent: (eventId: string, data: any) => request(`/api/v1/events/${eventId}/reject`, { method: 'PATCH', body: JSON.stringify(data) }),
   rsvpToEvent: (eventId: string, userId: string) => request(`/api/v1/events/${eventId}/rsvp?userId=${userId}`, { method: 'POST' }),
 
   // Education & Learning
@@ -69,6 +69,8 @@ export const api = {
   // Claims
   submitClaim: (userId: string, claimType: string, amount: string, description: string) =>
     request('/api/v1/claims', { method: 'POST', body: JSON.stringify({ userId, claimType, amount, description }) }),
+  submitLoanRequest: (userId: string, amount: string, description: string) =>
+    request('/api/v1/claims/loan', { method: 'POST', body: JSON.stringify({ userId, amount, description }) }),
   getUserClaims: (userId: string) => request(`/api/v1/claims/user/${userId}`),
   getPendingClaims: () => request('/api/v1/claims/pending'),
   approveClaim: (claimId: string) => request(`/api/v1/claims/${claimId}/approve`, { method: 'PATCH' }),
@@ -80,6 +82,16 @@ export const api = {
 
   // Rewards
   getPointsBalance: (userId: string) => request(`/api/v1/rewards/balance/${userId}`),
+
+  // Portfolio & Pension
+  getPensionBalance: (userId: string) => request(`/api/v1/contributions/balance/${userId}`),
+  getTransactions: (userId: string) => request(`/api/v1/contributions/history/${userId}`),
+  requestCertificate: (userId: string) => request(`/api/v1/contributions/pension/certificate?userId=${userId}`, { method: 'POST' }),
+
+  // Rewards
+  getPointsBalance: (userId: string) => request(`/api/v1/rewards/balance/${userId}`),
+  redeemPoints: (userId: string, itemName: string, cost: number) =>
+    request('/api/v1/rewards/redeem', { method: 'POST', body: JSON.stringify({ userId, itemName, cost: String(cost) }) }),
 
   // Reviews
   submitFeatureReview: (userId: string, featureName: string, rating: number, comment: string) =>

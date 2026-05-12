@@ -12,6 +12,7 @@ import LearningPage from './pages/Customer/LearningPage';
 import AdvisorsPage from './pages/Customer/AdvisorsPage';
 import WalletPage from './pages/Customer/WalletPage';
 import { WellnessPage, PlanningPage } from './pages/Customer/OtherPages';
+import EventsPage from './pages/Customer/EventsPage';
 import { PayrollPage, EventProposalPage } from './pages/Employer/EmployerPages';
 import { AdminClaimsPage, AdminEventsPage, AdminSLAPage } from './pages/Admin/AdminPages';
 import { ProfilePage, NotificationsPage, HelpPage } from './pages/Shared/SharedPages';
@@ -36,6 +37,7 @@ export default function App() {
                 <Route path="wellness" element={<WellnessPage />} />
                 <Route path="wallet" element={<WalletPage />} />
                 <Route path="planning" element={<PlanningPage />} />
+                <Route path="events" element={<EventsPage />} />
                 <Route path="help" element={<HelpPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
