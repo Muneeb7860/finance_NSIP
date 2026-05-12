@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: azure-redis-se
+  namespace: nsip
+spec:
+  hosts:
+  - nsip-redis-v4.redis.cache.windows.net
+  ports:
+  - number: 6380
+    name: redis-ssl
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS

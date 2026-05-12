@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: azure-eventhubs-se
+  namespace: nsip
+spec:
+  hosts:
+  - nsip-eventhubs-v4.servicebus.windows.net
+  ports:
+  - number: 9093
+    name: kafka-ssl
+    protocol: TLS
+  location: MESH_EXTERNAL
+  resolution: DNS

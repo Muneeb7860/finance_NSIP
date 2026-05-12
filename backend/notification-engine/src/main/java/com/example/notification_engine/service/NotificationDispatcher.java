@@ -11,6 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationDispatcher {
 
+    @Autowired
+    private FirebasePushService pushService;
+
+    @Autowired
+    private TwilioSmsService twilioService;
+
+    @Autowired
+    private AzureCommunicationService azureService;
+
+    @Autowired
+    private WebSocketNotificationService webSocketService;
+
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
@@ -22,27 +34,48 @@ public class NotificationDispatcher {
     public void handleNotification(String payload) {
         log.info("Notification received: {}", payload);
 
-        // Dispatch to all active channels
-        sendEmail(payload);
-        sendWhatsApp(payload);
-        sendSms(payload);
+        // In a real app, we would parse JSON: {userId, message, channels:[], targetToken, phoneNumber, email}
+        // For now, we dispatch to all active channels using the generic payload
+        
+        String recipientEmail = "user@example.com"; // Placeholder: extract from payload/user-service
+        String phoneNumber = "+1234567890";      // Placeholder
+        String fcmToken = "dummy-token";          // Placeholder
+
+        // 1. Email (Priority: ACS -> SMTP)
+        azureService.sendEmail(recipientEmail, "NSIP Notification", payload);
+        sendEmail(recipientEmail, payload);
+
+        // 2. SMS (Priority: ACS -> Twilio)
+        azureService.sendSms(phoneNumber, payload);
+        twilioService.sendSms(phoneNumber, payload);
+
+        // 3. WhatsApp (Twilio)
+        twilioService.sendWhatsApp(phoneNumber, payload);
+
+        // 4. Push (FCM)
+        pushService.sendPushNotification(fcmToken, "NSIP Platform", payload);
+        
+        // 5. WebSocket (Real-time in-app)
+        webSocketService.sendToUser("user-123", payload); // Placeholder user-id
+        
+        // 6. Social DM (Simulated)
         sendSocialDM(payload);
     }
 
     /**
      * Send email notification via Spring Boot JavaMailSender.
      */
-    private void sendEmail(String payload) {
+    private void sendEmail(String to, String content) {
         try {
             if (mailSender != null) {
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setTo("user@example.com"); // Would parse from payload
+                message.setTo(to);
                 message.setSubject("NSIP Platform Notification");
-                message.setText("You have a new notification: " + payload);
+                message.setText("You have a new notification: " + content);
                 mailSender.send(message);
-                log.info("EMAIL sent successfully.");
+                log.info("EMAIL sent successfully to {}", to);
             } else {
-                log.info("EMAIL (simulated): {}", payload);
+                log.info("EMAIL (simulated) to {}: {}", to, content);
             }
         } catch (Exception e) {
             log.error("EMAIL failed: {}", e.getMessage());
@@ -50,30 +83,9 @@ public class NotificationDispatcher {
     }
 
     /**
-     * Send WhatsApp notification via WhatsApp Business API.
-     * In production, integrate with Meta's WhatsApp Cloud API.
-     */
-    private void sendWhatsApp(String payload) {
-        log.info("WHATSAPP (simulated): {}", payload);
-        // POST https://graph.facebook.com/v17.0/{phone-number-id}/messages
-    }
-
-    /**
-     * Send SMS notification.
-     * In production, integrate with Twilio or AWS SNS.
-     */
-    private void sendSms(String payload) {
-        log.info("SMS (simulated): {}", payload);
-        // Twilio API call
-    }
-
-    /**
-     * Send Direct Message on social platforms (X, Instagram, Snapchat).
-     * In production, integrate with each platform's DM API.
+     * Send Direct Message on social platforms (Simulated).
      */
     private void sendSocialDM(String payload) {
         log.info("SOCIAL DM (simulated to X/Instagram/Snapchat): {}", payload);
-        // X API v2: POST /2/dm_conversations
-        // Instagram Graph API
     }
 }

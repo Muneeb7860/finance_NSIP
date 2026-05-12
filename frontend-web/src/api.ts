@@ -94,4 +94,7 @@ export const api = {
   // LiveKit Assistant
   getLiveKitToken: (roomName?: string) => 
     request('/api/v1/auth/livekit/token', { method: 'POST', body: JSON.stringify({ roomName }) }),
+
+  // Generic request (for internal/custom calls)
+  request: (path: string, options?: RequestInit) => request(path, options),
 };

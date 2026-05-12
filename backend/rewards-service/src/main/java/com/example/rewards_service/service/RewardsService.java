@@ -1,8 +1,10 @@
 package com.example.rewards_service.service;
 
 import com.example.rewards_service.model.AdvisorSession;
+import com.example.rewards_service.model.Certificate;
 import com.example.rewards_service.model.PointsLedger;
 import com.example.rewards_service.repository.AdvisorSessionRepository;
+import com.example.rewards_service.repository.CertificateRepository;
 import com.example.rewards_service.repository.PointsLedgerRepository;
 import com.example.rewards_service.dto.LeaderboardEntry;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,9 +41,11 @@ public class RewardsService {
     private static final int SESSION_COST = 1000;
     private static final int CANCELLATION_WINDOW_HOURS = 24;
 
+    @Autowired
+    private CertificateRepository certificateRepository;
+
     /**
-     * Kafka listener: Automatically awards points when a user completes a course or attends an event.
-     * Parses the userId and pointsEarned from the JSON payload.
+     * Kafka listener: Automatically awards points and certificates.
      */
     @KafkaListener(topics = "gamification.events", groupId = "rewards-group")
     @Transactional
@@ -51,7 +55,6 @@ public class RewardsService {
             JsonNode node = objectMapper.readTree(payload);
             UUID userId = UUID.fromString(node.get("userId").asText());
             
-            // Handle both "event" and "eventType" for backward compatibility
             String eventType = node.has("eventType") ? node.get("eventType").asText() : 
                                (node.has("event") ? node.get("event").asText() : "UNKNOWN");
             
@@ -62,6 +65,7 @@ public class RewardsService {
                 case "COURSE_COMPLETED":
                     points = 500;
                     description = "Completed Learning Module";
+                    issueCertificate(userId, node.get("courseName").asText(), Certificate.CertificateType.PROFESSIONAL);
                     break;
                 case "QUIZ_PASSED":
                     points = 100;
@@ -70,6 +74,7 @@ public class RewardsService {
                 case "EVENT_ATTENDED":
                     points = 200;
                     description = "Attended Community Event";
+                    issueCertificate(userId, node.get("eventName").asText(), Certificate.CertificateType.PARTICIPATION);
                     break;
                 case "SESSION_BOOKED_PENDING":
                     description = "Point Lock: Advisor Session Pending Approval";
@@ -86,7 +91,6 @@ public class RewardsService {
                     }
             }
             
-            // Special handling for negative points (deductions)
             if (points < 0) {
                 deductPoints(userId, Math.abs(points), description);
             } else if (points > 0) {
@@ -95,7 +99,30 @@ public class RewardsService {
             
         } catch (Exception e) {
             log.error("Failed to process gamification event: {}", e.getMessage());
+            // Robustness: Alert on processing failure
+            kafkaTemplate.send("notification.command.send", 
+                String.format("{\"userId\":\"admin\", \"message\":\"Critical: Gamification event processing failed: %s\", \"channel\":\"EMAIL\"}", e.getMessage()));
         }
+    }
+
+    /**
+     * Issue a digital certificate.
+     */
+    private void issueCertificate(UUID userId, String title, Certificate.CertificateType type) {
+        Certificate cert = new Certificate();
+        cert.setUserId(userId);
+        cert.setTitle(title);
+        cert.setType(type);
+        cert.setIssuedAt(LocalDateTime.now());
+        cert.setCertificateUrl("https://nsip.gov.sa/certs/" + UUID.randomUUID());
+        
+        certificateRepository.save(cert);
+        log.info("Certificate issued: '{}' for user {}", title, userId);
+        
+        // Notify user about the new certificate
+        kafkaTemplate.send("notification.command.send", 
+            String.format("{\"userId\":\"%s\", \"message\":\"Congratulations! You have earned a new %s certificate: %s\", \"channel\":\"PUSH\"}", 
+                          userId, type, title));
     }
 
     /** Helper for point deductions. */

@@ -11,7 +11,9 @@ data:
   # --- Azure Cache for Redis ---
   SPRING_DATA_REDIS_HOST: "nsip-redis-v4.redis.cache.windows.net"
   SPRING_DATA_REDIS_PORT: "6380"
-  SPRING_DATA_REDIS_SSL: "true"
+  SPRING_DATA_REDIS_SSL_ENABLED: "true"
+  SPRING_DATA_REDIS_CONNECT_TIMEOUT: "10000"
+  SPRING_DATA_REDIS_TIMEOUT: "10000"
   
   # --- Kafka (Azure Event Hubs) ---
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "nsip-eventhubs-v4.servicebus.windows.net:9093"
@@ -22,6 +24,8 @@ data:
   # --- Application Runtime ---
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
   LOGGING_LEVEL_ROOT: "INFO"
+  MANAGEMENT_HEALTH_REDIS_ENABLED: "true"
+  SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
   JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseCompressedOops -Xss256k -Dspring.main.lazy-initialization=true -Dspring.jpa.open-in-view=false"
 ---
 apiVersion: v1

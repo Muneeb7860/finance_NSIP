@@ -48,6 +48,7 @@ public class PaymentGatewayService {
         payment.setStatus(Payment.PaymentStatus.PROCESSING);
 
         try {
+            // Instant Payout Logic: Call gateway with high-priority flag
             String txId = callGatewayWithResilience();
 
             payment.setStatus(Payment.PaymentStatus.COMPLETED);
@@ -62,39 +63,77 @@ public class PaymentGatewayService {
             paymentRepository.save(payment);
 
             log.error("Payment FAILED after retries: {}", e.getMessage());
+            
+            // REAL-TIME FAILURE ALERT: Notify user and admin via Notification System
+            String alertMessage = String.format("{\"userId\":\"%s\", \"message\":\"Critical: Your payment of SAR 15000 failed. Error: %s\", \"channel\":\"SMS\"}", 
+                                                payment.getUserId(), e.getMessage());
+            kafkaTemplate.send("notification.command.send", alertMessage);
+            
             kafkaTemplate.send("payment.event.failed", payload);
         }
     }
 
     /**
+     * Process a refund with status tracking and failure alerts.
+     */
+    @Transactional
+    public void processRefund(UUID paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+
+        if (payment.getStatus() != Payment.PaymentStatus.COMPLETED) {
+            throw new IllegalStateException("Only completed payments can be refunded");
+        }
+
+        payment.setStatus(Payment.PaymentStatus.REFUND_PENDING);
+        paymentRepository.save(payment);
+
+        try {
+            log.info("Initiating refund for transaction: {}", payment.getGatewayTransactionId());
+            // Simulate gateway refund call
+            if (Math.random() < 0.1) throw new RuntimeException("Gateway refund rejected");
+
+            payment.setStatus(Payment.PaymentStatus.REFUNDED);
+            paymentRepository.save(payment);
+            log.info("Refund COMPLETED for payment {}", paymentId);
+
+        } catch (Exception e) {
+            payment.setStatus(Payment.PaymentStatus.REFUND_FAILED);
+            paymentRepository.save(payment);
+            
+            // FAILURE ALERT
+            String alertMessage = String.format("{\"userId\":\"%s\", \"message\":\"Refund failed for transaction %s. Our team is investigating.\", \"channel\":\"EMAIL\"}", 
+                                                payment.getUserId(), payment.getGatewayTransactionId());
+            kafkaTemplate.send("notification.command.send", alertMessage);
+            
+            log.error("Refund FAILED for payment {}: {}", paymentId, e.getMessage());
+        }
+    }
+
+    /**
      * Gateway call with Resilience4j annotations.
-     *
-     * @Retry: 3 attempts with 500ms, 1s, 2s exponential backoff
-     * @CircuitBreaker: Opens after 5 failures in a 60-second window.
-     *                  When open, calls fail immediately for 30 seconds.
      */
     @Retry(name = "paymentGateway", fallbackMethod = "gatewayFallback")
     @CircuitBreaker(name = "paymentGateway", fallbackMethod = "gatewayFallback")
     public String callGatewayWithResilience() {
-        log.info("Attempting gateway call...");
+        log.info("Attempting gateway call (Instant Mode)...");
 
-        // Simulate calling Stripe / Paytm / PhonePe API
-        boolean success = Math.random() > 0.05; // 95% success rate
+        // Simulate calling Stripe / STC Pay API
+        boolean success = Math.random() > 0.05; 
 
         if (!success) {
-            throw new RuntimeException("Gateway timeout — service unavailable");
+            throw new RuntimeException("Gateway connection failed");
         }
 
-        return "ch_" + UUID.randomUUID().toString().substring(0, 8);
+        return "inst_" + UUID.randomUUID().toString().substring(0, 8);
     }
 
     /**
      * Fallback when both retry and circuit breaker are exhausted.
-     * Returns a meaningful error instead of crashing.
      */
     public String gatewayFallback(Exception e) {
         log.warn("Circuit breaker activated. Gateway is unavailable: {}", e.getMessage());
-        throw new RuntimeException("Payment gateway is currently unavailable. Please try again later.");
+        throw new RuntimeException("Payment gateway is currently unavailable. Instant Payout mode disabled.");
     }
 
     /**

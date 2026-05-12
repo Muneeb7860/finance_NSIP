@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: azure-postgres-se
+  namespace: nsip
+spec:
+  hosts:
+  - nsip-postgres-v4.postgres.database.azure.com
+  ports:
+  - number: 5432
+    name: postgres
+    protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS
