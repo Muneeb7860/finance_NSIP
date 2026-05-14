@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.example.common.constants.CommonConstants;
+
 @Service
 @Slf4j
 public class RewardsService {
@@ -38,7 +40,6 @@ public class RewardsService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final int SESSION_COST = 1000;
     private static final int CANCELLATION_WINDOW_HOURS = 24;
 
     @Autowired
@@ -63,18 +64,32 @@ public class RewardsService {
             
             switch (eventType) {
                 case "COURSE_COMPLETED":
-                    points = 500;
-                    description = "Completed Learning Module";
+                    int attemptCount = node.has("attemptCount") ? node.get("attemptCount").asInt() : 1;
+                    if (attemptCount == 1) points = 150;
+                    else if (attemptCount == 2) points = 75;
+                    else points = 37;
+                    
+                    description = "Completed Learning Module (Attempt #" + attemptCount + ")";
                     issueCertificate(userId, node.get("courseName").asText(), Certificate.CertificateType.PROFESSIONAL);
                     break;
                 case "QUIZ_PASSED":
-                    points = 100;
-                    description = "Passed Knowledge Quiz";
+                    int score = node.has("score") ? node.get("score").asInt() : 70;
+                    int passingScore = node.has("passingScore") ? node.get("passingScore").asInt() : 70;
+                    points = 100 + (score > passingScore ? (score - passingScore) : 0);
+                    description = "Passed Knowledge Quiz (Score: " + score + "%)";
                     break;
                 case "EVENT_ATTENDED":
                     points = 200;
                     description = "Attended Community Event";
                     issueCertificate(userId, node.get("eventName").asText(), Certificate.CertificateType.PARTICIPATION);
+                    break;
+                case "WEEKLY_STREAK":
+                    points = CommonConstants.WEEKLY_STREAK_BONUS_PTS;
+                    description = "Active Usage Streak (Weekly)";
+                    break;
+                case "MONTHLY_STREAK":
+                    points = CommonConstants.MONTHLY_STREAK_BONUS_PTS;
+                    description = "Active Usage Streak (Monthly)";
                     break;
                 case "SESSION_BOOKED_PENDING":
                     description = "Point Lock: Advisor Session Pending Approval";
@@ -189,15 +204,15 @@ public class RewardsService {
         // Atomic read: this runs inside the transaction boundary
         int balance = pointsLedgerRepository.getTotalPointsByUserId(userId);
 
-        if (balance < SESSION_COST) {
+        if (balance < CommonConstants.ADVISOR_SESSION_COST_PTS) {
             throw new IllegalArgumentException(
-                    "Insufficient points. You have " + balance + " but need " + SESSION_COST + ".");
+                    "Insufficient points. You have " + balance + " but need " + CommonConstants.ADVISOR_SESSION_COST_PTS + ".");
         }
 
         // Atomic write: deduct points within the same transaction
         PointsLedger deduction = new PointsLedger();
         deduction.setUserId(userId);
-        deduction.setPointDelta(-SESSION_COST);
+        deduction.setPointDelta(-CommonConstants.ADVISOR_SESSION_COST_PTS);
         deduction.setDescription("Booked Financial Advisor Session");
         pointsLedgerRepository.save(deduction);
 
@@ -251,10 +266,10 @@ public class RewardsService {
             // Full refund
             PointsLedger refund = new PointsLedger();
             refund.setUserId(session.getUserId());
-            refund.setPointDelta(SESSION_COST);
+            refund.setPointDelta(CommonConstants.ADVISOR_SESSION_COST_PTS);
             refund.setDescription("Refund: Advisor session canceled (outside cancellation window)");
             pointsLedgerRepository.save(refund);
-            log.info("Session {} canceled. {} points refunded to user {}", sessionId, SESSION_COST, session.getUserId());
+            log.info("Session {} canceled. {} points refunded to user {}", sessionId, CommonConstants.ADVISOR_SESSION_COST_PTS, session.getUserId());
         }
 
         return session;
@@ -280,6 +295,8 @@ public class RewardsService {
 
         kafkaTemplate.send("notification.command.send",
                 String.format("{\"userId\":\"%s\", \"message\":\"Your advisor session has been rescheduled to %s\"}", session.getUserId(), newTime));
+        return session;
+    }
 
     /**
      * Redeem points for a digital voucher or perk.

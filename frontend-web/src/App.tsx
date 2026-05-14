@@ -17,7 +17,9 @@ import { PayrollPage, EventProposalPage } from './pages/Employer/EmployerPages';
 import { AdminClaimsPage, AdminEventsPage, AdminSLAPage } from './pages/Admin/AdminPages';
 import { ProfilePage, NotificationsPage, HelpPage } from './pages/Shared/SharedPages';
 
-import { AIAssistant } from './components/assistant/AIAssistant';
+import MarketplacePage from './pages/MarketplacePage';
+import EmployerAnalyticsPage from './pages/Employer/EmployerAnalyticsPage';
+import HafidaAssistant from './components/HafidaAssistant';
 
 export default function App() {
   return (
@@ -32,6 +34,7 @@ export default function App() {
             <Layout role="customer">
               <Routes>
                 <Route path="portfolio" element={<PortfolioPage />} />
+                <Route path="marketplace" element={<MarketplacePage />} />
                 <Route path="learning" element={<LearningPage />} />
                 <Route path="advisors" element={<AdvisorsPage />} />
                 <Route path="wellness" element={<WellnessPage />} />
@@ -51,6 +54,7 @@ export default function App() {
             <Layout role="employer">
               <Routes>
                 <Route path="payroll" element={<PayrollPage />} />
+                <Route path="analytics" element={<EmployerAnalyticsPage />} />
                 <Route path="events" element={<EventProposalPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
@@ -75,7 +79,7 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-        <AIAssistant />
+        <HafidaAssistant />
       </BrowserRouter>
     </ThemeProvider>
   );

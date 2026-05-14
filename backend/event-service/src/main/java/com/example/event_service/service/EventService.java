@@ -12,10 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.HexFormat;
 
 @Service
 @Slf4j
@@ -97,10 +100,9 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found."));
 
-        // Validate that the event is at the correct stage for this approval level
         validateApprovalOrder(event, level);
 
-        // Record the approval action in the audit trail
+        // Record the approval action in the IMMUTABLE audit trail
         EventApproval approval = new EventApproval();
         approval.setEventId(eventId);
         approval.setApproverUserId(approverUserId);
@@ -108,6 +110,13 @@ public class EventService {
         approval.setLevel(level);
         approval.setAction(EventApproval.ApprovalAction.APPROVED);
         approval.setComment(comment);
+
+        // Link to the previous record (Digital Trust Chain)
+        approvalRepository.findFirstByOrderByActionTimestampDesc().ifPresent(prev -> {
+            approval.setPreviousHash(prev.getCurrentHash());
+        });
+        approval.setCurrentHash(calculateHash(approval));
+        
         approvalRepository.save(approval);
 
         // Advance the event to the next stage
@@ -120,10 +129,9 @@ public class EventService {
         event.setApprovalStatus(newStatus);
         eventRepository.save(event);
 
-        log.info("Event '{}' [{}] approved at {} by {}. New status: {}",
-                event.getTitle(), eventId, level, approverName, newStatus);
+        log.info("Event '{}' [{}] approved at {} by {}. New status: {}. Hash: {}",
+                event.getTitle(), eventId, level, approverName, newStatus, approval.getCurrentHash());
 
-        // If the event just went LIVE, notify the business owner and all users
         if (newStatus == Event.ApprovalStatus.LIVE) {
             kafkaTemplate.send("notification.command.send",
                     String.format("{\"userId\":\"%s\", \"status\":\"SUCCESS\", \"message\":\"Your event '%s' has been approved and is now LIVE!\"}",
@@ -133,7 +141,6 @@ public class EventService {
                     String.format("{\"channel\":\"ALL\", \"message\":\"New event available: '%s' by %s on %s\"}",
                             event.getTitle(), event.getOrganizationName(), event.getStartTime()));
         } else {
-            // Notify that it's moved to the next level
             kafkaTemplate.send("notification.command.send",
                     String.format("{\"channel\":\"INTERNAL\", \"message\":\"Event '%s' passed %s review. Awaiting %s.\"}",
                             event.getTitle(), level, getNextLevel(level)));
@@ -142,10 +149,6 @@ public class EventService {
         return event;
     }
 
-    /**
-     * Reject an event at any level.
-     * A rejection comment is required to explain the reason to the business owner.
-     */
     @Transactional
     public Event rejectEvent(UUID eventId, UUID approverUserId, String approverName,
                              EventApproval.ApprovalLevel level, String rejectionReason) {
@@ -157,7 +160,7 @@ public class EventService {
             throw new IllegalArgumentException("A rejection reason is required.");
         }
 
-        // Record the rejection in the audit trail
+        // Record the rejection in the IMMUTABLE audit trail
         EventApproval approval = new EventApproval();
         approval.setEventId(eventId);
         approval.setApproverUserId(approverUserId);
@@ -165,20 +168,44 @@ public class EventService {
         approval.setLevel(level);
         approval.setAction(EventApproval.ApprovalAction.REJECTED);
         approval.setComment(rejectionReason);
+
+        // Link to the previous record (Digital Trust Chain)
+        approvalRepository.findFirstByOrderByActionTimestampDesc().ifPresent(prev -> {
+            approval.setPreviousHash(prev.getCurrentHash());
+        });
+        approval.setCurrentHash(calculateHash(approval));
+
         approvalRepository.save(approval);
 
         event.setApprovalStatus(Event.ApprovalStatus.REJECTED);
         eventRepository.save(event);
 
-        log.warn("Event '{}' [{}] REJECTED at {} by {}. Reason: {}",
-                event.getTitle(), eventId, level, approverName, rejectionReason);
+        log.warn("Event '{}' [{}] REJECTED at {} by {}. Hash: {}",
+                event.getTitle(), eventId, level, approverName, approval.getCurrentHash());
 
-        // Notify the business owner with the rejection reason
         kafkaTemplate.send("notification.command.send",
                 String.format("{\"userId\":\"%s\", \"status\":\"FAILED\", \"message\":\"Your event '%s' was rejected at %s review. Reason: %s\"}",
                         event.getCreatedByUserId(), event.getTitle(), level, rejectionReason));
 
         return event;
+    }
+
+    private String calculateHash(EventApproval approval) {
+        try {
+            String data = (approval.getPreviousHash() != null ? approval.getPreviousHash() : "GENESIS") +
+                          approval.getEventId() +
+                          approval.getApproverUserId() +
+                          approval.getLevel() +
+                          approval.getAction() +
+                          approval.getActionTimestamp();
+            
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(encodedhash);
+        } catch (Exception e) {
+            log.error("Failed to calculate audit hash", e);
+            return UUID.randomUUID().toString(); // Fallback to random if crypto fails
+        }
     }
 
     /**

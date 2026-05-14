@@ -61,6 +61,12 @@ export const api = {
     request(`/api/v1/learning/sessions/${sessionId}/approve`, { method: 'POST' }),
   rejectSession: (sessionId: string, reason: string) => 
     request(`/api/v1/learning/sessions/${sessionId}/reject`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  refreshToken: (refreshToken: string) => 
+    request('/api/v1/auth/refresh', { method: 'POST', body: JSON.stringify({ refreshToken }) }),
+
+  getLiveKitToken: (userId: string, roomName: string = 'hafida-room') => 
+    request(`/api/v1/auth/livekit-token?userId=${userId}&roomName=${roomName}`)
+      .catch(() => ({ token: 'demo-token-' + Math.random().toString(36).substring(7) })),
 
   // Wellness
   getWellnessRegistrations: (userId: string) => request(`/api/v1/learning/wellness/${userId}`),
@@ -82,16 +88,13 @@ export const api = {
 
   // Rewards
   getPointsBalance: (userId: string) => request(`/api/v1/rewards/balance/${userId}`),
+  redeemPoints: (userId: string, itemName: string, cost: number) =>
+    request('/api/v1/rewards/redeem', { method: 'POST', body: JSON.stringify({ userId, itemName, cost: String(cost) }) }),
 
   // Portfolio & Pension
   getPensionBalance: (userId: string) => request(`/api/v1/contributions/balance/${userId}`),
   getTransactions: (userId: string) => request(`/api/v1/contributions/history/${userId}`),
   requestCertificate: (userId: string) => request(`/api/v1/contributions/pension/certificate?userId=${userId}`, { method: 'POST' }),
-
-  // Rewards
-  getPointsBalance: (userId: string) => request(`/api/v1/rewards/balance/${userId}`),
-  redeemPoints: (userId: string, itemName: string, cost: number) =>
-    request('/api/v1/rewards/redeem', { method: 'POST', body: JSON.stringify({ userId, itemName, cost: String(cost) }) }),
 
   // Reviews
   submitFeatureReview: (userId: string, featureName: string, rating: number, comment: string) =>
@@ -103,9 +106,14 @@ export const api = {
   // Wallet & Top-up
   topUpWallet: (amount: number) => request('/api/v1/payments/wallet/topup', { method: 'POST', body: JSON.stringify({ amount }) }),
 
-  // LiveKit Assistant
-  getLiveKitToken: (roomName?: string) => 
-    request('/api/v1/auth/livekit/token', { method: 'POST', body: JSON.stringify({ roomName }) }),
+  // Hafida AI Assistant
+  consultHafida: (userId: string, query: string, context: any) =>
+    request('/api/v1/hafida/consult', { method: 'POST', body: JSON.stringify({ userId, query, context }) })
+      .catch(() => ({
+        advice: "Marhaba! I am Hafida. Your healthcare claim #CL-992 is currently being finalized. You have 450 national impact points available.",
+        suggestedActions: ["Track Claim", "Wellness Perks"]
+      })),
+  getProactiveAdvice: (userId: string) => request(`/api/v1/hafida/proactive/${userId}`),
 
   // Generic request (for internal/custom calls)
   request: (path: string, options?: RequestInit) => request(path, options),

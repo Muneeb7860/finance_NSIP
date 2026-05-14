@@ -14,7 +14,8 @@ from livekit.agents import (
 )
 from livekit.plugins import google, silero
 
-load_dotenv()
+import os
+# load_dotenv() # Disabled to prioritize K8s environment variables
 
 logger = logging.getLogger("nsip-agent")
 logger.setLevel(logging.INFO)

@@ -6,19 +6,25 @@ import com.example.claim_service.application.port.out.ClaimReviewerPort;
 import com.example.claim_service.domain.model.Claim;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.math.BigDecimal;
+
+import com.example.common.constants.CommonConstants;
 
 public class ClaimDomainService implements ClaimUseCase {
 
     private final ClaimRepositoryPort repository;
     private final ClaimReviewerPort reviewer;
     private final com.example.claim_service.application.port.out.ClaimEventPort eventPort;
+    private final com.example.claim_service.application.port.out.ContributionPort contributionPort;
 
     public ClaimDomainService(ClaimRepositoryPort repository, 
                               ClaimReviewerPort reviewer,
-                              com.example.claim_service.application.port.out.ClaimEventPort eventPort) {
+                              com.example.claim_service.application.port.out.ClaimEventPort eventPort,
+                              com.example.claim_service.application.port.out.ContributionPort contributionPort) {
         this.repository = repository;
         this.reviewer = reviewer;
         this.eventPort = eventPort;
+        this.contributionPort = contributionPort;
     }
 
     @Override
@@ -43,6 +49,23 @@ public class ClaimDomainService implements ClaimUseCase {
     public Claim submitLoanRequest(Claim claim) {
         // Business Rule: Validate 3-year vesting for loans
         validateVestingPeriod(claim.getUserId());
+
+        // Business Rule: Loan capped at 30% of vested savings
+        BigDecimal savings = contributionPort.getTotalSavings(claim.getUserId());
+        BigDecimal cap30 = savings.multiply(CommonConstants.LOAN_CAP_PERCENT);
+        
+        // Business Rule: Hard max cap of SAR 45,000 (BRD 4.2)
+        BigDecimal finalCap = cap30.min(CommonConstants.LOAN_HARD_MAX_SAR);
+        
+        if (claim.getAmount().compareTo(finalCap) > 0) {
+            String message = "Loan amount exceeds limits.";
+            if (cap30.compareTo(CommonConstants.LOAN_HARD_MAX_SAR) > 0) {
+                message += " The national hard cap is SAR " + CommonConstants.LOAN_HARD_MAX_SAR.toPlainString();
+            } else {
+                message += " Your personal eligibility (30% of savings) is SAR " + cap30.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
+            }
+            throw new RuntimeException(message);
+        }
 
         claim.setStatus(Claim.ClaimStatus.PENDING);
         claim.setCreatedAt(LocalDateTime.now());

@@ -13,38 +13,78 @@ export function PayrollPage() {
     }, 2000);
   };
 
+  const payrollStats = [
+    { title: 'Compliance Score', value: '100%', trend: 'Perfect', color: '#059669' },
+    { title: 'Next Submission', value: '12 Days', trend: 'Nov 25', color: '#3b82f6' },
+    { title: 'Total Employees', value: '145', trend: 'Active', color: '#f59e0b' },
+  ];
+
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>Payroll & Compliance</Typography>
-        <Button variant="contained" component="label">
-          {uploading ? 'Processing...' : 'Upload Payroll CSV'}
+    <Box sx={{ p: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 6 }}>
+        <Box>
+          <Typography variant="h3" sx={{ fontWeight: 900, mb: 1 }}>Employer Portal</Typography>
+          <Typography variant="body1" color="text.secondary">Manage your organization's contributions and compliance.</Typography>
+        </Box>
+        <Button 
+          variant="contained" 
+          component="label"
+          sx={{ 
+            borderRadius: 4, 
+            px: 4, 
+            py: 1.5, 
+            bgcolor: '#059669', 
+            fontWeight: 800,
+            boxShadow: '0 10px 30px rgba(5, 150, 105, 0.3)',
+            '&:hover': { bgcolor: '#047857' }
+          }}
+        >
+          {uploading ? 'Processing Architecture...' : 'Upload Payroll Dataset'}
           <input type="file" hidden accept=".csv" onChange={handleUpload} />
         </Button>
       </Box>
-      <Card>
+
+      {/* Quick Stats */}
+      <Grid container spacing={3} sx={{ mb: 6 }}>
+        {payrollStats.map((s, i) => (
+          <Grid key={i} size={{ xs: 12, md: 4 }}>
+            <Card sx={{ p: 3, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', letterSpacing: 1 }}>{s.title}</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, my: 1, color: s.color }}>{s.value}</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6 }}>Current Status: {s.trend}</Typography>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" sx={{ fontWeight: 900 }}>Submission History</Typography>
+        <Chip label="2024 Audit Clear" sx={{ bgcolor: 'rgba(5, 150, 105, 0.1)', color: '#059669', fontWeight: 700 }} />
+      </Box>
+
+      <Card sx={{ borderRadius: 5, border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Month</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Employees</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Total Contributions</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.03)' }}>
+                <TableCell sx={{ fontWeight: 800 }}>PERIOD</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>EMPLOYEE COUNT</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>TOTAL CONTRIBUTION</TableCell>
+                <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>STATUS</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell>October 2024</TableCell>
-                <TableCell>145</TableCell>
-                <TableCell>SAR 450,000</TableCell>
-                <TableCell><Chip label="Paid" color="success" size="small" /></TableCell>
+              <TableRow sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                <TableCell sx={{ fontWeight: 700 }}>October 2024</TableCell>
+                <TableCell>145 Employees</TableCell>
+                <TableCell sx={{ fontWeight: 900, color: '#059669' }}>SAR 450,000</TableCell>
+                <TableCell sx={{ textAlign: 'right' }}><Chip label="VERIFIED" sx={{ bgcolor: 'rgba(5, 150, 105, 0.1)', color: '#059669', fontWeight: 800, borderRadius: 2 }} /></TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell>September 2024</TableCell>
-                <TableCell>142</TableCell>
-                <TableCell>SAR 442,000</TableCell>
-                <TableCell><Chip label="Paid" color="success" size="small" /></TableCell>
+              <TableRow sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                <TableCell sx={{ fontWeight: 700 }}>September 2024</TableCell>
+                <TableCell>142 Employees</TableCell>
+                <TableCell sx={{ fontWeight: 900, color: '#059669' }}>SAR 442,000</TableCell>
+                <TableCell sx={{ textAlign: 'right' }}><Chip label="VERIFIED" sx={{ bgcolor: 'rgba(5, 150, 105, 0.1)', color: '#059669', fontWeight: 800, borderRadius: 2 }} /></TableCell>
               </TableRow>
             </TableBody>
           </Table>

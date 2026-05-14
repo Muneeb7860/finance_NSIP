@@ -85,4 +85,14 @@ public class AuthController {
                 )))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @Operation(summary = "Generate LiveKit Voice Token", description = "Generates a short-lived token for real-time voice interaction.")
+    @GetMapping("/livekit-token")
+    public ResponseEntity<?> getLiveKitToken(@RequestParam String userId, @RequestParam(defaultValue = "hafida-room") String roomName) {
+        String token = authService.generateLiveKitToken(userId, roomName);
+        if (token.isEmpty()) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "LiveKit configuration missing on server"));
+        }
+        return ResponseEntity.ok(Map.of("token", token));
+    }
 }

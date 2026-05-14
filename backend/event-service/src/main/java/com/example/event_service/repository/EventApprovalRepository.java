@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface EventApprovalRepository extends JpaRepository<EventApproval, UUID> {
     List<EventApproval> findByEventIdOrderByActionTimestampAsc(UUID eventId);
+    java.util.Optional<EventApproval> findFirstByOrderByActionTimestampDesc();
 }

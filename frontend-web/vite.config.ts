@@ -19,9 +19,14 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': { 
-        target: 'http://localhost:8080', 
+        target: 'http://20.43.189.164', 
         changeOrigin: true,
-        secure: false
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
+            delete proxyRes.headers['www-authenticate'];
+          });
+        }
       }
     }
   }

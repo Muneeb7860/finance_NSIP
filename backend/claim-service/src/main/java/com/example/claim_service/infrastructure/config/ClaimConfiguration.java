@@ -12,7 +12,8 @@ public class ClaimConfiguration {
     @Bean
     public ClaimDomainService claimDomainService(ClaimRepositoryPort repositoryPort, 
                                                ClaimReviewerPort reviewerPort,
-                                               com.example.claim_service.application.port.out.ClaimEventPort eventPort) {
-        return new ClaimDomainService(repositoryPort, reviewerPort, eventPort);
+                                               com.example.claim_service.application.port.out.ClaimEventPort eventPort,
+                                               com.example.claim_service.application.port.out.ContributionPort contributionPort) {
+        return new ClaimDomainService(repositoryPort, reviewerPort, eventPort, contributionPort);
     }
 }

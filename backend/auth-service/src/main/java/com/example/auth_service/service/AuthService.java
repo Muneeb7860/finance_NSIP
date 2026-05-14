@@ -32,9 +32,42 @@ public class AuthService {
     // Injected from environment variable or Vault
     @org.springframework.beans.factory.annotation.Value("${jwt.secret:nsip-platform-secret-key-must-be-at-least-256-bits-long-for-hs256}")
     private String jwtSecret;
+
+    @org.springframework.beans.factory.annotation.Value("${LIVEKIT_API_KEY:}")
+    private String livekitApiKey;
+
+    @org.springframework.beans.factory.annotation.Value("${LIVEKIT_API_SECRET:}")
+    private String livekitApiSecret;
     
     private static final long ACCESS_TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
     private static final long REFRESH_TOKEN_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000; // 7 days
+
+    /**
+     * Generate a LiveKit access token for real-time voice sessions.
+     */
+    public String generateLiveKitToken(String userId, String roomName) {
+        log.info("Generating LiveKit token for user: {} in room: {}", userId, roomName);
+        if (livekitApiKey == null || livekitApiKey.isBlank()) {
+            log.error("LiveKit API Key is missing. Cannot generate token.");
+            return "";
+        }
+        
+        try {
+            io.livekit.server.AccessToken token = new io.livekit.server.AccessToken(livekitApiKey, livekitApiSecret);
+            token.setName(userId);
+            token.setIdentity(userId);
+            // Set 1-hour expiry to handle clock skew
+            token.setTtl(3600); 
+            token.addGrants(new io.livekit.server.RoomJoin(true), new io.livekit.server.RoomName(roomName));
+            
+            String jwt = token.toJwt();
+            log.debug("LiveKit JWT generated: {}", jwt);
+            return jwt;
+        } catch (Exception e) {
+            log.error("Failed to generate LiveKit token: {}", e.getMessage());
+            return "";
+        }
+    }
 
     /**
      * Register a new user with BCrypt-hashed password.

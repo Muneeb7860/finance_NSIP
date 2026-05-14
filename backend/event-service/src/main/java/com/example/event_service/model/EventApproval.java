@@ -41,6 +41,16 @@ public class EventApproval {
 
     private LocalDateTime actionTimestamp = LocalDateTime.now();
 
+    /** 
+     * Cryptographic fields for Digital Trust (Blockchain-lite).
+     * Every record is linked to the previous one via a hash chain.
+     */
+    @Column(length = 64)
+    private String previousHash;
+
+    @Column(length = 64, unique = true)
+    private String currentHash;
+
     public enum ApprovalLevel {
         L1_REVIEWER,
         L2_MANAGER,

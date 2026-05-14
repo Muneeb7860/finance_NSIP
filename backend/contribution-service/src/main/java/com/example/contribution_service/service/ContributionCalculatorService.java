@@ -4,14 +4,12 @@ import com.example.contribution_service.model.Contribution;
 import com.example.contribution_service.model.Employment;
 import org.springframework.stereotype.Service;
 
+import com.example.common.constants.CommonConstants;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
 @Service
 public class ContributionCalculatorService {
-
-    // Business Requirement: 4% of every salary every month
-    private static final BigDecimal CONTRIBUTION_RATE = new BigDecimal("0.04");
 
     public Contribution calculateMonthlyContribution(Employment employment, YearMonth month) {
         if (employment == null || employment.getCurrentSalary() == null) {
@@ -24,7 +22,7 @@ public class ContributionCalculatorService {
         
         // Calculate 4% of the salary and explicitly round to 2 decimal places (standard for currency)
         BigDecimal contributionAmount = employment.getCurrentSalary()
-                .multiply(CONTRIBUTION_RATE)
+                .multiply(CommonConstants.CONTRIBUTION_RATE)
                 .setScale(2, java.math.RoundingMode.HALF_UP);
                 
         contribution.setAmount(contributionAmount);

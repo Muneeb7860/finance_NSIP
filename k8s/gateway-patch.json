@@ -1,0 +1,38 @@
+{
+  "spec": {
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "name": "api-gateway",
+            "image": "nsipregistryv4.azurecr.io/api-gateway:latest",
+            "volumeMounts": [
+              {
+                "name": "config",
+                "mountPath": "/app/config"
+              },
+              {
+                "name": "static",
+                "mountPath": "/app/static"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "config",
+            "configMap": {
+              "name": "gateway-config-v2"
+            }
+          },
+          {
+            "name": "static",
+            "configMap": {
+              "name": "gateway-static"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
