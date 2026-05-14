@@ -1,6 +1,7 @@
 package com.example.event_service.controller;
 
-import com.example.event_service.model.*;
+import com.example.event_service.model.Event;
+import com.example.event_service.model.EventApproval;
 import com.example.event_service.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

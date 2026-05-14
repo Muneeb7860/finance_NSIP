@@ -15,6 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/learning")
 @Tag(name = "Financial Advisors", description = "Advisor self-service, booking, cancellation, and reviews")
+@SuppressWarnings("null")
 public class AdvisorController {
 
     @Autowired private AdvisorService advisorService;
