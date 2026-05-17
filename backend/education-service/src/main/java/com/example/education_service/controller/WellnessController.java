@@ -35,7 +35,7 @@ public class WellnessController {
     }
 
     @Operation(summary = "Enroll in a chronic care home assistance program")
-    @PostMapping("/enroll")
+    @PostMapping("/chronic-care/enroll")
     public ResponseEntity<?> enroll(@RequestBody Map<String, String> body) {
         UUID userId = UUID.fromString(body.get("userId"));
         UUID programId = UUID.fromString(body.get("programId"));

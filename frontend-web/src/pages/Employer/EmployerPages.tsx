@@ -99,10 +99,6 @@ export function EventProposalPage() {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ title: '', budget: '', date: '', description: '' });
 
-  useEffect(() => {
-    fetchMyEvents();
-  }, []);
-
   const fetchMyEvents = async () => {
     try {
       // Mock userId for demo
@@ -115,6 +111,10 @@ export function EventProposalPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMyEvents();
+  }, []);
 
   const handleSubmit = async () => {
     try {
@@ -131,6 +131,7 @@ export function EventProposalPage() {
       setForm({ title: '', budget: '', date: '', description: '' });
       fetchMyEvents();
     } catch (err) {
+      console.error(err);
       alert('Failed to submit proposal');
     }
   };

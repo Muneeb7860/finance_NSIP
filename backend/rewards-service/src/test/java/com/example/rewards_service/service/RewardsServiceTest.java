@@ -2,6 +2,7 @@ package com.example.rewards_service.service;
 
 import com.example.rewards_service.model.AdvisorSession;
 import com.example.rewards_service.repository.AdvisorSessionRepository;
+import com.example.rewards_service.repository.CertificateRepository;
 import com.example.rewards_service.repository.PointsLedgerRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ public class RewardsServiceTest {
 
     @Mock private PointsLedgerRepository pointsLedgerRepository;
     @Mock private AdvisorSessionRepository advisorSessionRepository;
+    @Mock private CertificateRepository certificateRepository;
     @Mock private KafkaTemplate<String, String> kafkaTemplate;
     @Spy private ObjectMapper objectMapper = new ObjectMapper();
 

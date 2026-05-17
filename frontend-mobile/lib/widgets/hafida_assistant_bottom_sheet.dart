@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/api_service.dart';
-import 'primary_card.dart';
 
 class HafidaAssistantBottomSheet extends StatefulWidget {
   const HafidaAssistantBottomSheet({super.key});
@@ -262,6 +261,7 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
 
   @override
   Widget build(BuildContext context) {
+    final isDay = AppTheme.currentThemeType == ThemeType.daylightAlabaster;
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.background.withOpacity(0.85),
@@ -269,7 +269,10 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
+        border: Border.all(
+          color: isDay ? Colors.black.withOpacity(0.08) : Colors.white.withOpacity(0.08),
+          width: 1.5,
+        ),
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
@@ -295,7 +298,7 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                           width: 40,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: Colors.white24,
+                            color: isDay ? Colors.black26 : Colors.white24,
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -327,9 +330,9 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Hafida Smart AI',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white),
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.textPrimary),
                                     ),
                                     Row(
                                       children: [
@@ -339,9 +342,9 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                                           decoration: BoxDecoration(color: AppTheme.success, shape: BoxShape.circle),
                                         ),
                                         const SizedBox(width: 6),
-                                        const Text(
+                                        Text(
                                           'Online | National Assistant',
-                                          style: TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                                          style: TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
                                         ),
                                       ],
                                     ),
@@ -349,14 +352,14 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.close_rounded, color: Colors.white60),
+                                icon: Icon(Icons.close_rounded, color: AppTheme.textSecondary),
                                 onPressed: () => Navigator.pop(context),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Divider(color: Colors.white12, height: 1),
+                        Divider(color: isDay ? Colors.black12 : Colors.white12, height: 1),
                       ],
                     ),
                   ),
@@ -389,14 +392,23 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                                             end: Alignment.bottomRight,
                                           )
                                         : null,
-                                    color: isUser ? null : AppTheme.surface.withOpacity(0.6),
+                                    color: isUser 
+                                        ? null 
+                                        : (AppTheme.currentThemeType == ThemeType.daylightAlabaster 
+                                            ? const Color(0xFFF1F5F9) 
+                                            : AppTheme.surface.withOpacity(0.6)),
                                     borderRadius: BorderRadius.only(
                                       topLeft: const Radius.circular(20),
                                       topRight: const Radius.circular(20),
                                       bottomLeft: isUser ? const Radius.circular(20) : const Radius.circular(4),
                                       bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(20),
                                     ),
-                                    border: isUser ? null : Border.all(color: Colors.white.withOpacity(0.05)),
+                                    border: isUser 
+                                        ? null 
+                                        : Border.all(
+                                            color: AppTheme.currentThemeType == ThemeType.daylightAlabaster 
+                                                ? const Color(0xFFE2E8F0) 
+                                                : Colors.white.withOpacity(0.05)),
                                   ),
                                   constraints: BoxConstraints(
                                     maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -404,7 +416,11 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                                   child: Text(
                                     msg['text'] as String,
                                     style: TextStyle(
-                                      color: isUser ? Colors.white : Colors.white.withOpacity(0.9),
+                                      color: isUser 
+                                          ? Colors.white 
+                                          : (AppTheme.currentThemeType == ThemeType.daylightAlabaster 
+                                              ? const Color(0xFF0F172A) 
+                                              : Colors.white.withOpacity(0.9)),
                                       fontSize: 14,
                                       height: 1.4,
                                     ),
@@ -459,10 +475,22 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                           child: ActionChip(
                             label: Text(
                               _suggestions[index],
-                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                color: AppTheme.currentThemeType == ThemeType.daylightAlabaster 
+                                    ? const Color(0xFF1E293B) 
+                                    : Colors.white, 
+                                fontSize: 12, 
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                            backgroundColor: AppTheme.surface.withOpacity(0.5),
-                            side: BorderSide(color: Colors.white.withOpacity(0.08)),
+                            backgroundColor: AppTheme.currentThemeType == ThemeType.daylightAlabaster 
+                                ? const Color(0xFFF1F5F9) 
+                                : AppTheme.surface.withOpacity(0.5),
+                            side: BorderSide(
+                              color: AppTheme.currentThemeType == ThemeType.daylightAlabaster 
+                                  ? const Color(0xFFE2E8F0) 
+                                  : Colors.white.withOpacity(0.08),
+                            ),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             onPressed: () => _handleSendMessage(_suggestions[index]),
                           ),
@@ -514,22 +542,22 @@ class _HafidaAssistantBottomSheetState extends State<HafidaAssistantBottomSheet>
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
                       color: AppTheme.surface.withOpacity(0.3),
-                      border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+                      border: Border(top: BorderSide(color: isDay ? Colors.black.withOpacity(0.08) : Colors.white.withOpacity(0.05))),
                     ),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
                             controller: _messageController,
-                            style: const TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(color: AppTheme.textPrimary, fontSize: 14),
                             decoration: InputDecoration(
                               hintText: _isListening ? 'Speak your request...' : 'Ask Hafida...',
-                              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                              hintStyle: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(24),
                                 borderSide: BorderSide.none,
                               ),
-                              fillColor: Colors.white.withOpacity(0.04),
+                              fillColor: isDay ? Colors.black.withOpacity(0.05) : Colors.white.withOpacity(0.04),
                               filled: true,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             ),

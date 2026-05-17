@@ -70,7 +70,8 @@ public class RewardsService {
                     else points = 37;
                     
                     description = "Completed Learning Module (Attempt #" + attemptCount + ")";
-                    issueCertificate(userId, node.get("courseName").asText(), Certificate.CertificateType.PROFESSIONAL);
+                    String course = node.has("courseName") ? node.get("courseName").asText() : "Professional Learning Module";
+                    issueCertificate(userId, course, Certificate.CertificateType.PROFESSIONAL);
                     break;
                 case "QUIZ_PASSED":
                     int score = node.has("score") ? node.get("score").asInt() : 70;
@@ -81,7 +82,8 @@ public class RewardsService {
                 case "EVENT_ATTENDED":
                     points = 200;
                     description = "Attended Community Event";
-                    issueCertificate(userId, node.get("eventName").asText(), Certificate.CertificateType.PARTICIPATION);
+                    String event = node.has("eventName") ? node.get("eventName").asText() : "Community Event";
+                    issueCertificate(userId, event, Certificate.CertificateType.PARTICIPATION);
                     break;
                 case "WEEKLY_STREAK":
                     points = CommonConstants.WEEKLY_STREAK_BONUS_PTS;

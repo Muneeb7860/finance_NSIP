@@ -32,10 +32,6 @@ export default function MarketplacePage() {
 
   const userId = '947458a5-6912-4b1e-b6db-e56cfbdc4bcc';
 
-  useEffect(() => {
-    fetchPoints();
-  }, []);
-
   const fetchPoints = async () => {
     try {
       const res = await api.getPointsBalance(userId);
@@ -44,6 +40,10 @@ export default function MarketplacePage() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchPoints();
+  }, []);
 
   const handleRedeem = async () => {
     if (!selectedPartner) return;
