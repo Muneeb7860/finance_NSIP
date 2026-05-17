@@ -12,4 +12,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     /** Only LIVE events are visible to contributors/customers. */
     List<Event> findByApprovalStatus(Event.ApprovalStatus status);
+
+    @org.springframework.data.jpa.repository.Query("SELECT e FROM Event e WHERE e.id IN :eventIds")
+    List<Event> findByIdIn(@org.springframework.data.repository.query.Param("eventIds") List<UUID> eventIds);
 }

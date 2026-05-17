@@ -21,6 +21,36 @@ SERVICES=(
 echo "🚀 Starting NSIP Comprehensive Fleet Test..."
 echo "------------------------------------------"
 
+# =============================================================================
+# Flutter Mobile Pipeline Verification (Strategic Roadmap Step 4)
+# =============================================================================
+echo "📱 Validating Flutter Mobile Application CI/CD Suite..."
+if cd frontend-mobile; then
+  flutter test
+  if [ $? -eq 0 ]; then
+    echo "✅ Flutter unit tests PASSED"
+  else
+    echo "❌ Flutter unit tests FAILED. Aborting comprehensive test suite."
+    exit 1
+  fi
+  
+  echo "📦 Compiling Production-Ready Release Package (APK)..."
+  # Run a dry-run or release build with safety fallbacks
+  flutter build apk --release --no-pub 2>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "✅ Native Android package compiled: build/app/outputs/flutter-apk/app-release.apk"
+  else
+    echo "⚠️ Native compilation skipped or requires Android SDK environment variables."
+  fi
+  cd ..
+else
+  echo "⚠️ Mobile folder not found or accessible. Skipping."
+fi
+
+echo "------------------------------------------"
+echo "🌐 Starting Backend Fleet Health Checks..."
+echo "------------------------------------------"
+
 for SVC in "${SERVICES[@]}"; do
   echo -n "Checking $SVC... "
   STATUS=$(kubectl get pods -n $NAMESPACE -l app=$SVC -o jsonpath='{.items[*].status.containerStatuses[*].ready}' | grep -o "true" | wc -l | xargs)

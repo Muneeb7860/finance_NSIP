@@ -10,6 +10,11 @@ import org.springframework.context.annotation.Configuration;
 public class ClaimConfiguration {
 
     @Bean
+    public org.springframework.web.client.RestTemplate restTemplate() {
+        return new org.springframework.web.client.RestTemplate();
+    }
+
+    @Bean
     public ClaimDomainService claimDomainService(ClaimRepositoryPort repositoryPort, 
                                                ClaimReviewerPort reviewerPort,
                                                com.example.claim_service.application.port.out.ClaimEventPort eventPort,

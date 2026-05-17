@@ -287,44 +287,44 @@ services:
     networks:
       - nsip-network
 
-  ai-agent:
-    build:
-      context: ./ai-agent
-    container_name: nsip-ai-agent
-    environment:
-      LIVEKIT_URL: ${LIVEKIT_URL}
-      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
-      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
-      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
-    volumes:
-      - ./ai-agent/credentials.json:/app/credentials.json:ro
-    networks:
-      - nsip-network
+#   ai-agent:
+#     build:
+#       context: ./ai-agent
+#     container_name: nsip-ai-agent
+#     environment:
+#       LIVEKIT_URL: ${LIVEKIT_URL}
+#       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+#       LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+#       GOOGLE_APPLICATION_CREDENTIALS: /app/credentials.json
+#     volumes:
+#       - ./ai-agent/credentials.json:/app/credentials.json:ro
+#     networks:
+#       - nsip-network
 
   # ============================================================
   # SECURITY GUARDRAILS: IMMUTABLE BACKUPS
   # ============================================================
-  db-backup:
-    image: prodrigestivill/postgres-backup-local:14-alpine
-    container_name: nsip-db-backup
-    restart: always
-    volumes:
-      - ./backups:/backups
-    environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_CLUSTER=true
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=nsip_db
-      - SCHEDULE=@daily
-      - BACKUP_KEEP_DAYS=7
-      - BACKUP_KEEP_WEEKS=4
-      - BACKUP_KEEP_MONTHS=6
-      - HEALTHCHECK_PORT=8080
-    depends_on:
-      - postgres
-    networks:
-      - nsip-network
+#   db-backup:
+#     image: prodrigestivill/postgres-backup-local:14-alpine
+#     container_name: nsip-db-backup
+#     restart: always
+#     volumes:
+#       - ./backups:/backups
+#     environment:
+#       - POSTGRES_HOST=postgres
+#       - POSTGRES_CLUSTER=true
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#       - POSTGRES_DB=nsip_db
+#       - SCHEDULE=@daily
+#       - BACKUP_KEEP_DAYS=7
+#       - BACKUP_KEEP_WEEKS=4
+#       - BACKUP_KEEP_MONTHS=6
+#       - HEALTHCHECK_PORT=8080
+#     depends_on:
+#       - postgres
+#     networks:
+#       - nsip-network
 
 volumes:
   postgres_data:

@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Layer 1: Cache parent + child POMs (only invalidated when POMs change)
@@ -24,12 +24,12 @@ COPY . .
 ARG SERVICE_NAME
 RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests -B -q
 
-# ── Runtime: Alpine JRE (60% smaller than full JDK) ──────────────────────────
-FROM eclipse-temurin:17-jre-alpine
+# ── Runtime: JRE (Multi-arch support for Apple Silicon) ──────────────────────────
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Security: run as non-root
-RUN addgroup -S nsip && adduser -S nsip -G nsip
+# Security: run as non-root (Debian syntax)
+RUN groupadd -r nsip && useradd -r -g nsip nsip
 USER nsip
 
 ARG SERVICE_NAME

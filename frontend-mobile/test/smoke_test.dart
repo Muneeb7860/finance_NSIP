@@ -6,6 +6,7 @@ void main() {
   testWidgets('NSIP Mobile App Smoke Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const NSIPMobileApp());
+    await tester.pump(const Duration(seconds: 2)); // Wait for fallback data to load without settling infinite animations
 
     // Verify that we start on the Portfolio screen
     expect(find.text('Total Portfolio Balance'), findsOneWidget);
@@ -13,7 +14,7 @@ void main() {
 
     // Tap on the Learning tab
     await tester.tap(find.byIcon(Icons.school_rounded));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Verify that we are on the Learning screen
     expect(find.text('Learning Center'), findsOneWidget);
@@ -21,7 +22,7 @@ void main() {
 
     // Tap on the Help tab
     await tester.tap(find.byIcon(Icons.help_center_rounded));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Verify that we are on the Help Centre screen
     expect(find.text('Help Centre'), findsOneWidget);

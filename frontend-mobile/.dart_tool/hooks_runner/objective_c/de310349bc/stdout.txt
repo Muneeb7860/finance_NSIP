@@ -1,0 +1,59 @@
+Running `(cd /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/; TMPDIR=/var/folders/v4/m2v1fxr56djb5296wjn7rv8h0000gn/T/ PATH=/opt/homebrew/opt/openjdk@17/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin HOME=/Users/muneeb /opt/homebrew/share/flutter/bin/cache/dart-sdk/bin/dart --packages=/Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/package_config.json /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/objective_c/de310349bc/hook.dill --config=/Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/objective_c/de310349bc/input.json )`.
+INFO: 2026-05-17 18:51:01.053108: Running `/Library/Developer/CommandLineTools/usr/bin/clang --version`.
+
+INFO: 2026-05-17 18:51:04.689710: Running `/Library/Developer/CommandLineTools/usr/bin/clang --version`.
+
+INFO: 2026-05-17 18:51:04.708655: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/src/objective_c.c -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c.c.o
+
+art_api_dl.c.o
+
+INFO: 2026-05-17 18:51:04.708821: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/test/util.c -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/test/util.c.o
+INFO: 2026-05-17 18:51:04.708916: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -x objective-c -fobjc-arc -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/src/input_stream_adapter.m -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/input_stream_adapter.m.o
+
+INFO: 2026-05-17 18:51:04.709149: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -x objective-c -fobjc-arc -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/src/objective_c.m -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c.m.o
+
+INFO: 2026-05-17 18:51:04.709538: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -x objective-c -fobjc-arc -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/src/observer.m -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/observer.m.o
+
+INFO: 2026-05-17 18:51:04.709828: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -x objective-c -fobjc-arc -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/src/protocol.m -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/protocol.m.o
+INFO: 2026-05-17 18:51:04.709912: Running: /Library/Developer/CommandLineTools/usr/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 -x objective-c -fobjc-arc -c /Users/muneeb/.pub-cache/hosted/pub.dev/objective_c-9.3.0/src/objective_c_bindings_generated.m -fpic -I src -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c_bindings_generated.m.o
+
+INFO: 2026-05-17 18:51:04.784496: 
+INFO: 2026-05-17 18:51:04.784506: 
+INFO: 2026-05-17 18:51:04.784513: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c.c.o
+
+dl.c.o
+
+INFO: 2026-05-17 18:51:04.800072: 
+INFO: 2026-05-17 18:51:04.800106: 
+INFO: 2026-05-17 18:51:04.800117: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/protocol.m.o
+
+INFO: 2026-05-17 18:51:04.801404: 
+INFO: 2026-05-17 18:51:04.801431: 
+INFO: 2026-05-17 18:51:04.801441: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/test/util.c.o
+
+INFO: 2026-05-17 18:51:04.803933: 
+INFO: 2026-05-17 18:51:04.803961: 
+INFO: 2026-05-17 18:51:04.803971: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/observer.m.o
+
+INFO: 2026-05-17 18:51:05.025375: 
+INFO: 2026-05-17 18:51:05.025410: 
+INFO: 2026-05-17 18:51:05.025420: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/ns_number.m.o
+
+INFO: 2026-05-17 18:51:05.029555: 
+INFO: 2026-05-17 18:51:05.029591: 
+INFO: 2026-05-17 18:51:05.029601: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c.m.o
+
+INFO: 2026-05-17 18:51:05.032214: 
+INFO: 2026-05-17 18:51:05.032237: 
+INFO: 2026-05-17 18:51:05.032247: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/input_stream_adapter.m.o
+
+INFO: 2026-05-17 18:51:05.044141: 
+INFO: 2026-05-17 18:51:05.044165: 
+INFO: 2026-05-17 18:51:05.044175: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c_bindings_generated.m.o
+
+INFO: 2026-05-17 18:51:05.044417: Running: /Library/Developer/CommandLineTools/usr/bin/clang -shared -Wl,-encryptable -undefined dynamic_lookup -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -target arm64-apple-darwin -mmacos-version-min=13 /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/include/dart_api_dl.c.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c.c.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/test/util.c.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/input_stream_adapter.m.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c.m.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/observer.m.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/ns_number.m.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/protocol.m.o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/obj/src/objective_c_bindings_generated.m.o -o /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/objective_c.dylib
+
+INFO: 2026-05-17 18:51:12.023061: 
+INFO: 2026-05-17 18:51:12.023130: 
+INFO: 2026-05-17 18:51:12.023167: Generated /Users/muneeb/.gemini/antigravity/frontend-mobile/.dart_tool/hooks_runner/shared/objective_c/build/de310349bc/objective_c.dylib
+

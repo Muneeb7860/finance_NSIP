@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.5.14</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -37,7 +37,7 @@
         <sonar.organization>nsip</sonar.organization>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
         <jacoco.version>0.8.12</jacoco.version>
-        <spring-boot.version>3.3.0</spring-boot.version>
+        <spring-boot.version>3.5.14</spring-boot.version>
     </properties>
 
     <dependencyManagement>

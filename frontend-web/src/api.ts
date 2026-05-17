@@ -9,10 +9,23 @@ if (import.meta.env.DEV) {
   console.log(`🚀 NSIP API Base: ${API_BASE || 'Relative (Vite Proxy)'}`);
 }
 
+const cache = new Map<string, { data: any, timestamp: number }>();
+const CACHE_DURATION_MS = 60000; // 60 seconds
+
 async function request(path: string, options?: RequestInit) {
   const token = localStorage.getItem('nsip_token');
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const isGet = !options || !options.method || options.method === 'GET';
+  const cacheKey = path;
+
+  if (isGet && cache.has(cacheKey)) {
+    const cached = cache.get(cacheKey)!;
+    if (Date.now() - cached.timestamp < CACHE_DURATION_MS) {
+      return cached.data;
+    }
+  }
 
   const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
@@ -21,7 +34,12 @@ async function request(path: string, options?: RequestInit) {
     throw new Error(error.error || `HTTP ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  if (isGet) {
+    cache.set(cacheKey, { data, timestamp: Date.now() });
+  }
+
+  return data;
 }
 
 export const api = {
